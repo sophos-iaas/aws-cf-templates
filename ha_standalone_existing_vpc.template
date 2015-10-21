@@ -662,6 +662,11 @@
         "S3Bucket" : {
             "Value" : { "Ref": "S3Bucket" },
             "Description" : "The S3 Bucket."
+        },
+        "VPCID" : {
+            "Value" : { "Ref" : "VPCID" },
+            "Description" : "The VPC of the Deployment"
         }
+
     }
 }
