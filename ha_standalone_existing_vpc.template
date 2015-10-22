@@ -57,8 +57,8 @@
             "Type": "AWS::EC2::VPC::Id"
         },
 
-        "InternetGatewayID": {
-            "Description" : "The Internet Gateway of the VPC.",
+        "GatewayID": {
+            "Description" : "The Gateway of the VPC.",
             "Type": "String"
         },
 
@@ -286,7 +286,7 @@
             "Properties" : {
                 "RouteTableId" : { "Ref" : "RouteTable" },
                 "DestinationCidrBlock" : "0.0.0.0/0",
-                "GatewayId" : { "Ref" : "InternetGatewayID" }
+                "GatewayId" : { "Ref" : "GatewayID" }
             }
         },
 

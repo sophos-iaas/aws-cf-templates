@@ -57,8 +57,8 @@
             "Type": "AWS::EC2::VPC::Id"
         },
 
-        "awsInternetGatewayID": {
-            "Description" : "The Internet Gateway of the VPC.",
+        "awsGatewayID": {
+            "Description" : "The Internet of the VPC.",
             "Type": "String"
         },
 
@@ -345,7 +345,7 @@
         "Properties" : {
         "RouteTableId" : { "Ref" : "RouteTable" },
         "DestinationCidrBlock" : "0.0.0.0/0",
-        "GatewayId" : { "Ref" : "awsInternetGatewayID" }
+        "GatewayId" : { "Ref" : "awsGatewayID" }
         }
     },
     "RouteTable" : {
@@ -471,7 +471,7 @@
         "Properties" : {
         "RouteTableId" : { "Ref" : "SwarmRouteTable" },
         "DestinationCidrBlock" : "0.0.0.0/0",
-        "GatewayId" : { "Ref" : "awsInternetGatewayID" }
+        "GatewayId" : { "Ref" : "awsGatewayID" }
         }
     },
     "SwarmNetworkAcl" : {
