@@ -1,7 +1,7 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
 
-    "Description" : "Scalable UTM cloud formation template. Please make sure that the VPC has an Internet Gateway attached.",
+    "Description" : "Scalable UTM cloud formation template. Please make sure that the VPC has a Gateway attached.",
 
     "Parameters" : {
        "basicAdminEmail": {
