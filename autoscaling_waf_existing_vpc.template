@@ -744,6 +744,7 @@
         "Metadata": { "waf": ["elb"] },
         "DependsOn": "QueenRole",
         "Properties" : {
+            "CrossZone": "true",
             "SecurityGroups" : [ { "Ref" : "LoadBalancerSecurityGroup" } ],
               "Subnets" : [{ "Ref": "SwarmSubnet1" }, { "Ref": "SwarmSubnet2" }],
                   "Listeners" : [ {
