@@ -662,8 +662,14 @@
             "Description" : "The HA Scaling group."
         },
         "S3Bucket" : {
-            "Value" : { "Ref": "S3Bucket" },
-            "Description" : "The S3 Bucket."
+          "Value" :{
+            "Fn::If": [
+              "CreateS3Bucket",
+              { "Ref": "S3Bucket" },
+              { "Ref": "ExistingS3Bucket" }
+            ]
+          },
+          "Description" : "The S3 Bucket."
         },
         "VPCID" : {
             "Value" : { "Ref" : "VPCID" },
