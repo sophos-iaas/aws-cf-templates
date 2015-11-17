@@ -614,7 +614,7 @@
         "DependsOn": "QueenRole",
         "Condition": "AllocateElasticIP",
         "Properties" : {
-        "Domain": "awsVPCID"
+        "Domain": "vpc"
         }
     },
     "S3Bucket" : {
