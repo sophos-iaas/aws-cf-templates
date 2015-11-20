@@ -763,6 +763,7 @@
 	    "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
 	    "Metadata": { "waf": ["elb"] },
 	    "Properties" : {
+        "CrossZone": "true",
 		"SecurityGroups" : [ { "Ref" : "LoadBalancerSecurityGroup" } ],
 		"Subnets" : [{ "Ref": "SwarmSubnet1" }, { "Ref": "SwarmSubnet2" }],
 		"Listeners" : [ {
