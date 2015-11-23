@@ -29,6 +29,14 @@
                 "BYOL": "ami-a22427f0",
                 "Hourly": "ami-b02427e2"
             },
+            "ap-southeast-2": {
+                "BYOL": "ami-dfcc8be5",
+                "Hourly": "ami-ebcc8bd1"
+            },
+            "eu-central-1": {
+                "BYOL": "ami-ecbe84f1",
+                "Hourly": "ami-06bf851b"
+            },
             "eu-west-1": {
                 "BYOL": "ami-b68dddc1",
                 "Hourly": "ami-e21d5395"

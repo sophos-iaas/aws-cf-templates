@@ -41,6 +41,14 @@
                 "BYOL": "ami-b89187ea",
                 "Hourly": "ami-5a3b2d08"
             },
+            "ap-southeast-2": {
+                "BYOL": "ami-af6e2695",
+                "Hourly": "ami-8d2961b7"
+            },
+            "eu-central-1": {
+                "BYOL": "ami-50acae4d",
+                "Hourly": "ami-68f6f475"
+            },
             "eu-west-1": {
                 "BYOL": "ami-7b9baf0c",
                 "Hourly": "ami-43ac9934"
@@ -63,6 +71,7 @@
             }
         }
     },
+
     "Outputs": {
         "ConfigurationSNSTopic": {
             "Description": "The SNS topic for configuration changes.",
