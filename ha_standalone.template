@@ -1,3 +1,4 @@
+
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
 
@@ -11,9 +12,16 @@
         },
 
         "AMI" : {
-            "Description" : "The UTM AMI with cloud capabilities.",
+          "Description" : "The UTM AMI with cloud capabilities. With autodetect latest ami is used based on the license type",
             "Type" : "String",
-            "Default" : "ami-3ee3e656"
+            "Default" : "autodetect"
+        },
+
+        "LicenseType": {
+            "Description": "Bring or own license or hourly billing.",
+            "Type": "String",
+            "AllowedValues": ["Hourly", "BYOL" ],
+            "Default": "BYOL"
         },
 
         "Hostname" : {
@@ -73,7 +81,7 @@
         "TrustedNetwork" : {
             "Description" : "Trusted network. Only connections from this network are allowed to ports 22 and 8080. E.g 92.198.130.0/24",
             "Type" : "String",
-            "Default" : "0.0.0.0/0"
+            "Default" : ""
         },
 
         "ExistingS3Bucket" : {
@@ -95,9 +103,52 @@
         }
     },
 
-	"Conditions" : {
-	  "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
-	  "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] }
+    "Mappings": {
+        "RegionMap":
+              {
+  "eu-west-1": {
+    "BYOL": "ami-b68dddc1",
+    "Hourly": "ami-e21d5395"
+  },
+  "ap-southeast-1": {
+    "BYOL": "ami-a22427f0",
+    "Hourly": "ami-b02427e2"
+  },
+  "ap-southeast-2": {
+    "BYOL": "ami-dfcc8be5",
+    "Hourly": "ami-ebcc8bd1"
+  },
+  "eu-central-1": {
+    "BYOL": "ami-ecbe84f1",
+    "Hourly": "ami-06bf851b"
+  },
+  "ap-northeast-1": {
+    "BYOL": "ami-d2369dd2",
+    "Hourly": "ami-d6379cd6"
+  },
+  "us-east-1": {
+    "BYOL": "ami-6da27506",
+    "Hourly": "ami-6fa27504"
+  },
+  "sa-east-1": {
+    "BYOL": "ami-f93cb0e4",
+    "Hourly": "ami-ed3cb0f0"
+  },
+  "us-west-1": {
+    "BYOL": "ami-6f40b32b",
+    "Hourly": "ami-5140b315"
+  },
+  "us-west-2": {
+    "BYOL": "ami-43777573",
+    "Hourly": "ami-5f77756f"
+  }
+}
+    },
+
+	  "Conditions" : {
+        "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
+	      "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
+	      "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] }
     },
 
     "Resources": {
@@ -533,7 +584,13 @@
             "Properties" : {
                 "AssociatePublicIpAddress" : true,
                 "IamInstanceProfile" : { "Ref" : "UTMInstanceProfile" },
-                "ImageId" : { "Ref": "AMI" },
+                "ImageId" : {
+                    "Fn::If": [
+                      "UseRegionMap",
+                      { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, { "Ref": "LicenseType" } ] },
+                      { "Ref": "AMI" }
+                    ]
+                },
                 "InstanceType" : "m3.medium",
                 "KeyName" : { "Ref" : "KeyName" },
                 "BlockDeviceMappings" : [{
