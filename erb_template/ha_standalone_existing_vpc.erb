@@ -1,4 +1,35 @@
+<%
+  require 'aws-sdk'
 
+  @region_map = {}
+  product_codes = {
+    'BYOL'  => '2xxxjwpanvt6wvbuy0bzrqed7',
+    'Hourly'=> '9xg6czodp2h82gs0tuc1sfhsn'
+  }
+  Aws.config.update(region: 'us-east-1')
+  ec2_cl = Aws::EC2::Client.new
+
+  regions = ec2_cl.describe_regions.regions.map(&:region_name)
+
+  regions.each do |region|
+    ec2_client = Aws::EC2::Client.new(region: region)
+    images = ec2_client.describe_images(
+      filters: [
+        { name: 'state', values: ['available'] },
+        { name: 'product-code', values: product_codes.values }
+      ]
+    ).images
+
+    ami_map = {}
+    product_codes.each do |name, code|
+      filtered_images = images.select { |i| i.product_codes.any? { |pc| pc.product_code_id == code  } }
+      sorted_images = filtered_images.sort_by { |i| i.creation_date }
+      ami_map[name] = sorted_images.last.image_id
+    end
+
+    @region_map[region] = ami_map
+  end
+%>
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
 
@@ -112,44 +143,10 @@
 
     "Mappings": {
         "RegionMap":
-              {
-  "eu-west-1": {
-    "BYOL": "ami-b68dddc1",
-    "Hourly": "ami-e21d5395"
-  },
-  "ap-southeast-1": {
-    "BYOL": "ami-a22427f0",
-    "Hourly": "ami-b02427e2"
-  },
-  "ap-southeast-2": {
-    "BYOL": "ami-dfcc8be5",
-    "Hourly": "ami-ebcc8bd1"
-  },
-  "eu-central-1": {
-    "BYOL": "ami-ecbe84f1",
-    "Hourly": "ami-06bf851b"
-  },
-  "ap-northeast-1": {
-    "BYOL": "ami-d2369dd2",
-    "Hourly": "ami-d6379cd6"
-  },
-  "us-east-1": {
-    "BYOL": "ami-6da27506",
-    "Hourly": "ami-6fa27504"
-  },
-  "sa-east-1": {
-    "BYOL": "ami-f93cb0e4",
-    "Hourly": "ami-ed3cb0f0"
-  },
-  "us-west-1": {
-    "BYOL": "ami-6f40b32b",
-    "Hourly": "ami-5140b315"
-  },
-  "us-west-2": {
-    "BYOL": "ami-43777573",
-    "Hourly": "ami-5f77756f"
-  }
-}
+              <%=
+                require 'json'
+                JSON.pretty_generate(@region_map)
+              %>
     },
 
     "Conditions" : {
