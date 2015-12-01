@@ -18,7 +18,7 @@
 				},
 
 				"awsLicenseType": {
-			      "Description": "Bring or own license or hourly billing.",
+			      "Description": "Bring or own license or hourly billing licensing type. This parameter has no effect, If the awsAMI parameter is set to an AMI ID.",
 			      "Type": "String",
 			      "AllowedValues": ["Hourly", "BYOL" ],
 			      "Default": "BYOL"
