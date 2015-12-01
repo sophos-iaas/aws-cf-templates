@@ -934,7 +934,8 @@
 		          { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, { "Ref": "awsLicenseType" } ] },
 		          { "Ref": "awsAMI" }
 		        ]
-		    },        "InstanceType" : "m3.medium",
+		    },
+        "InstanceType" : "m3.medium",
         "KeyName" : { "Ref" : "awsKeyName" },
         "BlockDeviceMappings" : [{
             "DeviceName" : "/dev/xvda",
