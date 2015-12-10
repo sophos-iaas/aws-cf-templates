@@ -729,7 +729,11 @@
 
     "Outputs" : {
         "PublicIPAddress" : {
-            "Value" : { "Ref" : "IPAddress" },
+            "Value" : { "Fn::If" : [
+                "AllocateElasticIP",
+                { "Ref" : "IPAddress" },
+                {"Ref":"ExistingElasticIP"}
+            ]},
             "Description" : "Use this IP to connect and to forward traffic to the UTM."
         },
         "ScalingGroup" : {
