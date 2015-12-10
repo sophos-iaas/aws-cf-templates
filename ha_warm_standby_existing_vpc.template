@@ -21,7 +21,7 @@
             "Description": "Bring your own license or hourly billing licensing type. This parameter has no effect, If the AMI parameter is set to an AMI ID.",
             "Type": "String",
             "AllowedValues": ["Hourly", "BYOL" ],
-            "Default": "BYOL"
+            "Default": "Hourly"
         },
 
         "Hostname" : {
@@ -89,8 +89,7 @@
 
         "TrustedNetwork" : {
             "Description" : "Trusted network. Only connections from this network are allowed to ports 22 and 8080. E.g 92.198.130.0/24",
-            "Type" : "String",
-            "Default" : "0.0.0.0/0"
+            "Type" : "String"
         },
 
         "ExistingS3Bucket" : {
@@ -710,7 +709,11 @@
 
     "Outputs" : {
         "PublicIPAddress" : {
-            "Value" : { "Ref" : "IPAddress" },
+            "Value" : { "Fn::If" : [
+                "AllocateElasticIP",
+                { "Ref" : "IPAddress" },
+                {"Ref":"ExistingElasticIP"}
+            ]},
             "Description" : "Use this IP to connect and to forward traffic to the UTM."
         },
         "ScalingGroup" : {
