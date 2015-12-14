@@ -103,6 +103,12 @@
                   "Default": ""
             },
 
+	"ExistingSecurityGroups" : {
+		"Description" : "Optional. A comma-separated list of security groups to assign to the new stack",
+            	"Type": "String",
+		"Default" : ""
+	},
+
         "LicensePool" : {
           "Description" : "Optional. S3 bucket where the licenses are stored",
           "Type" : "String",
@@ -155,7 +161,8 @@
     "Conditions" : {
       "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
       "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
-      "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] }
+      "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] },
+      "UseExistingSG" : { "Fn::Not" : [ { "Fn::Equals" : [{"Ref" : "ExistingSecurityGroups"}, "" ]  } ] }
     },
 
     "Resources": {
@@ -574,11 +581,19 @@
                     "DeviceName" : "/dev/sda",
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
-                "SecurityGroups" : [
-                    { "Ref": "UTMSecurityGroup" },
-                    { "Ref": "TrustedNetworkGroup" },
-                    { "Ref": "UntrustedGroup" }
-                ],
+                "SecurityGroups" : 
+		    { "Fn::If" : [ "UseExistingSG",
+		    	[ { "Ref" : "ExistingSecurityGroups" },
+                    	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
+			],
+			[
+                    	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
+			]
+		    ]},
                 "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
                     "#!/bin/bash\n",
                     "date +'UserData start %c' > /tmp/user_data.log\n",
