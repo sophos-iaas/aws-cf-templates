@@ -99,17 +99,17 @@
 			      "Default": ""
 		    },
 
-	"ExistingSecurityGroups" : {
-		"Description" : "Optional. A comma-separated list of security groups to assign to the new stack",
-            	"Type": "String",
-		"Default" : ""
-	},
+        "ExistingElasticIP" : {
+            "Description" : "Optional. The Elastic IP to assign in the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
+            "Type" :  "String",
+			 "Default": ""
+		    },
 
-	"ExistingSecurityGroups" : {
-		"Description" : "Optional. A list of security groups to assign to the new stack",
-		"Type" : "List<AWS::EC2::SecurityGroup::Id>",
-		"Default" : ""
-	},
+        "ExistingSecurityGroups" : {
+        "Description" : "Optional. A comma-separated list of security groups to assign to the new stack",
+        "Type": "String",
+        "Default" : ""
+        },
 
         "LicensePool" : {
           "Description" : "Optional. S3 bucket where the licenses are stored",
@@ -161,10 +161,10 @@
     },
 
 	  "Conditions" : {
-		"UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
-		"CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
-		"AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] },
-		"UseExistingSG" : { "Fn::Not" : [ { "Fn::Equals" : [{"Ref" : "ExistingSecurityGroups"}, "" ]  } ] }
+      "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
+		  "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
+		  "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] },
+      "UseExistingSG" : { "Fn::Not" : [ { "Fn::Equals" : [{"Ref" : "ExistingSecurityGroups"}, "" ]  } ] }
     },
 
     "Resources": {
@@ -583,18 +583,18 @@
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
                 "SecurityGroups" : 
-		    { "Fn::If" : [ "UseExistingSG",
-		    	[ { "Ref" : "ExistingSecurityGroups" },
+                  { "Fn::If" : [ "UseExistingSG",
+                      [ { "Ref" : "ExistingSecurityGroups" },
                     	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
-			],
-			[
+              			  ],
+                      [
                     	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
-			]
-		    ]},
+                      ]
+                ]},
                 "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
                     "#!/bin/bash\n",
                     "date +'UserData start %c' > /tmp/user_data.log\n",

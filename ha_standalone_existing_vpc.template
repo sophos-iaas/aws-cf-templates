@@ -103,11 +103,11 @@
                   "Default": ""
             },
 
-	"ExistingSecurityGroups" : {
-		"Description" : "Optional. A comma-separated list of security groups to assign to the new stack",
-            	"Type": "String",
-		"Default" : ""
-	},
+        "ExistingSecurityGroups" : {
+        "Description" : "Optional. A comma-separated list of security groups to assign to the new stack",
+        "Type": "String",
+        "Default" : ""
+        },
 
         "LicensePool" : {
           "Description" : "Optional. S3 bucket where the licenses are stored",
@@ -582,18 +582,18 @@
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
                 "SecurityGroups" : 
-		    { "Fn::If" : [ "UseExistingSG",
-		    	[ { "Ref" : "ExistingSecurityGroups" },
+                  { "Fn::If" : [ "UseExistingSG",
+                      [ { "Ref" : "ExistingSecurityGroups" },
                     	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
-			],
-			[
+              			  ],
+                      [
                     	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
                     	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
-			]
-		    ]},
+                      ]
+                ]},
                 "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
                     "#!/bin/bash\n",
                     "date +'UserData start %c' > /tmp/user_data.log\n",
