@@ -133,6 +133,12 @@
             "Default": ""
         },
 
+        "optionalExistingSecurityGroup" : {
+        "Description" : "Optional. A security group to assign to the new stack",
+        "Type": "String",
+        "Default" : ""
+        },
+
         "optionalLicensePool" : {
               "Description" : "Optional. S3 bucket where the licenses are stored",
               "Type" : "String",
@@ -152,7 +158,8 @@
 			"UseRegionMap" : { "Fn::Equals": [ {"Ref": "awsAMI"}, "autodetect" ] },
       "CreateS3Bucket" : { "Fn::Equals": [{"Ref" : "optionalExistingS3Bucket"}, ""] },
       "AllocateElasticIP" : { "Fn::Equals": [{"Ref" : "optionalExistingElasticIP"}, ""] },
-      "EnableLicensePool": { "Fn::Not": [ { "Fn::Equals": [{"Ref": "optionalLicensePool"}, ""] } ] }
+      "EnableLicensePool": { "Fn::Not": [ { "Fn::Equals": [{"Ref": "optionalLicensePool"}, ""] } ] },
+      "UseExistingSG" : { "Fn::Not" : [ { "Fn::Equals" : [{"Ref" : "optionalExistingSecurityGroup"}, "" ]  } ] }
     },
 
 
@@ -1073,11 +1080,19 @@
             "DeviceName" : "/dev/xvda",
             "Ebs" : { "VolumeSize" : "100" }
           }],
-        "SecurityGroups" : [
-            { "Ref": "QueenSecurityGroup" },
-            { "Ref": "TrustedNetworkGroup" },
-            { "Ref": "UntrustedGroup" }
-        ],
+        "SecurityGroups" : 
+          { "Fn::If" : [ "UseExistingSG",
+              [ { "Ref" : "optionalExistingSecurityGroup" },
+                { "Fn::GetAtt": [ "QueenSecurityGroup", "GroupId" ] },
+                { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
+                { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
+              ],
+              [
+                { "Fn::GetAtt": [ "QueenSecurityGroup", "GroupId" ] },
+                { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
+                { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
+              ]
+        ]},
         "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
             "#!/bin/bash\n",
             "date +'UserData start %c' > /tmp/user_data.log\n",
