@@ -16,6 +16,11 @@
                 },
                 ""
             ]
+        },
+        "UseRegionMap" : {
+            "Fn::Equals": [
+                    {"Ref": "AMI"}, "autodetect"
+            ]
         }
     },
     "Description": "Highly Avalaible UTM within an existing VPC",
@@ -422,6 +427,11 @@
         "VPCID": {
             "Description": "VPC to launch the deployment in.",
             "Type": "AWS::EC2::VPC::Id"
+        },
+        "AMI": {
+          "Description": "The UTM AMI with cloud capabilities. With autodetect latest ami is used based on the license type",
+          "Type": "String",
+          "Default": "autodetect"
         }
     },
     "Resources": {
@@ -875,15 +885,17 @@
                     "Ref": "UTMInstanceProfile"
                 },
                 "ImageId": {
-                    "Fn::FindInMap": [
-                        "RegionMap",
-                        {
-                            "Ref": "AWS::Region"
-                        },
-                        {
-                            "Ref": "LicenseType"
-                        }
-                    ]
+                  "Fn::If": [
+                    "UseRegionMap", {
+                      "Fn::FindInMap": ["RegionMap", {
+                        "Ref": "AWS::Region"
+                      }, {
+                        "Ref": "LicenseType"
+                      }]
+                    }, {
+                      "Ref": "AMI"
+                    }
+                  ]
                 },
                 "InstanceType": "m3.medium",
                 "KeyName": {

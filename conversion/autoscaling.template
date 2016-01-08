@@ -28,6 +28,11 @@
                     ]
                 }
             ]
+        },
+        "UseRegionMap" : {
+            "Fn::Equals": [
+                    {"Ref": "awsAMI"}, "autodetect"
+            ]
         }
     },
     "Description": "Scalable UTM cloud formation template",
@@ -156,12 +161,17 @@
             "Description": "Name of an existing EC2 KeyPair to enable SSH access.",
             "Type": "AWS::EC2::KeyPair::KeyName"
         },
+        "awsAMI" : {
+            "Description" : "The UTM AMI with cloud capabilities. With autodetect latest ami is used based on the license type",
+            "Type" : "String",
+            "Default" : "autodetect"
+        },
         "awsLicenseType": {
             "AllowedValues": [
                 "Hourly",
                 "BYOL"
             ],
-            "Description": "Bring or own license or hourly billing.",
+            "Description": "Bring or own license or hourly billing. This parameter has no effect, If the awsAMI parameter is set to an AMI ID.",
             "Type": "String"
         },
         "awsSubnetIPBlocks": {
@@ -1147,15 +1157,17 @@
                     "Ref": "QueenInstanceProfile"
                 },
                 "ImageId": {
-                    "Fn::FindInMap": [
-                        "RegionMap",
-                        {
-                            "Ref": "AWS::Region"
-                        },
-                        {
-                            "Ref": "awsLicenseType"
-                        }
-                    ]
+                  "Fn::If": [
+                    "UseRegionMap", {
+                      "Fn::FindInMap": ["RegionMap", {
+                        "Ref": "AWS::Region"
+                      }, {
+                        "Ref": "awsLicenseType"
+                      }]
+                    }, {
+                      "Ref": "awsAMI"
+                    }
+                  ]
                 },
                 "InstanceType": "m3.medium",
                 "KeyName": {
@@ -1870,15 +1882,18 @@
                     "Ref": "WorkerInstanceProfile"
                 },
                 "ImageId": {
-                    "Fn::FindInMap": [
-                        "RegionMap",
-                        {
-                            "Ref": "AWS::Region"
-                        },
-                        {
-                            "Ref": "awsLicenseType"
-                        }
-                    ]
+                  "Fn::If": [
+                    "UseRegionMap", {
+                      "Fn::FindInMap": ["RegionMap", {
+                        "Ref": "AWS::Region"
+                      }, {
+                        "Ref": "awsLicenseType"
+                      }]
+                    }, {
+                      "Ref": "awsAMI"
+                    }
+                  ]
+
                 },
                 "InstanceType": "m3.medium",
                 "KeyName": {
