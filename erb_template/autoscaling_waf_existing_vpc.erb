@@ -19,6 +19,10 @@
         { name: 'product-code', values: product_codes.values }
       ]
     ).images
+    if (images.size == 0)
+      STDERR.puts "No images found for region '#{region}'"
+      next
+    end
 
     ami_map = {}
     product_codes.each do |name, code|
