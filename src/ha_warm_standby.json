@@ -1,8 +1,7 @@
-
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
 
-    "Description" : "HA UTM cloud formation template.  Please make sure that the VPC has a Gateway attached.",
+    "Description" : "Scalable UTM cloud formation template",
 
     "Parameters" : {
         "Email": {
@@ -60,19 +59,10 @@
             "Default" : ""
         },
 
-        "VPCID" : {
-            "Description" : "VPC to launch the deployment in.",
-            "Type": "AWS::EC2::VPC::Id"
-        },
-
-        "GatewayID": {
-            "Description" : "The Gateway of the VPC.",
-            "Type": "String"
-        },
-
-        "SubnetIPBlocks" : {
-            "Description": "Two subnet CIDR blocks with the VPC.",
-            "Type": "CommaDelimitedList"
+        "NetworkPrefix" : {
+            "Description": "Please provide an available /16 Cidr Block to be used by the VPC. Please provide only the first two octets. For example for the network 10.6.0.0/16, you should provide 10.6",
+            "Type": "String",
+            "Default": "10.15"
         },
 
         "AvailabilityZone1" : {
@@ -104,12 +94,6 @@
 			 "Default": ""
 		    },
 
-        "ExistingSecurityGroup" : {
-        "Description" : "Optional. A security group to assign to the new stack",
-        "Type": "String",
-        "Default" : ""
-        },
-
         "LicensePool" : {
           "Description" : "Optional. S3 bucket where the licenses are stored",
           "Type" : "String",
@@ -118,61 +102,32 @@
     },
 
     "Mappings": {
-        "RegionMap":
-              {
-  "eu-west-1": {
-    "BYOL": "ami-b68dddc1",
-    "Hourly": "ami-e21d5395"
-  },
-  "ap-southeast-1": {
-    "BYOL": "ami-a22427f0",
-    "Hourly": "ami-b02427e2"
-  },
-  "ap-southeast-2": {
-    "BYOL": "ami-dfcc8be5",
-    "Hourly": "ami-ebcc8bd1"
-  },
-  "eu-central-1": {
-    "BYOL": "ami-ecbe84f1",
-    "Hourly": "ami-06bf851b"
-  },
-  "ap-northeast-1": {
-    "BYOL": "ami-d2369dd2",
-    "Hourly": "ami-d6379cd6"
-  },
-  "us-east-1": {
-    "BYOL": "ami-6da27506",
-    "Hourly": "ami-6fa27504"
-  },
-  "sa-east-1": {
-    "BYOL": "ami-f93cb0e4",
-    "Hourly": "ami-ed3cb0f0"
-  },
-  "us-west-1": {
-    "BYOL": "ami-6f40b32b",
-    "Hourly": "ami-5140b315"
-  },
-  "us-west-2": {
-    "BYOL": "ami-43777573",
-    "Hourly": "ami-5f77756f"
-  }
-}
+        "RegionMap": {}
     },
 
 	  "Conditions" : {
       "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
 		  "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
-		  "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] },
-      "UseExistingSG" : { "Fn::Not" : [ { "Fn::Equals" : [{"Ref" : "ExistingSecurityGroup"}, "" ]  } ] }
+		  "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] }
     },
 
     "Resources": {
 
+        "VPC" : {
+            "Type" : "AWS::EC2::VPC",
+            "Properties" : {
+                "EnableDnsSupport" : "true",
+                "EnableDnsHostnames" : "true",
+                "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "0.0/16" ] ] },
+                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+            }
+        },
+
         "Subnet1" : {
             "Type" : "AWS::EC2::Subnet",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPCID" },
-                "CidrBlock" : { "Fn::Select" : [ "0", {"Ref" : "SubnetIPBlocks"} ] },
+                "VpcId" : { "Ref" : "VPC" },
+                "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "1.0/24" ] ] },
                 "AvailabilityZone" : {"Ref": "AvailabilityZone1"},
                 "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
             }
@@ -181,17 +136,35 @@
         "Subnet2" : {
             "Type" : "AWS::EC2::Subnet",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPCID" },
-                "CidrBlock" : { "Fn::Select" : [ "1", {"Ref" : "SubnetIPBlocks"} ] },
+                "VpcId" : { "Ref" : "VPC" },
+                "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "2.0/24" ] ] },
                 "AvailabilityZone" : {"Ref": "AvailabilityZone2"},
                 "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+            }
+        },
+
+        "InternetGateway" : {
+            "Type" : "AWS::EC2::InternetGateway",
+            "Properties" : {
+                "Tags" : [
+                    {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+                    {"Key" : "Network", "Value" : "Public" }
+                ]
+            }
+        },
+
+        "AttachGateway" : {
+            "Type" : "AWS::EC2::VPCGatewayAttachment",
+            "Properties" : {
+                "VpcId" : { "Ref" : "VPC" },
+                "InternetGatewayId" : { "Ref" : "InternetGateway" }
             }
         },
 
         "RouteTable" : {
             "Type" : "AWS::EC2::RouteTable",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPCID" },
+                "VpcId" : { "Ref" : "VPC" },
                 "Tags" : [
                     {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
                     {"Key" : "Network", "Value" : "Public" }
@@ -202,7 +175,7 @@
         "PublicNetworkAcl" : {
             "Type" : "AWS::EC2::NetworkAcl",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPCID" },
+                "VpcId" : { "Ref" : "VPC" },
                 "Tags" : [
                     {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
                     {"Key" : "Network", "Value" : "Public" }
@@ -342,10 +315,11 @@
 
         "Route" : {
             "Type" : "AWS::EC2::Route",
+            "DependsOn" : "AttachGateway",
             "Properties" : {
                 "RouteTableId" : { "Ref" : "RouteTable" },
                 "DestinationCidrBlock" : "0.0.0.0/0",
-                "GatewayId" : { "Ref" : "GatewayID" }
+                "GatewayId" : { "Ref" : "InternetGateway" }
             }
         },
 
@@ -383,6 +357,7 @@
 
         "IPAddress" : {
             "Type" : "AWS::EC2::EIP",
+            "DependsOn": "AttachGateway",
             "Condition": "AllocateElasticIP",
             "Properties" : {
                 "Domain": "vpc"
@@ -469,7 +444,7 @@
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Identifying security group",
-                "VpcId" : { "Ref" : "VPCID" }
+                "VpcId" : { "Ref" : "VPC" }
             }
         },
 
@@ -483,7 +458,7 @@
                     "ToPort" : "65535",
                     "CidrIp" : { "Ref" : "TrustedNetwork"}
                   } ],
-                  "VpcId" : { "Ref" : "VPCID" }
+                  "VpcId" : { "Ref" : "VPC" }
             }
         },
 
@@ -517,7 +492,7 @@
                         "CidrIp" : "0.0.0.0/0"
                     }
                 ],
-                "VpcId" : { "Ref" : "VPCID" }
+                "VpcId" : { "Ref" : "VPC" }
             }
         },
 
@@ -581,19 +556,11 @@
                     "DeviceName" : "/dev/sda",
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
-                "SecurityGroups" : 
-                  { "Fn::If" : [ "UseExistingSG",
-                      [ { "Ref" : "ExistingSecurityGroup" },
-                    	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
-                    	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
-                    	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
-              			  ],
-                      [
-                    	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
-                    	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
-                    	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
-                      ]
-                ]},
+                "SecurityGroups" : [
+                    { "Ref": "UTMSecurityGroup" },
+                    { "Ref": "TrustedNetworkGroup" },
+                    { "Ref": "UntrustedGroup" }
+                ],
                 "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
                     "#!/bin/bash\n",
                     "date +'UserData start %c' > /tmp/user_data.log\n",
@@ -723,15 +690,15 @@
     },
 
     "Outputs" : {
-        "PublicIPAddress" : {
-            "Value" : { "Fn::If" : [
-                "AllocateElasticIP",
-                { "Ref" : "IPAddress" },
-                {"Ref":"ExistingElasticIP"}
-            ]},
-            "Description" : "Use this IP to connect and to forward traffic to the UTM."
-        },
-        "ScalingGroup" : {
+      "PublicIPAddress" : {
+          "Value" : { "Fn::If" : [
+              "AllocateElasticIP",
+              { "Ref" : "IPAddress" },
+              {"Ref":"ExistingElasticIP"}
+          ]},
+          "Description" : "Use this IP to connect and to forward traffic to the UTM."
+      },
+      "ScalingGroup" : {
             "Value" : { "Ref": "UTMScalingGroup" },
             "Description" : "The HA Scaling group."
         },
@@ -746,8 +713,9 @@
           "Description" : "The S3 Bucket."
         },
         "VPCID" : {
-            "Value" : { "Ref" : "VPCID" },
-            "Description" : "The VPC of the deployment."
+            "Value" : { "Ref" : "VPC" },
+            "Description" : "The VPC of the deployment"
         }
+
     }
 }

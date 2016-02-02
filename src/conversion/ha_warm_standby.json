@@ -1,8 +1,7 @@
-
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
 
-    "Description" : "Scalable UTM cloud formation template",
+    "Description" : "HA UTM cloud formation template.  Please make sure that the VPC has a Gateway attached.",
 
     "Parameters" : {
         "Email": {
@@ -40,7 +39,7 @@
         "Country" : {
           "Description" : "Country",
           "Type" : "String",
-          "AllowedValues" : ["Andorra","United Arab Emirates","Afghanistan","Antigua and Barbuda","Anguilla","Albania","Armenia","Netherlands Antilles", "Angola", "Antarctica","Argentina","American Samoa","Austria","Australia","Aland Islands","Aruba","Azerbaidjan","Bosnia and Herzegovina", "Barbados", "Bangladesh", "Belgium","Burkina Faso","Bulgaria","Bahrain","Burundi","Benin","Saint Barthelemey","Bermuda","Brunei Darussalam", "Bolivia", "Brazil", "Bahamas", "Bhutan","Bouvet Island","Botswana","Belarus","Belize","Canada","Cocos Islands","Congo, Democratic Rebpulic of the","Central African Republic", "Congo","Switzerland","Ivory Coast","Cook Islands","Chile","Cameroon","China","Colombia","Costa Rica","Cuba","Cape Verde","Christmas Island", "Cyprus","Czech Republic","Germany","Djibouti","Denmark","Dominica","Dominican Republic", "Algeria", "Ecuador", "Estonia", "Egypt", "Western Sahara", "Eritrea","Spain","Ethiopia","Finland","Fiji","Falkland Islands","Micronesia","Faroe Islands","France","Gabon","Great Britain", "Grenada", "Georgia", "French Guyana", "Guernsey", "Ghana", "Gibraltar", "Greenland"," Gambia", "Guinea", "Guadeloupe","Equatorial Guinea","Greece","S. Georgia & S. Sandwich Isls.", "Guatemala","Guam (USA)","Guinea Bissau","Guyana","Hong Kong","Heard and McDonald Islands", "Honduras", "Croatia", "Haiti", "Hungary", "Indonesia","Ireland","Israel","Isle of Man","India","British Indian Ocean Territory", "Iraq", "Iran", "Iceland", "Italy", "Jersey", "Jamaica", "Jordan","Japan","Kenya","Kyrgyz Republic (Kyrgyzstan)","Cambodia, Kingdom of","Kiribati","Comoros","Saint Kitts & Nevis Anguilla","North Korea", "South Korea","Kuwait","Cayman Islands","Kazakhstan","Laos","Lebanon","Saint Lucia","Liechtenstein","Sri Lanka", "Liberia", "Lesotho", "Lithuania", "Luxembourg","Latvia","Libya","Morocco","Monaco","Moldavia","Montenegro","Saint Martin (French)","Madagascar", "Marshall Islands", "Macedonia", "Mali","Myanmar","Mongolia","Macau","Northern Mariana Islands","Martinique (French)","Mauritania", "Montserrat", "Malta", "Mauritius", "Maldives", "Malawi","Mexico","Malaysia","Mozambique","Namibia","New Caledonia (French)","Niger","Norfolk Island", "Nigeria", "Nicaragua", "Netherlands", "Norway","Nepal","Nauru","Niue","New Zealand","Oman","Panama","Peru","Polynesia (French)","Papua New Guinea", "Philippines", "Pakistan", "Poland","Saint Pierre and Miquelon","Pitcairn Island","Puerto Rico","Palestinian Territory (Occupied)","Portugal", "Palau", "Paraguay", "Qatar", "Reunion (French)","Romania","Serbia","Russian Federation","Rwanda","Saudi Arabia","Solomon Islands", "Seychelles", "Sudan", "Sweden", "Singapore","Saint Helena","Slovenia","Svalbard Jan Mayen Islands","Slovak Republic","Sierra Leone","San Marino", "Senegal", "Somalia", "Suriname", "Saint Tome and Principe","El Salvador","Syria","Swaziland","Turks and Caicos Islands","Chad","French Southern Territories", "Togo", "Thailand", "Tadjikistan", "Tokelau","Timor-Leste","Turkmenistan","Tunisia","Tonga","Turkey","Trinidad and Tobago", "Tuvalu", "Taiwan", "Tanzania", "Ukraine", "Uganda", "United Kingdom","USA Minor Outlying Islands","United States","Uruguay","Uzbekistan","Holy See (Vatican City State)","Saint Vincent & Grenadines", "Venezuela","Virgin Islands (British)","Virgin Islands (USA)","Vietnam","Vanuatu","Wallis and Futuna Islands", "Samoa", "Yemen", "Mayotte","South Africa","Zambia","Zimbabwe"]
+          "AllowedValues" : ["Andorra","United Arab Emirates","Afghanistan","Antigua and Barbuda","Anguilla","Albania","Armenia","Netherlands Antilles", "Angola", "Antarctica","Argentina","American Samoa","Austria","Australia","Aland Islands","Aruba","Azerbaidjan","Bosnia and Herzegovina", "Barbados", "Bangladesh", "Belgium","Burkina Faso","Bulgaria","Bahrain","Burundi","Benin","Saint Barthelemey","Bermuda","Brunei Darussalam", "Bolivia", "Brazil", "Bahamas", "Bhutan","Bouvet Island","Botswana","Belarus","Belize","Canada","Cocos Islands","Congo, Democratic Rebpulic of the","Central African Republic", "Congo","Switzerland","Ivory Coast","Cook Islands","Chile","Cameroon","China","Colombia","Costa Rica","Cuba","Cape Verde","Christmas Island", "Cyprus","Czech Republic","Germany","Djibouti","Denmark","Dominica","Dominican Republic", "Algeria", "Ecuador", "Estonia", "Egypt", "Western Sahara", "Eritrea","Spain","Ethiopia","Finland","Fiji","Falkland Islands","Micronesia","Faroe Islands","France","Gabon","Great Britain", "Grenada", "Georgia", "French Guyana", "Guernsey", "Ghana", "Gibraltar", "Greenland"," Gambia", "Guinea", "Guadeloupe","Equatorial Guinea","Greece","S. Georgia & S. Sandwich Isls.", "Guatemala","Guam (USA)","Guinea Bissau","Guyana","Hong Kong","Heard and McDonald Islands", "Honduras", "Croatia", "Haiti", "Hungary", "Indonesia","Ireland","Israel","Isle of Man","India","British Indian Ocean Territory", "Iraq", "Iran", "Iceland", "Italy", "Jersey", "Jamaica", "Jordan","Japan","Kenya","Kyrgyz Republic (Kyrgyzstan)","Cambodia, Kingdom of","Kiribati","Comoros","Saint Kitts & Nevis Anguilla","North Korea", "South Korea","Kuwait","Cayman Islands","Kazakhstan","Laos","Lebanon","Saint Lucia","Liechtenstein","Sri Lanka", "Liberia", "Lesotho", "Lithuania", "Luxembourg","Latvia","Libya","Morocco","Monaco","Moldavia","Montenegro","Saint Martin (French)","Madagascar", "Marshall Islands", "Macedonia", "Mali","Myanmar","Mongolia","Macau","Northern Mariana Islands","Martinique (French)","Mauritania", "Montserrat", "Malta", "Mauritius", "Maldives", "Malawi","Mexico","Malaysia","Mozambique","Namibia","New Caledonia (French)","Niger","Norfolk Island", "Nigeria", "Nicaragua", "Netherlands", "Norway","Nepal","Nauru","Niue","New Zealand","Oman","Panama","Peru","Polynesia (French)","Papua New Guinea", "Philippines", "Pakistan", "Poland","Saint Pierre and Miquelon","Pitcairn Island","Puerto Rico","Palestinian Territory (Occupied)","Portugal", "Palau", "Paraguay", "Qatar", "Reunion (French)","Romania","Serbia","Russian Federation","Rwanda","Saudi Arabia","Solomon Islands", "Seychelles", "Sudan", "Sweden", "Singapore", "Saint Helena","Slovenia","Svalbard Jan Mayen Islands","Slovak Republic","Sierra Leone","San Marino", "Senegal", "Somalia", "Suriname", "Saint Tome and Principe","El Salvador","Syria","Swaziland","Turks and Caicos Islands","Chad","French Southern Territories", "Togo", "Thailand", "Tadjikistan", "Tokelau","Timor-Leste","Turkmenistan","Tunisia","Tonga","Turkey","Trinidad and Tobago", "Tuvalu", "Taiwan", "Tanzania", "Ukraine", "Uganda", "United Kingdom","USA Minor Outlying Islands","United States","Uruguay","Uzbekistan","Holy See (Vatican City State)","Saint Vincent & Grenadines", "Venezuela","Virgin Islands (British)","Virgin Islands (USA)","Vietnam","Vanuatu","Wallis and Futuna Islands", "Samoa", "Yemen", "Mayotte", "South Africa","Zambia","Zimbabwe"]
         },
 
         "AdminPassword" : {
@@ -60,10 +59,19 @@
             "Default" : ""
         },
 
-        "NetworkPrefix" : {
-            "Description": "Please provide an available /16 Cidr Block to be used by the VPC. Please provide only the first two octets. For example for the network 10.6.0.0/16, you should provide 10.6",
-            "Type": "String",
-            "Default": "10.15"
+        "VPCID" : {
+            "Description" : "VPC to launch the deployment in.",
+            "Type": "AWS::EC2::VPC::Id"
+        },
+
+        "GatewayID": {
+            "Description" : "The Gateway of the VPC.",
+            "Type": "String"
+        },
+
+        "SubnetIPBlocks" : {
+            "Description": "Two subnet CIDR blocks with the VPC.",
+            "Type": "CommaDelimitedList"
         },
 
         "AvailabilityZone1" : {
@@ -92,8 +100,14 @@
         "ExistingElasticIP" : {
             "Description" : "Optional. The Elastic IP to assign in the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
             "Type" :  "String",
-			      "Default": ""
+			 "Default": ""
 		    },
+
+        "ExistingSecurityGroup" : {
+        "Description" : "Optional. A security group to assign to the new stack",
+        "Type": "String",
+        "Default" : ""
+        },
 
         "LicensePool" : {
           "Description" : "Optional. S3 bucket where the licenses are stored",
@@ -103,71 +117,24 @@
     },
 
     "Mappings": {
-        "RegionMap":
-              {
-  "eu-west-1": {
-    "BYOL": "ami-b68dddc1",
-    "Hourly": "ami-e21d5395"
-  },
-  "ap-southeast-1": {
-    "BYOL": "ami-a22427f0",
-    "Hourly": "ami-b02427e2"
-  },
-  "ap-southeast-2": {
-    "BYOL": "ami-dfcc8be5",
-    "Hourly": "ami-ebcc8bd1"
-  },
-  "eu-central-1": {
-    "BYOL": "ami-ecbe84f1",
-    "Hourly": "ami-06bf851b"
-  },
-  "ap-northeast-1": {
-    "BYOL": "ami-d2369dd2",
-    "Hourly": "ami-d6379cd6"
-  },
-  "us-east-1": {
-    "BYOL": "ami-6da27506",
-    "Hourly": "ami-6fa27504"
-  },
-  "sa-east-1": {
-    "BYOL": "ami-f93cb0e4",
-    "Hourly": "ami-ed3cb0f0"
-  },
-  "us-west-1": {
-    "BYOL": "ami-6f40b32b",
-    "Hourly": "ami-5140b315"
-  },
-  "us-west-2": {
-    "BYOL": "ami-43777573",
-    "Hourly": "ami-5f77756f"
-  }
-}
+        "RegionMap": {}
     },
 
 	  "Conditions" : {
-        "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
-	      "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
-	      "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] }
+      "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
+		  "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
+		  "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] },
+      "UseExistingSG" : { "Fn::Not" : [ { "Fn::Equals" : [{"Ref" : "ExistingSecurityGroup"}, "" ]  } ] }
     },
 
     "Resources": {
 
-        "VPC" : {
-            "Type" : "AWS::EC2::VPC",
-            "Properties" : {
-                "EnableDnsSupport" : "true",
-                "EnableDnsHostnames" : "true",
-                "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "0.0/16" ] ] },
-                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
-            }
-        },
-
         "Subnet1" : {
             "Type" : "AWS::EC2::Subnet",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPC" },
-                "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "1.0/24" ] ] },
-                "AvailabilityZone" : { "Ref": "AvailabilityZone1"},
+                "VpcId" : { "Ref" : "VPCID" },
+                "CidrBlock" : { "Fn::Select" : [ "0", {"Ref" : "SubnetIPBlocks"} ] },
+                "AvailabilityZone" : {"Ref": "AvailabilityZone1"},
                 "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
             }
         },
@@ -175,35 +142,17 @@
         "Subnet2" : {
             "Type" : "AWS::EC2::Subnet",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPC" },
-                "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "2.0/24" ] ] },
-                "AvailabilityZone" : { "Ref": "AvailabilityZone2"},
+                "VpcId" : { "Ref" : "VPCID" },
+                "CidrBlock" : { "Fn::Select" : [ "1", {"Ref" : "SubnetIPBlocks"} ] },
+                "AvailabilityZone" : {"Ref": "AvailabilityZone2"},
                 "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
-            }
-        },
-
-        "InternetGateway" : {
-            "Type" : "AWS::EC2::InternetGateway",
-            "Properties" : {
-                "Tags" : [
-                    {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
-                    {"Key" : "Network", "Value" : "Public" }
-                ]
-            }
-        },
-
-        "AttachGateway" : {
-            "Type" : "AWS::EC2::VPCGatewayAttachment",
-            "Properties" : {
-                "VpcId" : { "Ref" : "VPC" },
-                "InternetGatewayId" : { "Ref" : "InternetGateway" }
             }
         },
 
         "RouteTable" : {
             "Type" : "AWS::EC2::RouteTable",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPC" },
+                "VpcId" : { "Ref" : "VPCID" },
                 "Tags" : [
                     {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
                     {"Key" : "Network", "Value" : "Public" }
@@ -214,7 +163,7 @@
         "PublicNetworkAcl" : {
             "Type" : "AWS::EC2::NetworkAcl",
             "Properties" : {
-                "VpcId" : { "Ref" : "VPC" },
+                "VpcId" : { "Ref" : "VPCID" },
                 "Tags" : [
                     {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
                     {"Key" : "Network", "Value" : "Public" }
@@ -354,11 +303,10 @@
 
         "Route" : {
             "Type" : "AWS::EC2::Route",
-            "DependsOn" : "AttachGateway",
             "Properties" : {
                 "RouteTableId" : { "Ref" : "RouteTable" },
                 "DestinationCidrBlock" : "0.0.0.0/0",
-                "GatewayId" : { "Ref" : "InternetGateway" }
+                "GatewayId" : { "Ref" : "GatewayID" }
             }
         },
 
@@ -396,7 +344,6 @@
 
         "IPAddress" : {
             "Type" : "AWS::EC2::EIP",
-            "DependsOn": "AttachGateway",
             "Condition": "AllocateElasticIP",
             "Properties" : {
                 "Domain": "vpc"
@@ -483,7 +430,7 @@
             "Type" : "AWS::EC2::SecurityGroup",
             "Properties" : {
                 "GroupDescription" : "Identifying security group",
-                "VpcId" : { "Ref" : "VPC" }
+                "VpcId" : { "Ref" : "VPCID" }
             }
         },
 
@@ -497,7 +444,7 @@
                     "ToPort" : "65535",
                     "CidrIp" : { "Ref" : "TrustedNetwork"}
                   } ],
-                  "VpcId" : { "Ref" : "VPC" }
+                  "VpcId" : { "Ref" : "VPCID" }
             }
         },
 
@@ -531,7 +478,7 @@
                         "CidrIp" : "0.0.0.0/0"
                     }
                 ],
-                "VpcId" : { "Ref" : "VPC" }
+                "VpcId" : { "Ref" : "VPCID" }
             }
         },
 
@@ -545,20 +492,19 @@
                 }
             },
             "Properties" : {
-                "DesiredCapacity" : "1",
+                "DesiredCapacity" : "2",
                 "MaxSize" : "2",
-                "MinSize" : "0",
+                "MinSize" : "1",
                 "TerminationPolicies" : [
-                  "NewestInstance",
-                  "Default"
+                  "NewestInstance"
                 ],
                 "VPCZoneIdentifier" : [
                     { "Ref" : "Subnet1" },
                     { "Ref" : "Subnet2" }
                 ],
                 "AvailabilityZones" : [
-                    { "Ref": "AvailabilityZone1"},
-                    { "Ref": "AvailabilityZone2"}
+                    {"Ref": "AvailabilityZone1"},
+                    {"Ref": "AvailabilityZone2"}
                 ],
                 "LaunchConfigurationName" : {"Ref": "UTMLaunchConfiguration"},
                 "NotificationConfiguration" : {
@@ -596,17 +542,25 @@
                     "DeviceName" : "/dev/sda",
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
-                "SecurityGroups" : [
-                    { "Ref": "UTMSecurityGroup" },
-                    { "Ref": "TrustedNetworkGroup" },
-                    { "Ref": "UntrustedGroup" }
-                ],
+                "SecurityGroups" : 
+                  { "Fn::If" : [ "UseExistingSG",
+                      [ { "Ref" : "ExistingSecurityGroup" },
+                    	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
+              			  ],
+                      [
+                    	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "TrustedNetworkGroup", "GroupId" ] },
+                    	  { "Fn::GetAtt": [ "UntrustedGroup", "GroupId" ] }
+                      ]
+                ]},
                 "UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
                     "#!/bin/bash\n",
                     "date +'UserData start %c' > /tmp/user_data.log\n",
                     "echo 'version: \"0.1.0\"' >> /etc/cloud/user_data.yml\n",
-                    "echo 'instance_role: \"ha\"' >> /etc/cloud/user_data.yml\n",
-                    "echo 'deployment_type: \"ha_standalone\"' >> /etc/cloud/user_data.yml\n",
+                    "echo 'instance_role: \"ha_standalone\"' >> /etc/cloud/user_data.yml\n",
+                    "echo 'deployment_type: \"ha_warm_standby\"' >> /etc/cloud/user_data.yml\n",
                     "echo 'license_pool: \"", { "Ref": "LicensePool" }, "\"' >> /etc/cloud/user_data.yml\n",
                     "echo 'region: \"", { "Ref": "AWS::Region" }, "\"' >> /etc/cloud/user_data.yml\n",
 
@@ -753,8 +707,8 @@
           "Description" : "The S3 Bucket."
         },
         "VPCID" : {
-            "Value" : { "Ref" : "VPC" },
-            "Description" : "The VPC of the Deployment"
+            "Value" : { "Ref" : "VPCID" },
+            "Description" : "The VPC of the deployment."
         }
     }
 }
