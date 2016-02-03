@@ -1,4 +1,3 @@
-
 ## Configuration
 VERSION = 9.370
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
@@ -12,35 +11,39 @@ VERSIONDIR = templates/conversion/$(VERSION)
 TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
 CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
 
+## bins
+BUNDLE_EXEC = bundle exec
+FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
+BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 
 all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES)
 
 # Always rebuild region maps
 $(HA_REGIONMAP): tmp
 	@echo Building HA regionmap
-	@./bin/fetch_regionmap $(HA_ARGS) --out $@
+	@$(FETCH_REGIONMAP) $(HA_ARGS) --out $@
 
 $(AUTOSCALING_REGIONMAP): tmp
-	@echo Building Autoscaling regionmap
-	@./bin/fetch_regionmap $(AUTOSCALING_ARGS) --out $@
+	@echo Building Autoscaling RegionMap
+	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 
 # Overwrite autoscaling target to use autoscaling region map
 templates/autoscaling_waf.template: src/autoscaling_waf.json $(AUTOSCALING_REGIONMAP)
 	@echo building $@
-	@./bin/build_template --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
 
 templates/%.template: src/%.json $(HA_REGIONMAP)
 	@echo building $@
-	@./bin/build_template --in $< --regionmap $(HA_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
 # Overwrite autoscaling target to use autoscaling region map
 templates/conversion/$(VERSION)/autoscaling.template: src/conversion/autoscaling.json $(AUTOSCALING_REGIONMAP)
 	@echo building $@
-	@./bin/build_template --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
 
 templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP)
 	@echo building $@
-	@./bin/build_template --in $< --regionmap $(HA_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
 # Create new version directory if one for current version does not exist
 $(VERSIONDIR):
