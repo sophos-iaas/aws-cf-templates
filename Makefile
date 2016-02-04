@@ -45,15 +45,15 @@ templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
-# Create new version directory if one for current version does not exist
+# Create new version directory, if previous doesn't exist
 $(VERSIONDIR):
 	@echo Creating new conversion release directory
-	@mkdir $@
-	@ln -f -s -r $@ templates/conversion/current
+	@mkdir -p $@
+	@ln -n -r -s -f $@ templates/conversion/current
 
 #tmp dir is not in git and empty. Must be created if it does not exist yet
 tmp:
 	@mkdir $@
 
 
-.PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP)
+.PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR)
