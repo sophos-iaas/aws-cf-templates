@@ -3,6 +3,9 @@ VERSION = 9.375
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
 
+# set to 1 to use devel amis in region/ami map
+DEVEL :=
+
 ## file sets
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
@@ -19,6 +22,7 @@ BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES)
 
 # Always rebuild region maps
+ifndef DEVEL
 $(HA_REGIONMAP): tmp
 	@echo Building HA regionmap
 	@$(FETCH_REGIONMAP) $(HA_ARGS) --out $@
@@ -26,6 +30,14 @@ $(HA_REGIONMAP): tmp
 $(AUTOSCALING_REGIONMAP): tmp
 	@echo Building Autoscaling RegionMap
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
+else
+# Only for development: using newest amis from verdi/aws branch;
+# always build both maps with one run.
+.PHONY: create_maps
+$(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP): $(sort $(dir $(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP))) create_maps
+create_maps:
+	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --ha-out $(HA_REGIONMAP) --autoscaling-out $(AUTOSCALING_REGIONMAP)
+endif
 
 # Overwrite autoscaling target to use autoscaling region map
 templates/autoscaling_waf.template: src/autoscaling_waf.json $(AUTOSCALING_REGIONMAP)
