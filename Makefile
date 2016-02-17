@@ -2,6 +2,7 @@
 VERSION = 9.375
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
+DEVEL_OWNER := 159737981378
 
 # set to 1 to use devel amis in region/ami map
 DEVEL :=
@@ -31,12 +32,20 @@ $(AUTOSCALING_REGIONMAP): tmp
 	@echo Building Autoscaling RegionMap
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 else
-# Only for development: using newest amis from verdi/aws branch;
-# always build both maps with one run.
-.PHONY: create_maps
-$(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP): $(sort $(dir $(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP))) create_maps
-create_maps:
-	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --ha-out $(HA_REGIONMAP) --autoscaling-out $(AUTOSCALING_REGIONMAP)
+
+# Only for development: using the newest amis
+# We don't use capture groups in the regex, so the sort (for 'newest') is using the
+# entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
+# Using verdi branch (axg*_verdi) for HA
+$(HA_REGIONMAP): $(dir $(HA_REGIONMAP))
+	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+            --BYOL '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+
+# Using aws branch (asg*_aws) for Autoscaling
+$(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
+	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+	    --BYOL '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+
 endif
 
 # Overwrite autoscaling target to use autoscaling region map

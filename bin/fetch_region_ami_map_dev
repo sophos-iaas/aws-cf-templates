@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
-# Create maps from region to the newest HA or Autoscaling ami and
-# write it as json to file, only BYOL amis are taken into account.
+require 'slop'
+require 'json'
+require 'aws-sdk'
+
+# Create maps from region to the newest ami and write it as json to stdout.
 # example:
 # {
 #   "ap-southeast-2": {
@@ -12,21 +15,9 @@
 #   }
 # }
 
-require 'slop'
-require 'json'
-require 'aws-sdk'
-
-AWS_DEVEL_OWNER = '159737981378'
-
-def dump_map_file(data, filename)
-  file = File.new(filename, File::CREAT|File::TRUNC|File::RDWR)
-  file.write(JSON.pretty_generate(data))
-  file.close
-end
-
-# find the newest ami (assuming lexicographical order of name)
-# in images matching regex in name and insert the ami-id in
-# the region/ami map
+# Find the newest ami in images with name matching regex.
+# If the regex contains captures groups (), sort by this, else with the entire name.
+# Insert the ami-id in the region/ami map.
 def insert_latest_ami_map(images, regex, map, region, key)
 
   selected_images = images.select do |image|
@@ -34,30 +25,32 @@ def insert_latest_ami_map(images, regex, map, region, key)
   end
 
   latest_ami = selected_images.sort_by do |aa|
-    aa.name
+    aa.name.scan(regex)
   end.last
 
   if (latest_ami)
+    STDERR.puts "#{$0}:   --> #{latest_ami.name}"
     map[region] = {key => latest_ami.image_id}
   end
 end
 
 begin
   opts = Slop.parse do |o|
-    o.string '--ha-out', 'ha-map-output-file'
-    o.string '--autoscaling-out', 'autoscaling-map-output-file'
+    o.string '--BYOL', 'regex for the byol amis, maybe with capture groups for limited sorting parts'
+    o.string '--owner', 'only search for amis with this owner_id'
     o.on '-h', '--help' do
       puts o
       exit
     end
   end
-  unless (opts[:ha_out] || opts[:autoscaling_out])
+  unless (opts[:BYOL])
     puts opts
     exit 1
   end
 
-  ha_ami_map = {}
-  autoscaling_ami_map = {}
+  STDERR.puts "#{$0}: Warning: owner is not set, it may take a long time" unless opts[:owner]
+
+  region_ami_map = {}   # the reponse map
 
   ec2_client = Aws::EC2::Client.new(region:'us-east-1')
   all_regions = ec2_client.describe_regions.regions.map(&:region_name)
@@ -66,26 +59,14 @@ begin
     STDERR.puts "#{$0}: searching in region = #{region_name}"
 
     dev_images = Aws::EC2::Client.new(region: region_name).describe_images({
-           owners: [AWS_DEVEL_OWNER],
+           owners: opts[:owner] ? [opts[:owner]] : nil,
            filters: [
              { name: 'state', values: ['available'] },
            ],
         }).images
 
-    # using verdi branch, ami names like axg9400_verdi-asg-9.375-20160212.3_64_ebs_byol
-    insert_latest_ami_map(dev_images, /^axg\d+_verdi-asg-\d+\.\d+-(\d+)\.(\d+)_64_ebs_byol$/,
-                          ha_ami_map, region_name, 'BYOL')
-    # using aws branch, ami names like axg9350_aws-asg-9.354-20160215.1_64_ebs_byol
-    insert_latest_ami_map(dev_images, /^axg\d+_aws-asg-\d+\.\d+-(\d+)\.(\d+)_64_ebs_byol$/,
-                          autoscaling_ami_map, region_name, 'BYOL')
+    insert_latest_ami_map(dev_images, /#{opts[:BYOL]}/, region_ami_map, region_name, 'BYOL')
   end
 
-  if opts[:ha_out]
-    dump_map_file(ha_ami_map, opts[:ha_out])
-    STDERR.puts "#{$0}: file '#{opts[:ha_out]}' written"
-  end
-  if opts[:autoscaling_out]
-    dump_map_file(autoscaling_ami_map, opts[:autoscaling_out])
-    STDERR.puts "#{$0}: file '#{opts[:autoscaling_out]}' written"
-  end
+  STDOUT.write(JSON.pretty_generate(region_ami_map))
 end
