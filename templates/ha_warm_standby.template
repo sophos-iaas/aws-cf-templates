@@ -336,39 +336,48 @@
     "RegionMap": {
       "eu-west-1": {
         "BYOL": "ami-b68dddc1",
-        "Hourly": "ami-e21d5395"
+        "Hourly": "ami-e21d5395",
+        "InstanceType": "m3.medium"
       },
       "ap-southeast-1": {
         "BYOL": "ami-a22427f0",
-        "Hourly": "ami-b02427e2"
+        "Hourly": "ami-b02427e2",
+        "InstanceType": "m3.medium"
       },
       "ap-southeast-2": {
         "BYOL": "ami-dfcc8be5",
-        "Hourly": "ami-ebcc8bd1"
+        "Hourly": "ami-ebcc8bd1",
+        "InstanceType": "m3.medium"
       },
       "eu-central-1": {
         "BYOL": "ami-ecbe84f1",
-        "Hourly": "ami-06bf851b"
+        "Hourly": "ami-06bf851b",
+        "InstanceType": "m3.medium"
       },
       "ap-northeast-1": {
         "BYOL": "ami-d2369dd2",
-        "Hourly": "ami-d6379cd6"
+        "Hourly": "ami-d6379cd6",
+        "InstanceType": "m3.medium"
       },
       "us-east-1": {
         "BYOL": "ami-6da27506",
-        "Hourly": "ami-6fa27504"
+        "Hourly": "ami-6fa27504",
+        "InstanceType": "m3.medium"
       },
       "sa-east-1": {
         "BYOL": "ami-f93cb0e4",
-        "Hourly": "ami-ed3cb0f0"
+        "Hourly": "ami-ed3cb0f0",
+        "InstanceType": "m3.medium"
       },
       "us-west-1": {
         "BYOL": "ami-6f40b32b",
-        "Hourly": "ami-5140b315"
+        "Hourly": "ami-5140b315",
+        "InstanceType": "m3.medium"
       },
       "us-west-2": {
         "BYOL": "ami-43777573",
-        "Hourly": "ami-5f77756f"
+        "Hourly": "ami-5f77756f",
+        "InstanceType": "m3.medium"
       }
     }
   },
@@ -1016,7 +1025,15 @@
             }
           ]
         },
-        "InstanceType": "m3.medium",
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "RegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            "InstanceType"
+          ]
+        },
         "KeyName": {
           "Ref": "KeyName"
         },
