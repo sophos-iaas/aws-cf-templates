@@ -5,6 +5,11 @@ require 'aws-sdk'
 
 module TemplateHelper
   class RegionMap
+    INSTANCE_TYPES = {
+      'ap-northeast-2' => 'c4.large',
+      'default' => 'm3.medium'
+    }
+
     def initialize(product_codes)
       @region_map = {}
       build_map(product_codes)
@@ -47,6 +52,7 @@ module TemplateHelper
         end
 
         @region_map[region] = ami_map
+        @region_map[region]['InstanceType'] = INSTANCE_TYPES[region] || INSTANCE_TYPES['default']
       end
   end
   end
