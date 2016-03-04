@@ -915,7 +915,9 @@
           { "Ref": "awsAMI" }
         ]
     },
-		"InstanceType" : "m3.medium",
+                "InstanceType" : {
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "InstanceType" ]
+			},
 		"KeyName" : { "Ref" : "awsKeyName" },
 		"BlockDeviceMappings" : [{
 		    "DeviceName" : "/dev/xvda",
@@ -1050,7 +1052,9 @@
             { "Ref": "awsAMI" }
         ]
     },
-		"InstanceType" : "m3.medium",
+                "InstanceType" : {
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "InstanceType" ]
+			},
 		"KeyName" : { "Ref" : "awsKeyName" },
 		"BlockDeviceMappings" : [{
 		    "DeviceName" : "/dev/xvda",

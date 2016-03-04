@@ -19,6 +19,7 @@ CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst
 BUNDLE_EXEC = bundle exec
 FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
+GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
 all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES)
 
@@ -27,10 +28,12 @@ ifndef DEVEL
 $(HA_REGIONMAP): tmp
 	@echo Building HA regionmap
 	@$(FETCH_REGIONMAP) $(HA_ARGS) --out $@
+	@$(GENERATE_TYPES) --in $@ --out $@
 
 $(AUTOSCALING_REGIONMAP): tmp
 	@echo Building Autoscaling RegionMap
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
+	@$(GENERATE_TYPES) --in $@ --out $@
 else
 
 # Only for development: using the newest amis
@@ -40,11 +43,13 @@ else
 $(HA_REGIONMAP): $(dir $(HA_REGIONMAP))
 	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
             --BYOL '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	@$(GENERATE_TYPES) --in $@ --out $@
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
 	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
 	    --BYOL '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	@$(GENERATE_TYPES) --in $@ --out $@
 
 endif
 

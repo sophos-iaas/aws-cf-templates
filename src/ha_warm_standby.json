@@ -550,7 +550,9 @@
                       { "Ref": "AMI" }
                     ]
                 },
-                "InstanceType" : "m3.medium",
+                "InstanceType" : {
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "InstanceType" ]
+			},
                 "KeyName" : { "Ref" : "KeyName" },
                 "BlockDeviceMappings" : [{
                     "DeviceName" : "/dev/sda",
