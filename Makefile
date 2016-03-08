@@ -24,18 +24,7 @@ GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES)
 
 # Always rebuild region maps
-ifndef DEVEL
-$(HA_REGIONMAP): tmp
-	@echo Building HA regionmap
-	@$(FETCH_REGIONMAP) $(HA_ARGS) --out $@
-	@$(GENERATE_TYPES) --in $@ --out $@
-
-$(AUTOSCALING_REGIONMAP): tmp
-	@echo Building Autoscaling RegionMap
-	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
-	@$(GENERATE_TYPES) --in $@ --out $@
-else
-
+ifeq ($(DEVEL),1)
 # Only for development: using the newest amis
 # We don't use capture groups in the regex, so the sort (for 'newest') is using the
 # entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
@@ -50,7 +39,16 @@ $(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
 	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
 	    --BYOL '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 	@$(GENERATE_TYPES) --in $@ --out $@
+else
+$(HA_REGIONMAP): tmp
+	@echo Building HA regionmap
+	@$(FETCH_REGIONMAP) $(HA_ARGS) --out $@
+	@$(GENERATE_TYPES) --in $@ --out $@
 
+$(AUTOSCALING_REGIONMAP): tmp
+	@echo Building Autoscaling RegionMap
+	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
+	@$(GENERATE_TYPES) --in $@ --out $@
 endif
 
 # Overwrite autoscaling target to use autoscaling region map
