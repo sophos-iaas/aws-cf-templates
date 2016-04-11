@@ -354,6 +354,11 @@
         "Hourly": "ami-68f6f475",
         "InstanceType": "m3.medium"
       },
+      "ap-northeast-2": {
+        "BYOL": "ami-e299578c",
+        "Hourly": "ami-ec995782",
+        "InstanceType": "c4.large"
+      },
       "ap-northeast-1": {
         "BYOL": "ami-64f36864",
         "Hourly": "ami-fa6ff6fa",
