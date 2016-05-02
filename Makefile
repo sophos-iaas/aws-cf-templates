@@ -10,10 +10,11 @@ DEVEL :=
 ## file sets
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
-VERSIONDIR = templates/conversion/$(VERSION)
+VERSIONDIR = templates/conversion/$(VERSION) templates/egw/$(VERSION)
 
 TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
 CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
+EGW_TEMPLATES := templates/egw/$(VERSION)/egw.template
 
 ## bins
 BUNDLE_EXEC = bundle exec
@@ -21,7 +22,7 @@ FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES)
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES)
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -68,6 +69,11 @@ templates/conversion/$(VERSION)/autoscaling.template: src/conversion/autoscaling
 templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
+
+# Create EGW templates from src directory.
+templates/egw/$(VERSION)/%.template: src/egw/%.json
+	@echo building $@
+	@cp $< $@
 
 # Create new version directory, if previous doesn't exist
 $(VERSIONDIR):
