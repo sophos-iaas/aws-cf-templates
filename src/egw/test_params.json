@@ -1,0 +1,58 @@
+[
+  {
+    "ParameterKey": "VpcID",
+    "ParameterValue": "vpc-a6b635c2"
+  },
+  {
+    "ParameterKey": "KeyID",
+    "ParameterValue": "verdi-dev"
+  },
+  {
+    "ParameterKey": "ImageID",
+    "ParameterValue": "ami-60b6c60a"
+  },
+  {
+    "ParameterKey": "QueenSecurityGroup",
+    "ParameterValue": "sg-bea8dad8"
+  },
+  {
+    "ParameterKey": "SwarmSecurityGroup",
+    "ParameterValue": "sg-bea8dad8"
+  },
+  {
+    "ParameterKey": "ActiveCIDR",
+    "ParameterValue": "10.42.20.0/28"
+  },
+  {
+    "ParameterKey": "HotStandbyCIDR",
+    "ParameterValue": "10.42.10.0/28"
+  },
+  {
+    "ParameterKey": "ActiveAZ",
+    "ParameterValue": "us-east-1a"
+  },
+  {
+    "ParameterKey": "HotStandbyAZ",
+    "ParameterValue": "us-east-1b"
+  },
+  {
+    "ParameterKey": "ActiveTunnelIP",
+    "ParameterValue": "240.250.0.0"
+  },
+  {
+    "ParameterKey": "HotStandbyTunnelIP",
+    "ParameterValue": "240.251.0.0"
+  },
+  {
+    "ParameterKey": "AuthToken",
+    "ParameterValue": "asdfghjkl"
+  },
+  {
+    "ParameterKey": "ClientCIDR",
+    "ParameterValue": "10.42.0.0/16"
+  },
+  {
+    "ParameterKey": "InternetGateway",
+    "ParameterValue": "igw-541f0431"
+  }
+]
