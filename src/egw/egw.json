@@ -2,11 +2,11 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Parameters": {
     "VpcID": {
-      "Description": "Existing VPC",
+      "Description": "Existing VPC into which Load Balancer should be deployed into.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "LoadBalancerSubnetID": {
-      "Description": "Subnet ID for Load Balancer. Should be in the same AZ where Load Balancer is deployed",
+      "Description": "Subnet ID for Load Balancer.",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "KeyID": {
@@ -14,38 +14,34 @@
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
     "ImageID": {
-      "Description": "AMI ID of the LoadBalancer's to use",
+      "Description": "Latest AMI ID of the Load Balancer to use.",
       "Type": "AWS::EC2::Image::Id"
     },
     "InstanceSize" : {
       "Type" : "String",
       "Default" : "m3.medium",
-      "Description" : "Enter t1.micro, m1.small, or m1.large..."
+      "Description" : "Enter t2.micro, m3.medium, or m4.large..."
     },
     "QueenSecurityGroup": {
-      "Description": "SecurityGroup ID of the Queen",
+      "Description": "SecurityGroup ID of the Controller Node. The machine in this security group would be able to access the Load Balancer. This would also act as a Bastion Host to access the Load Balancer",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
     "SwarmSecurityGroup": {
-      "Description": "SecurityGroup ID of the Swarm Members",
+      "Description": "SecurityGroup ID of the Swarm Members. Load Balancer would forward all the traffic from Client VDIs to the machines in this security group.",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
-    "LoadBalancerAZ": {
-      "Description": "AvailabilityZone of the LoadBalancer",
-      "Type": "AWS::EC2::AvailabilityZone::Name"
-    },
     "AuthToken": {
-      "Description": "AuthToken for API access",
+      "Description": "AuthToken for API access. This token would act as a shared secret for API communication between Controller and Load Balancer.",
       "Type": "String"
     },
     "LoadBalancerTunnelIP": {
-      "Description": "IP used for tunnel interface",
+      "Description": "IP used for setting up tunnel interfaces.",
       "Type": "String",
       "AllowedPattern": "^([0-9]{1,3}[.]){3}[0-9]{1,3}$",
       "ConstraintDescription": "Must be IPv4 address: X.X.X.X"
     },
     "InternetGateway": {
-      "Description": "Temporary parameter for cfn init and signal (route), should be dealt with by the queen in the future.",
+      "Description": "Parameter for cfn init and signal.",
       "Type": "String"
     },
     "ClientCIDR": {
@@ -60,7 +56,7 @@
       "ParameterGroups": [
         {
           "Label": {"default": "Load Balancer Configuration"},
-          "Parameters":["LoadBalancerAZ", "LoadBalancerSubnetID", "ImageID", "InstanceSize", "AuthToken", "LoadBalancerTunnelIP"]
+          "Parameters":["LoadBalancerSubnetID", "ImageID", "InstanceSize", "AuthToken", "LoadBalancerTunnelIP"]
         },{
           "Label":{ "default": "Infrastructure Information" },
           "Parameters":["VpcID", "InternetGateway","QueenSecurityGroup", "SwarmSecurityGroup", "ClientCIDR" ]
@@ -70,10 +66,9 @@
         }
       ],
       "ParameterLabels":{
-        "LoadBalancerAZ" : {"default": "AZ to deploy Load Balancer into"},
-        "VpcID": { "default": "Existing VPC into which Load Balancer should be deployed into" },
+        "VpcID": { "default": "Existing VPC" },
         "LoadBalancerSubnetID":{ "default": "Subnet ID of the Load Balancer" },
-        "ImageID": { "default": "Latest AMI of the Load Balancer" },
+        "ImageID": { "default": "AMI of the Load Balancer" },
         "InstanceSize":{ "default": "Load Balancer instance size" },
         "AuthToken":{ "default":"Authorization token" },
         "LoadBalancerTunnelIP":{ "default":"IP address to be used for Load Balancer Tunnels" },
@@ -256,9 +251,6 @@
         "InstanceIAM"
       ],
       "Properties": {
-        "AvailabilityZone": {
-          "Ref": "LoadBalancerAZ"
-        },
         "ImageId": {
           "Ref": "ImageID"
         },
