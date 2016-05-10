@@ -2,11 +2,11 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Parameters": {
     "VpcID": {
-      "Description": "Existing VPC into which load balancer should be deployed.",
+      "Description": "Existing VPC",
       "Type": "AWS::EC2::VPC::Id"
     },
     "LoadBalancerSubnetID": {
-      "Description": "Subnet ID for load balancer.",
+      "Description": "Subnet ID for Load Balancer. Should be in the same AZ where Load Balancer is deployed",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "KeyID": {
@@ -14,34 +14,38 @@
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
     "ImageID": {
-      "Description": "AMI to use for the load balancer instance.",
+      "Description": "AMI ID of the LoadBalancer's to use",
       "Type": "AWS::EC2::Image::Id"
     },
     "InstanceSize" : {
       "Type" : "String",
       "Default" : "m3.medium",
-      "Description" : "Size of the load balancer instance. Eg. t2.micro, m3.medium, or m4.large..."
+      "Description" : "Enter t1.micro, m1.small, or m1.large..."
     },
-    "ControllerSecurityGroup": {
-      "Description": "Security group ID of the Controller node. Only SSH access to the load balancer will be allowed from this security group.",
+    "QueenSecurityGroup": {
+      "Description": "SecurityGroup ID of the Queen",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
-    "UTMWorkerSecurityGroup": {
-      "Description": "Security group ID of the instances the load balancer should balance traffic to.",
+    "SwarmSecurityGroup": {
+      "Description": "SecurityGroup ID of the Swarm Members",
       "Type": "AWS::EC2::SecurityGroup::Id"
+    },
+    "LoadBalancerAZ": {
+      "Description": "AvailabilityZone of the LoadBalancer",
+      "Type": "AWS::EC2::AvailabilityZone::Name"
     },
     "AuthToken": {
-      "Description": "AuthToken for API access. This token would be used as a shared secret for API communication between load balancer and the UTMs.",
+      "Description": "AuthToken for API access",
       "Type": "String"
     },
     "LoadBalancerTunnelIP": {
-      "Description": "Enter a /22 network that is not being used inside the VPC. For technical reasons avoid 127.0.0.0/8 or 0.0.0.0/8 network. The network would be subnetted into /30 to build tunnels between UTM Worker nodes and load balancer. Eg. Network that could be used is 240.250.0.0.",
+      "Description": "IP used for tunnel interface",
       "Type": "String",
       "AllowedPattern": "^([0-9]{1,3}[.]){3}[0-9]{1,3}$",
       "ConstraintDescription": "Must be IPv4 address: X.X.X.X"
     },
     "InternetGateway": {
-      "Description": "IGW of the VPC the load balancer will be deployed into.",
+      "Description": "Temporary parameter for cfn init and signal (route), should be dealt with by the queen in the future.",
       "Type": "String"
     },
     "ClientCIDR": {
@@ -56,26 +60,27 @@
       "ParameterGroups": [
         {
           "Label": {"default": "Load Balancer Configuration"},
-          "Parameters":["LoadBalancerSubnetID", "ImageID", "InstanceSize", "AuthToken", "LoadBalancerTunnelIP"]
+          "Parameters":["LoadBalancerAZ", "LoadBalancerSubnetID", "ImageID", "InstanceSize", "AuthToken", "LoadBalancerTunnelIP"]
         },{
           "Label":{ "default": "Infrastructure Information" },
-          "Parameters":["VpcID", "InternetGateway","ControllerSecurityGroup", "UTMWorkerSecurityGroup", "ClientCIDR" ]
+          "Parameters":["VpcID", "InternetGateway","QueenSecurityGroup", "SwarmSecurityGroup", "ClientCIDR" ]
         },{
           "Label": { "default": "Credentials to access the Load Balancer"},
           "Parameters": ["KeyID"]
         }
       ],
       "ParameterLabels":{
-        "VpcID": { "default": "Existing VPC" },
+        "LoadBalancerAZ" : {"default": "AZ to deploy Load Balancer into"},
+        "VpcID": { "default": "Existing VPC into which Load Balancer should be deployed into" },
         "LoadBalancerSubnetID":{ "default": "Subnet ID of the Load Balancer" },
-        "ImageID": { "default": "AMI of the Load Balancer" },
+        "ImageID": { "default": "Latest AMI of the Load Balancer" },
         "InstanceSize":{ "default": "Load Balancer instance size" },
         "AuthToken":{ "default":"Authorization token" },
         "LoadBalancerTunnelIP":{ "default":"IP address to be used for Load Balancer Tunnels" },
         "InternetGateway":{ "default": "Internet Gateway" },
         "ClientCIDR":{ "default":"CIDR of the Clients/VDIs" },
-        "ControllerSecurityGroup":{"default": "Security Group of the Controller node"},
-        "UTMWorkerSecurityGroup":{"default": "Security Group of the Worker nodes"},
+        "QueenSecurityGroup":{"default": "Security Group of the Controller node"},
+        "SwarmSecurityGroup":{"default": "Security Group of the Worker nodes"},
         "KeyID": {"default":"SSH Key to access the Load Balancer"}
       }
     }
@@ -217,7 +222,7 @@
             "FromPort": "22",
             "ToPort": "22",
             "SourceSecurityGroupId": {
-              "Ref": "ControllerSecurityGroup"
+              "Ref": "QueenSecurityGroup"
             }
           },
           {
@@ -225,13 +230,13 @@
             "FromPort": "5555",
             "ToPort": "5555",
             "SourceSecurityGroupId": {
-              "Ref": "UTMWorkerSecurityGroup"
+              "Ref": "SwarmSecurityGroup"
             }
           },
           {
             "IpProtocol": "47",
             "SourceSecurityGroupId": {
-              "Ref": "UTMWorkerSecurityGroup"
+              "Ref": "SwarmSecurityGroup"
             }
           }
         ],
@@ -251,6 +256,9 @@
         "InstanceIAM"
       ],
       "Properties": {
+        "AvailabilityZone": {
+          "Ref": "LoadBalancerAZ"
+        },
         "ImageId": {
           "Ref": "ImageID"
         },
