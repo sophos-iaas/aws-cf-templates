@@ -2,7 +2,7 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Parameters": {
     "VpcID": {
-      "Description": "Existing VPC into which load balancer should be deployed into.",
+      "Description": "Existing VPC into which load balancer should be deployed.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "LoadBalancerSubnetID": {
