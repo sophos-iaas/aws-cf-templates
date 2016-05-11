@@ -36,14 +36,16 @@ end
 
 begin
   opts = Slop.parse do |o|
-    o.string '--BYOL', 'regex for the byol amis, maybe with capture groups for limited sorting parts'
+    o.string '--regex', 'regex for the byol amis, maybe with capture groups for limited sorting parts'
     o.string '--owner', 'only search for amis with this owner_id'
+    o.string '--key', 'use BYOL for UTM ami or EGW for EGW ami'
     o.on '-h', '--help' do
       puts o
       exit
     end
   end
-  unless (opts[:BYOL])
+
+  if (!opts[:regex] || !opts[:key])
     puts opts
     exit 1
   end
@@ -65,7 +67,7 @@ begin
            ],
         }).images
 
-    insert_latest_ami_map(dev_images, /#{opts[:BYOL]}/, region_ami_map, region_name, 'BYOL')
+    insert_latest_ami_map(dev_images, /#{opts[:regex]}/, region_ami_map, region_name, opts[:key])
   end
 
   STDOUT.write(JSON.pretty_generate(region_ami_map))

@@ -10,6 +10,7 @@ DEVEL :=
 ## file sets
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
+EGW_REGIONMAP = tmp/EGW_REGIONMAP.json
 VERSIONDIR = templates/conversion/$(VERSION) templates/egw/$(VERSION)
 CURRENTLINKS = templates/conversion/current templates/egw/current
 
@@ -23,7 +24,7 @@ FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES) $(CURRENTLINKS)
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES) $(CURRENTLINKS) $(EGW_REGIONMAP)
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -33,13 +34,19 @@ ifeq ($(DEVEL),1)
 # Using verdi branch (axg*_verdi) for HA
 $(HA_REGIONMAP): $(dir $(HA_REGIONMAP))
 	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
-            --BYOL '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+            --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 	@$(GENERATE_TYPES) --in $@ --out $@
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
 	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
-	    --BYOL '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	@$(GENERATE_TYPES) --in $@ --out $@
+
+# Build EGW templates using aws branch
+$(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
+	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
 	@$(GENERATE_TYPES) --in $@ --out $@
 else
 $(HA_REGIONMAP): tmp
@@ -74,7 +81,8 @@ templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP
 # Create EGW templates from src directory.
 templates/egw/$(VERSION)/%.template: src/egw/%.json
 	@echo building $@
-	@cp $< $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
+	#@cp $< $@
 
 # Create new version directory, if previous doesn't exist
 $(VERSIONDIR):
