@@ -404,5 +404,13 @@
         }]
       }
     }
+  },
+  "Outputs" : {
+    "LoadBalancerIPAddress" : {
+      "Value": {
+      "Fn::GetAtt": [ "LoadBalancer", "PrivateIp"]
+    },
+    "Description": "Private IP address of the Load Balancer"
+    }
   }
 }
