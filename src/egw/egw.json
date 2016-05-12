@@ -15,7 +15,8 @@
     },
     "ImageID": {
       "Description": "AMI to use for the load balancer instance.",
-      "Type": "AWS::EC2::Image::Id"
+      "Type": "String",
+      "Default": "autodetect"
     },
     "InstanceSize" : {
       "Type" : "String",
@@ -79,6 +80,14 @@
         "KeyID": {"default":"SSH Key to access the Load Balancer"}
       }
     }
+  },
+
+  "Mappings": {
+    "RegionMap": {}
+  },
+
+  "Conditions": {
+    "UseRegionMap": { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] }
   },
 
   "Resources": {

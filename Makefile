@@ -1,7 +1,9 @@
 ## Configuration
-VERSION = 9.403
+# Get the version as parameter
+VERSION = 
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
+#EGW_ARGS = 
 DEVEL_OWNER := 159737981378
 
 # set to 1 to use devel amis in region/ami map
@@ -24,7 +26,12 @@ FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES) $(CURRENTLINKS) $(EGW_REGIONMAP)
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES) $(CURRENTLINKS)
+
+# Check if version is set
+ifndef VERSION
+$(error VERSION is needed to build tempplates)
+endif
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -58,6 +65,12 @@ $(AUTOSCALING_REGIONMAP): tmp
 	@echo Building Autoscaling RegionMap
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 	@$(GENERATE_TYPES) --in $@ --out $@
+
+$(EGW_REGIONMAP): tmp
+	@echo Building EGW Regionmap
+	@$(FETCH_REGIONMAP) $(EGW_ARGS) --out $@
+	@$(GENERATE_TYPES) --in $@ --out $@
+
 endif
 
 # Overwrite autoscaling target to use autoscaling region map
@@ -79,10 +92,9 @@ templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
 # Create EGW templates from src directory.
-templates/egw/$(VERSION)/%.template: src/egw/%.json
+templates/egw/$(VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
-	#@cp $< $@
 
 # Create new version directory, if previous doesn't exist
 $(VERSIONDIR):
@@ -98,4 +110,4 @@ tmp:
 	@mkdir $@
 
 
-.PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR)
+.PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) $(VERSIONDIR)
