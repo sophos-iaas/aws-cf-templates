@@ -87,7 +87,7 @@
   },
 
   "Conditions": {
-    "UseRegionMap": { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] }
+    "UseRegionMap": { "Fn::Equals": [ {"Ref": "ImageID"}, "autodetect" ] }
   },
 
   "Resources": {
@@ -261,7 +261,11 @@
       ],
       "Properties": {
         "ImageId": {
-          "Ref": "ImageID"
+          "Fn::If": [
+            "UseRegionMap",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "EGW" ] },
+            { "Ref": "ImageID" }
+          ]
         },
         "InstanceType": {
           "Ref": "InstanceSize"
