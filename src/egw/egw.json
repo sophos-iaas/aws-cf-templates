@@ -261,7 +261,11 @@
       ],
       "Properties": {
         "ImageId": {
-          "Ref": "ImageID"
+          "Fn::If": [
+            "UseRegionMap",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, { "Ref": "LicenseType" } ] },
+            { "Ref": "AMI" }
+          ]
         },
         "InstanceType": {
           "Ref": "InstanceSize"
