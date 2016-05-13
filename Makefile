@@ -1,6 +1,7 @@
 ## Configuration
 # Get the version as parameter
 VERSION = 
+VERSION_EGW = 1.0
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
 #EGW_ARGS = 
@@ -13,12 +14,12 @@ DEVEL :=
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
 EGW_REGIONMAP = tmp/EGW_REGIONMAP.json
-VERSIONDIR = templates/conversion/$(VERSION) templates/egw/$(VERSION)
+VERSIONDIR = templates/conversion/$(VERSION) templates/egw/$(VERSION_EGW)
 CURRENTLINKS = templates/conversion/current templates/egw/current
 
 TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
 CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
-EGW_TEMPLATES := templates/egw/$(VERSION)/egw.template
+EGW_TEMPLATES := templates/egw/$(VERSION_EGW)/egw.template
 
 ## bins
 BUNDLE_EXEC = bundle exec
@@ -92,7 +93,7 @@ templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
 # Create EGW templates from src directory.
-templates/egw/$(VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP)
+templates/egw/$(VERSION_EGW)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
 
@@ -104,6 +105,7 @@ $(VERSIONDIR):
 # Create current symlink
 $(CURRENTLINKS): $(VERSIONDIR)
 	@ln -n -r -s -f $(dir $@)$(VERSION) $@
+	@ln -n -r -s -f $(dir $@)$(VERSION_EGW) $@
 
 #tmp dir is not in git and empty. Must be created if it does not exist yet
 tmp:
