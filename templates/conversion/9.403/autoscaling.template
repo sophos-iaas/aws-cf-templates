@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Scalable UTM cloud formation template",
+  "Description": "Scalable UTM cloud formation template. Please make sure that the VPC has a Gateway attached.",
   "Parameters": {
     "basicAdminEmail": {
       "Default": "",
@@ -299,10 +299,17 @@
       "Type": "AWS::EC2::KeyPair::KeyName",
       "Default": ""
     },
-    "awsNetworkPrefix": {
-      "Description": "Please provide an available /16 Cidr Block to be used by the VPC. Please provide only the first two octets. For example for the network 10.6.0.0/16, you should provide 10.6",
-      "Type": "String",
-      "Default": "10.15"
+    "awsVPCID": {
+      "Description": "VPC to launch the deployment in.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "awsGatewayID": {
+      "Description": "The Internet of the VPC.",
+      "Type": "String"
+    },
+    "awsSubnetIPBlocks": {
+      "Description": "Four subnet CIDR blocks with the VPC.",
+      "Type": "CommaDelimitedList"
     },
     "awsAvailabilityZone1": {
       "Type": "AWS::EC2::AvailabilityZone::Name",
@@ -323,6 +330,11 @@
     },
     "optionalExistingElasticIP": {
       "Description": "Optional. The Elastic IP to assign in the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
+      "Type": "String",
+      "Default": ""
+    },
+    "optionalExistingSecurityGroup": {
+      "Description": "Optional. A security group to assign to the new stack",
       "Type": "String",
       "Default": ""
     },
@@ -383,6 +395,18 @@
           "Fn::Equals": [
             {
               "Ref": "optionalLicensePool"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "UseExistingSG": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "optionalExistingSecurityGroup"
             },
             ""
           ]
@@ -547,11 +571,6 @@
                 {
                   "Effect": "Allow",
                   "Action": "iam:PassRole",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:CreateRole",
                   "Resource": "*"
                 },
                 {
@@ -729,48 +748,18 @@
         ]
       }
     },
-    "VPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true",
-        "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "0.0/16"
-            ]
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          }
-        ]
-      },
-      "DependsOn": "QueenRole"
-    },
     "QueenSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "1.0/24"
-            ]
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -791,17 +780,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "2.0/24"
-            ]
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -822,17 +808,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "4.0/24"
-            ]
+          "Fn::Select": [
+            "2",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -853,17 +836,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "5.0/24"
-            ]
+          "Fn::Select": [
+            "3",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -880,49 +860,16 @@
       },
       "DependsOn": "QueenRole"
     },
-    "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
-          }
-        ]
-      },
-      "DependsOn": "QueenRole"
-    },
-    "AttachGateway": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "InternetGateway"
-        }
-      }
-    },
     "QueenRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": [
-        "AttachGateway",
-        "QueenRole"
-      ],
+      "DependsOn": "QueenRole",
       "Properties": {
         "RouteTableId": {
           "Ref": "RouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "awsGatewayID"
         }
       }
     },
@@ -931,7 +878,7 @@
       "DependsOn": "QueenRole",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -952,7 +899,7 @@
       "DependsOn": "QueenRole",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1093,7 +1040,7 @@
       "DependsOn": "QueenRole",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1111,17 +1058,14 @@
     },
     "SwarmRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": [
-        "AttachGateway",
-        "QueenRole"
-      ],
+      "DependsOn": "QueenRole",
       "Properties": {
         "RouteTableId": {
           "Ref": "SwarmRouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "awsGatewayID"
         }
       }
     },
@@ -1136,7 +1080,7 @@
       },
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1330,10 +1274,7 @@
     },
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
-      "DependsOn": [
-        "QueenRole",
-        "AttachGateway"
-      ],
+      "DependsOn": "QueenRole",
       "Condition": "AllocateElasticIP",
       "Properties": {
         "Domain": "vpc"
@@ -1379,7 +1320,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1393,7 +1334,7 @@
       "Properties": {
         "GroupDescription": "Group for the receivers of the ElasticLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1402,7 +1343,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "SecurityGroupEgress": [
           {
@@ -1435,7 +1376,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1470,7 +1411,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1484,7 +1425,7 @@
       "Properties": {
         "GroupDescription": "Enable HTTP access on port 8080",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1495,6 +1436,7 @@
           "elb"
         ]
       },
+      "DependsOn": "QueenRole",
       "Properties": {
         "CrossZone": "true",
         "SecurityGroups": [
@@ -1524,8 +1466,7 @@
           "Interval": "5",
           "Timeout": "2"
         }
-      },
-      "DependsOn": "QueenRole"
+      }
     },
     "SwarmScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
@@ -1959,17 +1900,54 @@
             }
           }
         ],
-        "SecurityGroups": [
-          {
-            "Ref": "QueenSecurityGroup"
-          },
-          {
-            "Ref": "TrustedNetworkGroup"
-          },
-          {
-            "Ref": "UntrustedGroup"
-          }
-        ],
+        "SecurityGroups": {
+          "Fn::If": [
+            "UseExistingSG",
+            [
+              {
+                "Ref": "optionalExistingSecurityGroup"
+              },
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ],
+            [
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ]
+          ]
+        },
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -2397,19 +2375,7 @@
                       "      - from_port: 514\n",
                       "        to_port: 514\n",
                       "        protocol: 17\n",
-                      "        source: ",
-                      {
-                        "Fn::Join": [
-                          ".",
-                          [
-                            {
-                              "Ref": "awsNetworkPrefix"
-                            },
-                            "0.0/16"
-                          ]
-                        ]
-                      },
-                      "\n",
+                      "        source: 0.0.0.0/0\n",
                       "        action: ALLOW\n",
                       "      - from_port: 0\n",
                       "        to_port: 65535\n",
@@ -2476,7 +2442,7 @@
     },
     "VPCID": {
       "Value": {
-        "Ref": "VPC"
+        "Ref": "awsVPCID"
       },
       "Description": "The VPC of the Swarm"
     },
