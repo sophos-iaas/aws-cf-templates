@@ -590,7 +590,22 @@
                 },
                 {
                   "Effect": "Allow",
+                  "Action": "iam:PutRolePolicy",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
                   "Action": "iam:DeleteRolePolicy",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "iam:CreateInstanceProfile",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "iam:AddRoleToInstanceProfile",
                   "Resource": "*"
                 },
                 {
