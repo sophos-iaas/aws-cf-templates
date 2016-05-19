@@ -60,6 +60,13 @@ $(AUTOSCALING_REGIONMAP): tmp
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 	@$(GENERATE_TYPES) --in $@ --out $@
 
+# Build EGW templates using aws branch.
+# TODO: Change to production script when we are publishing production templates.
+$(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
+	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
+	@$(GENERATE_TYPES) --in $@ --out $@
+
 endif
 
 # Overwrite autoscaling target to use autoscaling region map
