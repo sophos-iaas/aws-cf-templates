@@ -30,11 +30,11 @@ begin
     exit
   end
   unless(File.file?(opts[:in]))
-    puts STDERR "Input file #{opts[:in]} does not exist!"
+    STDERR.puts "Input file #{opts[:in]} does not exist!"
     exit 1
   end
   unless(File.file?(opts[:regionmap]))
-    puts STDERR "Region Map input file #{opts[:regionmap]} does not exist!"
+    STDERR.puts "Region Map input file #{opts[:regionmap]} does not exist!"
     exit 1
   end
 
