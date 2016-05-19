@@ -335,19 +335,19 @@
   "Mappings": {
     "RegionMap": {
       "ap-southeast-2": {
-        "BYOL": "ami-3d9fb35e",
+        "BYOL": "ami-81042be2",
         "InstanceType": "m3.medium"
       },
       "eu-central-1": {
-        "BYOL": "ami-c76984a8",
+        "BYOL": "ami-94c925fb",
         "InstanceType": "m3.medium"
       },
       "ap-northeast-2": {
-        "BYOL": "ami-0f579f61",
+        "BYOL": "ami-a5915acb",
         "InstanceType": "c4.large"
       },
       "us-east-1": {
-        "BYOL": "ami-eb3dd286",
+        "BYOL": "ami-1005ee7d",
         "InstanceType": "m3.medium"
       }
     }
@@ -556,7 +556,22 @@
                 },
                 {
                   "Effect": "Allow",
+                  "Action": "iam:PutRolePolicy",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
                   "Action": "iam:DeleteRolePolicy",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "iam:CreateInstanceProfile",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "iam:AddRoleToInstanceProfile",
                   "Resource": "*"
                 },
                 {

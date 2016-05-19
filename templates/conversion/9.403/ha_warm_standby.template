@@ -347,19 +347,19 @@
   "Mappings": {
     "RegionMap": {
       "ap-southeast-2": {
-        "BYOL": "ami-d69ab6b5",
+        "BYOL": "ami-4a052a29",
         "InstanceType": "m3.medium"
       },
       "eu-central-1": {
-        "BYOL": "ami-5a688535",
+        "BYOL": "ami-95c925fa",
         "InstanceType": "m3.medium"
       },
       "ap-northeast-2": {
-        "BYOL": "ami-5370b83d",
+        "BYOL": "ami-75955e1b",
         "InstanceType": "c4.large"
       },
       "us-east-1": {
-        "BYOL": "ami-2706e94a",
+        "BYOL": "ami-2d01ea40",
         "InstanceType": "m3.medium"
       }
     }
