@@ -334,20 +334,49 @@
   },
   "Mappings": {
     "RegionMap": {
+      "eu-west-1": {
+        "BYOL": "ami-32cd4041",
+        "Hourly": "ami-50159b23",
+        "InstanceType": "m3.medium"
+      },
+      "ap-southeast-1": {
+        "BYOL": "ami-d29044b1",
+        "Hourly": "ami-4db3642e",
+        "InstanceType": "m3.medium"
+      },
       "ap-southeast-2": {
-        "BYOL": "ami-4a052a29",
+        "BYOL": "ami-52defc31",
+        "Hourly": "ami-87a18ce4",
         "InstanceType": "m3.medium"
       },
       "eu-central-1": {
-        "BYOL": "ami-95c925fa",
+        "BYOL": "ami-8e01e1e1",
+        "Hourly": "ami-c88d6fa7",
         "InstanceType": "m3.medium"
       },
-      "ap-northeast-2": {
-        "BYOL": "ami-75955e1b",
-        "InstanceType": "c4.large"
+      "ap-northeast-1": {
+        "BYOL": "ami-2d8f9243",
+        "Hourly": "ami-96ffe7f8",
+        "InstanceType": "m3.medium"
       },
       "us-east-1": {
-        "BYOL": "ami-2d01ea40",
+        "BYOL": "ami-1d180577",
+        "Hourly": "ami-59927634",
+        "InstanceType": "m3.medium"
+      },
+      "sa-east-1": {
+        "BYOL": "ami-07840a6b",
+        "Hourly": "ami-f3e66f9f",
+        "InstanceType": "m3.medium"
+      },
+      "us-west-1": {
+        "BYOL": "ami-3d7e015d",
+        "Hourly": "ami-0faed06f",
+        "InstanceType": "m3.medium"
+      },
+      "us-west-2": {
+        "BYOL": "ami-ee54a38e",
+        "Hourly": "ami-8352a2e3",
         "InstanceType": "m3.medium"
       }
     }
