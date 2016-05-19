@@ -1,10 +1,9 @@
 ## Configuration
 # Get the version as parameter
-VERSION = 
+VERSION = 9.403
 VERSION_EGW = 1.0
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
-#EGW_ARGS = 
 DEVEL_OWNER := 159737981378
 
 # set to 1 to use devel amis in region/ami map
@@ -15,7 +14,6 @@ HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
 EGW_REGIONMAP = tmp/EGW_REGIONMAP.json
 VERSIONDIR = templates/conversion/$(VERSION) templates/egw/$(VERSION_EGW)
-CURRENTLINKS = templates/conversion/current templates/egw/current
 
 TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
 CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
@@ -27,12 +25,7 @@ FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES) $(CURRENTLINKS)
-
-# Check if version is set
-ifndef VERSION
-$(error VERSION is needed to build tempplates)
-endif
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES)
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -67,11 +60,6 @@ $(AUTOSCALING_REGIONMAP): tmp
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 	@$(GENERATE_TYPES) --in $@ --out $@
 
-$(EGW_REGIONMAP): tmp
-	@echo Building EGW Regionmap
-	@$(FETCH_REGIONMAP) $(EGW_ARGS) --out $@
-	@$(GENERATE_TYPES) --in $@ --out $@
-
 endif
 
 # Overwrite autoscaling target to use autoscaling region map
@@ -98,14 +86,15 @@ templates/egw/$(VERSION_EGW)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
 
 # Create new version directory, if previous doesn't exist
+# Create symlinks
+# Check if we already have symlink. If so then we delete it. As we create new one in next step.
+# Also ignore any errors
+
 $(VERSIONDIR):
 	@echo Creating new conversion release directory
 	@mkdir -p $@
-
-# Create current symlink
-$(CURRENTLINKS): $(VERSIONDIR)
-	@ln -n -r -s -f $(dir $@)$(VERSION) $@
-	@ln -n -r -s -f $(dir $@)$(VERSION_EGW) $@
+	-@[ -e $(dir $@)current ] && rm $(dir $@)current
+	@ln -s -r -s -f $@ $(dir $@)current
 
 #tmp dir is not in git and empty. Must be created if it does not exist yet
 tmp:

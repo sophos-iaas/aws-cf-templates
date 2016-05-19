@@ -36,7 +36,7 @@ end
 
 begin
   opts = Slop.parse do |o|
-    o.string '--regex', 'regex for the byol amis, maybe with capture groups for limited sorting parts'
+    o.string '--regex', 'regex for the amis, maybe with capture groups for limited sorting parts'
     o.string '--owner', 'only search for amis with this owner_id'
     o.string '--key', 'use BYOL for UTM ami or EGW for EGW ami'
     o.on '-h', '--help' do
