@@ -78,6 +78,7 @@ module TemplateHelper
         ami_map = {}
 
         images.select do |i|
+	  # FixMe: when know how the AMI for EGW would be called
           next unless /egw/ =~ i.name
           filtered_images.push(i)
         end
