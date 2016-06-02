@@ -35,14 +35,21 @@
       "Description": "AuthToken for API access. This token would be used as a shared secret for API communication between load balancer and the UTMs.",
       "Type": "String"
     },
-    "LoadBalancerTunnelIP": {
-      "Description": "Enter a /22 network that is not being used inside the VPC. For technical reasons avoid 127.0.0.0/8 or 0.0.0.0/8 network. The network would be subnetted into /30 to build tunnels between UTM Worker nodes and load balancer. Eg. Network that could be used is 240.250.0.0.",
-      "Type": "String",
-      "AllowedPattern": "^([0-9]{1,3}[.]){3}[0-9]{1,3}$",
-      "ConstraintDescription": "Must be IPv4 address: X.X.X.X"
+    "LoadBalancerUID": {
+      "Description": "Unique ID for the load balancer instance.",
+      "Type": "Number",
+      "MinValue": 1,
+      "MaxValue": 16383
+    },
+    "LoadBalancerTunnelPrefix": {
+      "Description": "The network prefix (e.g 240.0.0.0/8) to use (changes only required in case of conflict).",
+      "Type": "Number",
+      "Default": 240,
+      "MinValue": 240,
+      "MaxValue": 254
     },
     "InternetGateway": {
-      "Description": "IGW of the VPC the load balancer will be deployed into.",
+      "Description": "IGW of the VPC the load balancer will be deployed into (used for cfn-signal).",
       "Type": "String"
     },
     "ClientCIDR": {
@@ -57,7 +64,10 @@
       "ParameterGroups": [
         {
           "Label": {"default": "Load Balancer Configuration"},
-          "Parameters":["LoadBalancerSubnetID", "ImageID", "InstanceSize", "AuthToken", "LoadBalancerTunnelIP"]
+          "Parameters":[
+            "LoadBalancerUID", "LoadBalancerSubnetID", "ImageID",
+            "InstanceSize", "AuthToken", "LoadBalancerTunnelPrefix"
+		  ]
         },{
           "Label":{ "default": "Infrastructure Information" },
           "Parameters":["VpcID", "InternetGateway","ControllerSecurityGroup", "UTMWorkerSecurityGroup", "ClientCIDR" ]
@@ -72,7 +82,8 @@
         "ImageID": { "default": "AMI of the Load Balancer" },
         "InstanceSize":{ "default": "Load Balancer instance size" },
         "AuthToken":{ "default":"Authorization token" },
-        "LoadBalancerTunnelIP":{ "default":"IP address to be used for Load Balancer Tunnels" },
+        "LoadBalancerUID":{ "default":"Unique ID of the Load Balancer" },
+        "LoadBalancerTunnelPrefix":{ "default":"IP address prefix (class A network) to be used for Load Balancer Tunnels" },
         "InternetGateway":{ "default": "Internet Gateway" },
         "ClientCIDR":{ "default":"CIDR of the Clients/VDIs" },
         "ControllerSecurityGroup":{"default": "Security Group of the Controller node"},
@@ -337,7 +348,8 @@
               "/etc/egw.conf":{
                 "content" : { "Fn::Join" : ["", [
                     "{\n",
-                    "  \"base_ip\": \"",         {"Ref": "LoadBalancerTunnelIP"}, "\",\n",
+                    "  \"prefix\": \"", {"Ref": "LoadBalancerTunnelPrefix"}, "\",\n",
+                    "  \"uid\": \"", {"Ref": "LoadBalancerUID"}, "\",\n",
                     "  \"rest_auth_token\": \"", {"Ref": "AuthToken"},      "\"\n",
                     "}\n"
                   ]]
