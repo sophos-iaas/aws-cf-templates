@@ -38,7 +38,7 @@
     "LoadBalancerUID": {
       "Description": "Unique ID for the load balancer instance.",
       "Type": "Number",
-      "MinValue": 0,
+      "MinValue": 1,
       "MaxValue": 16383
     },
     "LoadBalancerTunnelPrefix": {
