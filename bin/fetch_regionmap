@@ -31,13 +31,13 @@ begin
       exit
     end
   end
-  if !((opts[:BYOL] && opts[:Hourly] && opts[:out]) || (opts[:EGW] && opts[:out]))
+  if !((opts[:BYOL] && opts[:Hourly]) || opts[:EGW])
     puts opts
     exit
   end
 
   region_map = {}
-  if (opts[:BYOL] && opts[:Hourly] && opts[:out])
+  if (opts[:BYOL] && opts[:Hourly])
     region_map = TemplateHelper::RegionMap.new( 'BYOL'   => opts[:BYOL], 'Hourly' => opts[:Hourly])
     old_map = read_map_file(opts[:out])
     if (region_map.to_hash == old_map)
@@ -45,7 +45,7 @@ begin
     else
       dump_map_file(region_map,opts[:out])
     end
-  else
+  elsif (opts[:EGW])
     region_map = TemplateHelper::RegionMap.new("XXX", "EGW")
     old_map = read_map_file(opts[:out])
     if (region_map.to_hash == old_map)
@@ -53,5 +53,6 @@ begin
     else
       dump_map_file(region_map,opts[:out])
     end
+  else puts "Unknown options passed!!! Please use options --BYOL, --Hourly, --EGW"
   end
 end
