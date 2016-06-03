@@ -348,8 +348,8 @@
               "/etc/egw.conf":{
                 "content" : { "Fn::Join" : ["", [
                     "{\n",
-                    "  \"prefix\": \"", {"Ref": "LoadBalancerTunnelPrefix"}, "\",\n",
-                    "  \"uid\": \"", {"Ref": "LoadBalancerUID"}, "\",\n",
+                    "  \"prefix\": ", {"Ref": "LoadBalancerTunnelPrefix"}, ",\n",
+                    "  \"uid\": ", {"Ref": "LoadBalancerUID"}, ",\n",
                     "  \"rest_auth_token\": \"", {"Ref": "AuthToken"},      "\"\n",
                     "}\n"
                   ]]
