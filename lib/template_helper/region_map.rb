@@ -84,7 +84,7 @@ module TemplateHelper
         end
         if filtered_images.size != 0
           sorted_images = filtered_images.sort_by(&:creation_date)
-          ami_map[sorted_images.last.name] = sorted_images.last.image_id
+          ami_map['EGW'] = sorted_images.last.image_id
           @region_map[region] = ami_map
         end
       end
