@@ -471,64 +471,7 @@
                   "Resource": "*"
                 },
                 {
-                  "Resource": [
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              }
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              }
-                            ]
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        }
-                      ]
-                    }
-                  ],
+                  "Resource": "*",
                   "Action": [
                     "s3:List*",
                     "s3:Get*"
@@ -758,6 +701,14 @@
                   ],
                   "Action": [
                     "s3:*"
+                  ],
+                  "Effect": "Allow"
+                },
+                {
+                  "Resource": "*",
+                  "Action": [
+                    "s3:List*",
+                    "s3:Get*"
                   ],
                   "Effect": "Allow"
                 }
