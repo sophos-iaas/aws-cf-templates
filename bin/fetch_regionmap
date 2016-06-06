@@ -24,23 +24,35 @@ begin
   opts = Slop.parse do |o|
     o.string '--BYOL', 'product-code'
     o.string '--Hourly', 'product-code'
+    o.string '--EGW'
     o.string '-o', '--out', 'output file', default: '/dev/stdout'
     o.on '-h', '--help' do
       puts o
       exit
     end
   end
-  unless(opts[:BYOL] && opts[:Hourly] && opts[:out])
+  if !((opts[:BYOL] && opts[:Hourly]) || opts[:EGW])
     puts opts
     exit
   end
 
   region_map = {}
-  region_map = TemplateHelper::RegionMap.new( 'BYOL'   => opts[:BYOL], 'Hourly' => opts[:Hourly])
-  old_map = read_map_file(opts[:out])
-  if (region_map.to_hash == old_map)
-    puts "#{opts[:out]} has not changed. Not touching."
-  else
-    dump_map_file(region_map,opts[:out])
+  if (opts[:BYOL] && opts[:Hourly])
+    region_map = TemplateHelper::RegionMap.new( 'BYOL'   => opts[:BYOL], 'Hourly' => opts[:Hourly])
+    old_map = read_map_file(opts[:out])
+    if (region_map.to_hash == old_map)
+      puts "#{opts[:out]} has not changed. Not touching."
+    else
+      dump_map_file(region_map,opts[:out])
+    end
+  elsif (opts[:EGW])
+    region_map = TemplateHelper::RegionMap.new("XXX", "EGW")
+    old_map = read_map_file(opts[:out])
+    if (region_map.to_hash == old_map)
+      puts "#{opts[:out]} has not changed. Not touching."
+    else
+      dump_map_file(region_map,opts[:out])
+    end
+  else puts "Unknown options passed!!! Please use options --BYOL, --Hourly, --EGW"
   end
 end

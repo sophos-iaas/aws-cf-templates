@@ -4,6 +4,7 @@ VERSION = 9.403
 VERSION_EGW = 1.0
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
+EGW_ARGS = --EGW
 DEVEL_OWNER := 159737981378
 
 # set to 1 to use devel amis in region/ami map
@@ -13,7 +14,8 @@ DEVEL :=
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
 EGW_REGIONMAP = tmp/EGW_REGIONMAP.json
-VERSIONDIR = templates/conversion/$(VERSION) templates/egw/$(VERSION_EGW)
+VERSIONDIR = templates/conversion/$(VERSION)
+VERSIONDIR_EGW = templates/egw/$(VERSION_EGW)
 
 TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
 CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
@@ -25,7 +27,9 @@ FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_TEMPLATES)
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) egw_publish
+
+egw_publish: $(EGW_REGIONMAP) $(VERSIONDIR_EGW) $(EGW_TEMPLATES)
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -60,11 +64,9 @@ $(AUTOSCALING_REGIONMAP): tmp
 	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 	@$(GENERATE_TYPES) --in $@ --out $@
 
-# Build EGW templates using aws branch.
-# TODO: Change to production script when we are publishing production templates.
-$(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
-	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
-	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
+$(EGW_REGIONMAP): tmp
+	@echo Building EGW RegionMap
+	@$(FETCH_REGIONMAP) $(EGW_ARGS) --out $@
 	@$(GENERATE_TYPES) --in $@ --out $@
 
 endif
@@ -99,6 +101,12 @@ templates/egw/$(VERSION_EGW)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 
 $(VERSIONDIR):
 	@echo Creating new conversion release directory
+	@mkdir -p $@
+	-@[ -e $(dir $@)current ] && rm $(dir $@)current
+	@ln -s -r -s -f $@ $(dir $@)current
+
+$(VERSIONDIR_EGW):
+	@echo Creating new EGW release directory
 	@mkdir -p $@
 	-@[ -e $(dir $@)current ] && rm $(dir $@)current
 	@ln -s -r -s -f $@ $(dir $@)current
