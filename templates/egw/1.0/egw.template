@@ -35,14 +35,21 @@
       "Description": "AuthToken for API access. This token would be used as a shared secret for API communication between load balancer and the UTMs.",
       "Type": "String"
     },
-    "LoadBalancerTunnelIP": {
-      "Description": "Enter a /22 network that is not being used inside the VPC. For technical reasons avoid 127.0.0.0/8 or 0.0.0.0/8 network. The network would be subnetted into /30 to build tunnels between UTM Worker nodes and load balancer. Eg. Network that could be used is 240.250.0.0.",
-      "Type": "String",
-      "AllowedPattern": "^([0-9]{1,3}[.]){3}[0-9]{1,3}$",
-      "ConstraintDescription": "Must be IPv4 address: X.X.X.X"
+    "LoadBalancerUID": {
+      "Description": "Unique ID for the load balancer instance.",
+      "Type": "Number",
+      "MinValue": 1,
+      "MaxValue": 16383
+    },
+    "LoadBalancerTunnelPrefix": {
+      "Description": "The network prefix (e.g 240.0.0.0/8) to use (changes only required in case of conflict).",
+      "Type": "Number",
+      "Default": 240,
+      "MinValue": 240,
+      "MaxValue": 254
     },
     "InternetGateway": {
-      "Description": "IGW of the VPC the load balancer will be deployed into.",
+      "Description": "IGW of the VPC the load balancer will be deployed into (used for cfn-signal).",
       "Type": "String"
     },
     "ClientCIDR": {
@@ -60,11 +67,12 @@
             "default": "Load Balancer Configuration"
           },
           "Parameters": [
+            "LoadBalancerUID",
             "LoadBalancerSubnetID",
             "ImageID",
             "InstanceSize",
             "AuthToken",
-            "LoadBalancerTunnelIP"
+            "LoadBalancerTunnelPrefix"
           ]
         },
         {
@@ -104,8 +112,11 @@
         "AuthToken": {
           "default": "Authorization token"
         },
-        "LoadBalancerTunnelIP": {
-          "default": "IP address to be used for Load Balancer Tunnels"
+        "LoadBalancerUID": {
+          "default": "Unique ID of the Load Balancer"
+        },
+        "LoadBalancerTunnelPrefix": {
+          "default": "IP address prefix (class A network) to be used for Load Balancer Tunnels"
         },
         "InternetGateway": {
           "default": "Internet Gateway"
@@ -127,16 +138,44 @@
   },
   "Mappings": {
     "RegionMap": {
+      "eu-west-1": {
+        "EGW": "ami-0efe6c7d",
+        "InstanceType": "m3.medium"
+      },
+      "ap-southeast-1": {
+        "EGW": "ami-8ed505ed",
+        "InstanceType": "m3.medium"
+      },
       "ap-southeast-2": {
-        "EGW": "ami-e5d6fa86",
+        "EGW": "ami-ecdaf48f",
         "InstanceType": "m3.medium"
       },
       "eu-central-1": {
-        "EGW": "ami-70cb261f",
+        "EGW": "ami-eae40a85",
+        "InstanceType": "m3.medium"
+      },
+      "ap-northeast-2": {
+        "EGW": "ami-79ef2417",
+        "InstanceType": "c4.large"
+      },
+      "ap-northeast-1": {
+        "EGW": "ami-5e10ff3f",
         "InstanceType": "m3.medium"
       },
       "us-east-1": {
-        "EGW": "ami-6a26cb07",
+        "EGW": "ami-5fad5232",
+        "InstanceType": "m3.medium"
+      },
+      "sa-east-1": {
+        "EGW": "ami-7f6ae113",
+        "InstanceType": "m3.medium"
+      },
+      "us-west-1": {
+        "EGW": "ami-cb0d77ab",
+        "InstanceType": "m3.medium"
+      },
+      "us-west-2": {
+        "EGW": "ami-7717ef17",
         "InstanceType": "m3.medium"
       }
     }
@@ -436,11 +475,16 @@
                     "",
                     [
                       "{\n",
-                      "  \"base_ip\": \"",
+                      "  \"prefix\": ",
                       {
-                        "Ref": "LoadBalancerTunnelIP"
+                        "Ref": "LoadBalancerTunnelPrefix"
                       },
-                      "\",\n",
+                      ",\n",
+                      "  \"uid\": ",
+                      {
+                        "Ref": "LoadBalancerUID"
+                      },
+                      ",\n",
                       "  \"rest_auth_token\": \"",
                       {
                         "Ref": "AuthToken"
