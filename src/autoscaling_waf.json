@@ -157,6 +157,16 @@
                       "s3:Get*"
                     ],
                     "Effect": "Allow"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "logs:CreateLogGroup",
+                      "logs:CreateLogStream",
+                      "logs:PutLogEvents",
+                      "logs:DescribeLogStreams"
+                    ],
+                    "Resource": [ "arn:aws:logs:*:*:*" ]
                   }
                 ]
               }
@@ -262,17 +272,16 @@
                   "Action": "elb:*",
                   "Resource": "*"
                 },
-				{
-				  "Effect": "Allow",
-				  "Action": "elasticloadbalancing:*",
-				  "Resource": "*"
-				},
-				{
+                {
+                  "Effect": "Allow",
+                  "Action": "elasticloadbalancing:*",
+                  "Resource": "*"
+                },
+                {
                   "Effect": "Allow",
                   "Action": "sns:*",
                   "Resource": "*"
                 },
-
                 {
                   "Resource": [
                     { "Fn::If": ["CreateS3Bucket",
@@ -296,11 +305,21 @@
                 },
                 {
                   "Resource": "*",
-		  "Action": [
-		    "s3:List*",
-		    "s3:Get*"
-		  ],
+                  "Action": [
+                    "s3:List*",
+                    "s3:Get*"
+                  ],
                   "Effect": "Allow"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                  ],
+                  "Resource": [ "arn:aws:logs:*:*:*" ]
                 }
               ]
             }
