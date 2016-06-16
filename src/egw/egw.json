@@ -36,7 +36,7 @@
       "Type": "String"
     },
     "LoadBalancerUID": {
-      "Description": "Unique ID for the Gateway instance.",
+      "Description": "Unique ID for the Gateway instance. Start with 1 if you don't have any preference. (Note: Gateways with Resource Management by the UTM will use the range 8k - 16k)",
       "Type": "Number",
       "MinValue": 1,
       "MaxValue": 16383
