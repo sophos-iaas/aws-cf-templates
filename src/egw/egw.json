@@ -2,11 +2,11 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Parameters": {
     "VpcID": {
-      "Description": "Existing VPC into which load balancer should be deployed.",
+      "Description": "Existing VPC into which the Gateway should be deployed.",
       "Type": "AWS::EC2::VPC::Id"
     },
     "LoadBalancerSubnetID": {
-      "Description": "Subnet ID for load balancer.",
+      "Description": "Subnet ID for Gateway.",
       "Type": "AWS::EC2::Subnet::Id"
     },
     "KeyID": {
@@ -14,29 +14,29 @@
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
     "ImageID": {
-      "Description": "AMI to use for the load balancer instance.",
+      "Description": "AMI to use for the Gateway instance.",
       "Type": "String",
       "Default": "autodetect"
     },
     "InstanceSize" : {
       "Type" : "String",
       "Default" : "m3.medium",
-      "Description" : "Size of the load balancer instance. Eg. t2.micro, m3.medium, or m4.large..."
+      "Description" : "Size of the Gateway instance. Eg. t2.micro, m3.medium, or m4.large..."
     },
     "ControllerSecurityGroup": {
-      "Description": "Security group ID of the Controller node. Only SSH access to the load balancer will be allowed from this security group.",
+      "Description": "Security group ID of the Controller node. Only SSH access to the Gateway will be allowed from this security group.",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
     "UTMWorkerSecurityGroup": {
-      "Description": "Security group ID of the instances the load balancer should balance traffic to.",
+      "Description": "Security group ID of the instances the Gateway should balance traffic to.",
       "Type": "AWS::EC2::SecurityGroup::Id"
     },
     "AuthToken": {
-      "Description": "AuthToken for API access. This token would be used as a shared secret for API communication between load balancer and the UTMs.",
+      "Description": "AuthToken for API access. This token would be used as a shared secret for API communication between Gateway and the UTMs.",
       "Type": "String"
     },
     "LoadBalancerUID": {
-      "Description": "Unique ID for the load balancer instance.",
+      "Description": "Unique ID for the Gateway instance.",
       "Type": "Number",
       "MinValue": 1,
       "MaxValue": 16383
@@ -49,7 +49,7 @@
       "MaxValue": 254
     },
     "InternetGateway": {
-      "Description": "IGW of the VPC the load balancer will be deployed into (used for cfn-signal).",
+      "Description": "IGW of the VPC the Gateway will be deployed into (used for cfn-signal).",
       "Type": "String"
     },
     "ClientCIDR": {
@@ -63,7 +63,7 @@
     "AWS::CloudFormation::Interface" : {
       "ParameterGroups": [
         {
-          "Label": {"default": "Load Balancer Configuration"},
+          "Label": {"default": "Gateway Configuration"},
           "Parameters":[
             "LoadBalancerUID", "LoadBalancerSubnetID", "ImageID",
             "InstanceSize", "AuthToken", "LoadBalancerTunnelPrefix"
@@ -72,23 +72,23 @@
           "Label":{ "default": "Infrastructure Information" },
           "Parameters":["VpcID", "InternetGateway","ControllerSecurityGroup", "UTMWorkerSecurityGroup", "ClientCIDR" ]
         },{
-          "Label": { "default": "Credentials to access the Load Balancer"},
+          "Label": { "default": "Credentials to access the Gateway"},
           "Parameters": ["KeyID"]
         }
       ],
       "ParameterLabels":{
         "VpcID": { "default": "Existing VPC" },
-        "LoadBalancerSubnetID":{ "default": "Subnet ID of the Load Balancer" },
-        "ImageID": { "default": "AMI of the Load Balancer" },
-        "InstanceSize":{ "default": "Load Balancer instance size" },
+        "LoadBalancerSubnetID":{ "default": "Subnet ID of the Gateway" },
+        "ImageID": { "default": "AMI of the Gateway" },
+        "InstanceSize":{ "default": "Gateway instance size" },
         "AuthToken":{ "default":"Authorization token" },
-        "LoadBalancerUID":{ "default":"Unique ID of the Load Balancer" },
-        "LoadBalancerTunnelPrefix":{ "default":"IP address prefix (class A network) to be used for Load Balancer Tunnels" },
-        "InternetGateway":{ "default": "Internet Gateway" },
+        "LoadBalancerUID":{ "default":"Unique ID of the Gateway" },
+        "LoadBalancerTunnelPrefix":{ "default":"IP address prefix (class A network) to be used for Gateway Tunnels" },
+        "InternetGateway":{ "default": "Internet Gateway (IGW)" },
         "ClientCIDR":{ "default":"CIDR of the Clients/VDIs" },
         "ControllerSecurityGroup":{"default": "Security Group of the Controller node"},
         "UTMWorkerSecurityGroup":{"default": "Security Group of the Worker nodes"},
-        "KeyID": {"default":"SSH Key to access the Load Balancer"}
+        "KeyID": {"default":"SSH Key to access the Gateway"}
       }
     }
   },
