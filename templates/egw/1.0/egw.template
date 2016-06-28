@@ -139,43 +139,43 @@
   "Mappings": {
     "RegionMap": {
       "eu-west-1": {
-        "EGW": "ami-a59e03d6",
+        "EGW": "ami-6d5dc31e",
         "InstanceType": "m3.medium"
       },
       "ap-southeast-1": {
-        "EGW": "ami-dd0cdcbe",
+        "EGW": "ami-5801d23b",
         "InstanceType": "m3.medium"
       },
       "ap-southeast-2": {
-        "EGW": "ami-f1dff692",
+        "EGW": "ami-3e82ab5d",
         "InstanceType": "m3.medium"
       },
       "eu-central-1": {
-        "EGW": "ami-2537de4a",
+        "EGW": "ami-5643aa39",
         "InstanceType": "m3.medium"
       },
       "ap-northeast-2": {
-        "EGW": "ami-c3f932ad",
+        "EGW": "ami-e22fe48c",
         "InstanceType": "c4.large"
       },
       "ap-northeast-1": {
-        "EGW": "ami-938069f2",
+        "EGW": "ami-0cb2476d",
         "InstanceType": "m3.medium"
       },
       "us-east-1": {
-        "EGW": "ami-efb37482",
+        "EGW": "ami-191fd974",
         "InstanceType": "m3.medium"
       },
       "sa-east-1": {
-        "EGW": "ami-75109b19",
+        "EGW": "ami-4963e925",
         "InstanceType": "m3.medium"
       },
       "us-west-1": {
-        "EGW": "ami-47a7dd27",
+        "EGW": "ami-37bbfe57",
         "InstanceType": "m3.medium"
       },
       "us-west-2": {
-        "EGW": "ami-0acd366a",
+        "EGW": "ami-964782f6",
         "InstanceType": "m3.medium"
       }
     }
@@ -340,7 +340,7 @@
             "FromPort": "5555",
             "ToPort": "5555",
             "SourceSecurityGroupId": {
-              "Ref": "UTMWorkerSecurityGroup"
+              "Ref": "ControllerSecurityGroup"
             }
           },
           {
@@ -348,7 +348,7 @@
             "FromPort": "5555",
             "ToPort": "5555",
             "SourceSecurityGroupId": {
-              "Ref": "ControllerSecurityGroup"
+              "Ref": "UTMWorkerSecurityGroup"
             }
           },
           {
