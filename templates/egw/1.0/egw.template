@@ -344,6 +344,14 @@
             }
           },
           {
+            "IpProtocol": "tcp",
+            "FromPort": "5555",
+            "ToPort": "5555",
+            "SourceSecurityGroupId": {
+              "Ref": "ControllerSecurityGroup"
+            }
+          },
+          {
             "IpProtocol": "47",
             "SourceSecurityGroupId": {
               "Ref": "UTMWorkerSecurityGroup"
