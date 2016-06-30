@@ -139,43 +139,43 @@
   "Mappings": {
     "RegionMap": {
       "eu-west-1": {
-        "EGW": "ami-6d5dc31e",
+        "EGW": "ami-efd3499c",
         "InstanceType": "m3.medium"
       },
       "ap-southeast-1": {
-        "EGW": "ami-5801d23b",
+        "EGW": "ami-ec30e28f",
         "InstanceType": "m3.medium"
       },
       "ap-southeast-2": {
-        "EGW": "ami-3e82ab5d",
+        "EGW": "ami-1b82aa78",
         "InstanceType": "m3.medium"
       },
       "eu-central-1": {
-        "EGW": "ami-5643aa39",
+        "EGW": "ami-ace00bc3",
         "InstanceType": "m3.medium"
       },
       "ap-northeast-2": {
-        "EGW": "ami-e22fe48c",
+        "EGW": "ami-9066adfe",
         "InstanceType": "c4.large"
       },
       "ap-northeast-1": {
-        "EGW": "ami-0cb2476d",
+        "EGW": "ami-77d92816",
         "InstanceType": "m3.medium"
       },
       "us-east-1": {
-        "EGW": "ami-191fd974",
+        "EGW": "ami-91f43afc",
         "InstanceType": "m3.medium"
       },
       "sa-east-1": {
-        "EGW": "ami-4963e925",
+        "EGW": "ami-49eb7e25",
         "InstanceType": "m3.medium"
       },
       "us-west-1": {
-        "EGW": "ami-37bbfe57",
+        "EGW": "ami-25064145",
         "InstanceType": "m3.medium"
       },
       "us-west-2": {
-        "EGW": "ami-964782f6",
+        "EGW": "ami-a9fb3dc9",
         "InstanceType": "m3.medium"
       }
     }

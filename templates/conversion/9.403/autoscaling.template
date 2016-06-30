@@ -1589,15 +1589,7 @@
             }
           ]
         },
-        "InstanceType": {
-          "Fn::FindInMap": [
-            "RegionMap",
-            {
-              "Ref": "AWS::Region"
-            },
-            "InstanceType"
-          ]
-        },
+        "InstanceType": "m4.large",
         "KeyName": {
           "Ref": "awsKeyName"
         },
