@@ -98,9 +98,6 @@ templates/egw/$(EGW_VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
 
-# Create new version directory, if previous doesn't exist
-# Create symlinks. Check if we already have symlink. If so then we delete it.
-# As we create new one in next step. Also ignore any errors
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
 	@echo Creating $@ directory
 	@mkdir -p $@
