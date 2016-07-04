@@ -1,7 +1,11 @@
 ## Configuration
-# Get the version as parameter
-VERSION = 9.403
-VERSION_EGW = 1.0
+# UTM_VERSION = *_verdi branch version that has been deployed to aws
+# The default here is only for convenience, and usually is passed with the
+# jenkins build job or during execution
+UTM_VERSION ?= 9.405
+# EGW_VERSION = version of interface paramters (if they change in an
+# incompatible way, the version updates also)
+EGW_VERSION ?= 1.0
 AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
 EGW_ARGS = --EGW
@@ -14,12 +18,12 @@ DEVEL :=
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
 EGW_REGIONMAP = tmp/EGW_REGIONMAP.json
-VERSIONDIR = templates/conversion/$(VERSION)
-VERSIONDIR_EGW = templates/egw/$(VERSION_EGW)
+UTM_VERSION_DIR = templates/conversion/$(UTM_VERSION)
+EGW_VERSION_DIR = templates/egw/$(EGW_VERSION)
 
 TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
-CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
-EGW_TEMPLATES := templates/egw/$(VERSION_EGW)/egw.template
+CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(UTM_VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
+EGW_TEMPLATES := templates/egw/$(EGW_VERSION)/egw.template
 
 ## bins
 BUNDLE_EXEC = bundle exec
@@ -27,9 +31,9 @@ FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(VERSIONDIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) egw_publish
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) egw_publish
 
-egw_publish: $(EGW_REGIONMAP) $(VERSIONDIR_EGW) $(EGW_TEMPLATES)
+egw_publish: $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -81,39 +85,31 @@ templates/%.template: src/%.json $(HA_REGIONMAP)
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
 # Overwrite autoscaling target to use autoscaling region map
-templates/conversion/$(VERSION)/autoscaling.template: src/conversion/autoscaling.json $(AUTOSCALING_REGIONMAP)
+templates/conversion/$(UTM_VERSION)/autoscaling.template: src/conversion/autoscaling.json $(AUTOSCALING_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
 
-templates/conversion/$(VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP)
+templates/conversion/$(UTM_VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
 
 # Create EGW templates from src directory.
-templates/egw/$(VERSION_EGW)/%.template: src/egw/%.json $(EGW_REGIONMAP)
+templates/egw/$(EGW_VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 	@echo building $@
 	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
 
-# Create new version directory, if previous doesn't exist
-# Create symlinks
-# Check if we already have symlink. If so then we delete it. As we create new one in next step.
-# Also ignore any errors
-
-$(VERSIONDIR):
-	@echo Creating new conversion release directory
+$(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
+	@echo Creating $@ directory
 	@mkdir -p $@
-	-@[ -e $(dir $@)current ] && rm $(dir $@)current
-	@ln -s -r -s -f $@ $(dir $@)current
-
-$(VERSIONDIR_EGW):
-	@echo Creating new EGW release directory
-	@mkdir -p $@
-	-@[ -e $(dir $@)current ] && rm $(dir $@)current
-	@ln -s -r -s -f $@ $(dir $@)current
+	@echo Linking $(dir $@)current to $(shell basename $@)
+	-@ln -sf $(shell basename $@) $(dir $@)current
 
 #tmp dir is not in git and empty. Must be created if it does not exist yet
 tmp:
 	@mkdir $@
 
+clean:
+	rm -rf templates/conversion templates/egw templates/*.template
 
-.PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) $(VERSIONDIR)
+.PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) \
+	$(UTM_VERSION_DIR) clean
