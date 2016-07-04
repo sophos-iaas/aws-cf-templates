@@ -104,8 +104,8 @@ templates/egw/$(EGW_VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP)
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
 	@echo Creating $@ directory
 	@mkdir -p $@
-	-@[ -e $(dir $@)current ] && rm $(dir $@)current
-	-@ln -sf $(basename $@) $(dir $@)current
+	@echo Linking $(dir $@)current to $(shell basename $@)
+	-@ln -sf $(shell basename $@) $(dir $@)current
 
 #tmp dir is not in git and empty. Must be created if it does not exist yet
 tmp:
