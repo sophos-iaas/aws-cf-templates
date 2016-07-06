@@ -130,6 +130,7 @@
     "Resources": {
       "WorkerRole" : {
         "Type": "AWS::IAM::Role",
+        "DependsOn" : "QueenRole",
         "Properties": {
           "AssumeRolePolicyDocument": {
             "Version": "2012-10-17",
@@ -497,7 +498,8 @@
     },
 
     "ConfdSNSTopic" : {
-        "Type" : "AWS::SNS::Topic"
+        "Type" : "AWS::SNS::Topic",
+        "DependsOn" : "QueenRole"
     },
 
     "SwarmSecurityGroup": {
