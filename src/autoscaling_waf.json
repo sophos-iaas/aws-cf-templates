@@ -1080,10 +1080,6 @@
 							"        to_port: 65535\n",
 							"        protocol: ANY\n",
 							"        source: 0.0.0.0/0\n",
-							"      - from_port: 514\n",
-							"        to_port: 514\n",
-							"        protocol: UDP\n",
-							"        source: ",{"Ref":"QueenSecurityGroup"},"\n",
 							"elbs:\n"
 							]]
 						}
