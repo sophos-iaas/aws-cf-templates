@@ -337,20 +337,26 @@
     "QueenSubnet1" : {
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
-        "VpcId" : { "Ref" : "awsVPCID" },
-        "CidrBlock" :  { "Fn::Select" : [ "0", {"Ref" : "awsSubnetIPBlocks"} ] },
-        "AvailabilityZone" : {"Ref": "awsAvailabilityZone1"},
-        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+            "VpcId" : { "Ref" : "awsVPCID" },
+            "CidrBlock" :  { "Fn::Select" : [ "0", {"Ref" : "awsSubnetIPBlocks"} ] },
+            "AvailabilityZone" : {"Ref": "awsAvailabilityZone1"},
+            "Tags" : [
+                {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+                {"Key" : "Name", "Value" : "QueenSubnet1" }
+            ]
         },
         "DependsOn": "QueenRole"
     },
     "QueenSubnet2" : {
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
-        "VpcId" : { "Ref" : "awsVPCID" },
-        "CidrBlock" :  { "Fn::Select" : [ "1", {"Ref" : "awsSubnetIPBlocks"} ] },
-        "AvailabilityZone" : {"Ref": "awsAvailabilityZone2"},
-        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+            "VpcId" : { "Ref" : "awsVPCID" },
+            "CidrBlock" :  { "Fn::Select" : [ "1", {"Ref" : "awsSubnetIPBlocks"} ] },
+            "AvailabilityZone" : {"Ref": "awsAvailabilityZone2"},
+            "Tags" : [
+                {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+                {"Key" : "Name", "Value" : "QueenSubnet2" }
+            ]
         },
         "DependsOn": "QueenRole"
     },
@@ -358,20 +364,26 @@
     "SwarmSubnet1" : {
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
-        "VpcId" : { "Ref" : "awsVPCID" },
-        "CidrBlock" :  { "Fn::Select" : [ "2", {"Ref" : "awsSubnetIPBlocks"} ] },
-        "AvailabilityZone" : {"Ref": "awsAvailabilityZone1"},
-        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+            "VpcId" : { "Ref" : "awsVPCID" },
+            "CidrBlock" :  { "Fn::Select" : [ "2", {"Ref" : "awsSubnetIPBlocks"} ] },
+            "AvailabilityZone" : {"Ref": "awsAvailabilityZone1"},
+            "Tags" : [
+                {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+                {"Key" : "Name", "Value" : "SwarmSubnet1" }
+            ]
         },
         "DependsOn": "QueenRole"
     },
     "SwarmSubnet2" : {
         "Type" : "AWS::EC2::Subnet",
         "Properties" : {
-        "VpcId" : { "Ref" : "awsVPCID" },
-        "CidrBlock" :  { "Fn::Select" : [ "3", {"Ref" : "awsSubnetIPBlocks"} ] },
-        "AvailabilityZone" : {"Ref": "awsAvailabilityZone2"},
-        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+            "VpcId" : { "Ref" : "awsVPCID" },
+            "CidrBlock" :  { "Fn::Select" : [ "3", {"Ref" : "awsSubnetIPBlocks"} ] },
+            "AvailabilityZone" : {"Ref": "awsAvailabilityZone2"},
+            "Tags" : [
+                {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+                {"Key" : "Name", "Value" : "SwarmSubnet2" }
+            ]
         },
         "DependsOn": "QueenRole"
     },

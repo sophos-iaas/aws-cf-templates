@@ -352,8 +352,11 @@
 	    "Properties" : {
 		"VpcId" : { "Ref" : "VPC" },
 		"CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "awsNetworkPrefix" }, "1.0/24" ] ] },
-		"AvailabilityZone" : {"Ref": "awsAvailabilityZone1"},
-		"Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+		"AvailabilityZone" : { "Ref": "awsAvailabilityZone1" },
+		"Tags" : [
+                    { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                    { "Key" : "Name", "Value" : "QueenSubnet1" }
+                ]
 	    },
 	    "DependsOn": "QueenRole"
 	},
@@ -362,8 +365,11 @@
 	    "Properties" : {
 		"VpcId" : { "Ref" : "VPC" },
 		"CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "awsNetworkPrefix" }, "2.0/24" ] ] },
-		"AvailabilityZone" : {"Ref": "awsAvailabilityZone2"},
-		"Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+		"AvailabilityZone" : { "Ref": "awsAvailabilityZone2" },
+		"Tags" : [
+                    { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                    { "Key" : "Name", "Value" : "QueenSubnet2" }
+                ]
 	    },
 	    "DependsOn": "QueenRole"
 	},
@@ -373,8 +379,11 @@
 	    "Properties" : {
 		"VpcId" : { "Ref" : "VPC" },
 		"CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "awsNetworkPrefix" }, "4.0/24" ] ] },
-		"AvailabilityZone" : {"Ref": "awsAvailabilityZone1"},
-		"Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+		"AvailabilityZone" : { "Ref": "awsAvailabilityZone1" },
+		"Tags" : [
+                    { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                    { "Key" : "Name", "Value" : "SwarmSubnet1" }
+                ]
 	    },
 	    "DependsOn": "QueenRole"
 	},
@@ -383,8 +392,11 @@
 	    "Properties" : {
 		"VpcId" : { "Ref" : "VPC" },
 		"CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "awsNetworkPrefix" }, "5.0/24" ] ] },
-		"AvailabilityZone" : {"Ref": "awsAvailabilityZone2"},
-		"Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+		"AvailabilityZone" : { "Ref": "awsAvailabilityZone2" },
+		"Tags" : [
+                    { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                    { "Key" : "Name", "Value" : "SwarmSubnet2" }
+                ]
 	    },
 	    "DependsOn": "QueenRole"
 	},
