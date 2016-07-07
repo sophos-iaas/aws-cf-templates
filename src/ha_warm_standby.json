@@ -119,7 +119,7 @@
                 "EnableDnsSupport" : "true",
                 "EnableDnsHostnames" : "true",
                 "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "0.0/16" ] ] },
-                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } } ]
             }
         },
 
@@ -129,7 +129,10 @@
                 "VpcId" : { "Ref" : "VPC" },
                 "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "1.0/24" ] ] },
                 "AvailabilityZone" : {"Ref": "AvailabilityZone1"},
-                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+                "Tags" : [
+                  { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                  { "Key" : "Name", "Value" : "HA_UTM" }
+                ]
             }
         },
 
@@ -139,7 +142,10 @@
                 "VpcId" : { "Ref" : "VPC" },
                 "CidrBlock" : { "Fn::Join" : [ ".", [ { "Ref" : "NetworkPrefix" }, "2.0/24" ] ] },
                 "AvailabilityZone" : {"Ref": "AvailabilityZone2"},
-                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+                "Tags" : [
+                  { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                  { "Key" : "Name", "Value" : "HA_UTM" }
+                ]
             }
         },
 

@@ -131,9 +131,12 @@
             "Type" : "AWS::EC2::Subnet",
             "Properties" : {
                 "VpcId" : { "Ref" : "VPCID" },
-                "CidrBlock" : { "Fn::Select" : [ "0", {"Ref" : "SubnetIPBlocks"} ] },
+                "CidrBlock" : { "Fn::Select" : [ "0", { "Ref" : "SubnetIPBlocks" } ] },
                 "AvailabilityZone" : { "Ref": "AvailabilityZone1"},
-                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+                "Tags" : [
+                  { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                  { "Key" : "Name", "Value" : "HA_UTM" }
+                ]
             }
         },
 
@@ -141,9 +144,12 @@
             "Type" : "AWS::EC2::Subnet",
             "Properties" : {
                 "VpcId" : { "Ref" : "VPCID" },
-                "CidrBlock" : { "Fn::Select" : [ "1", {"Ref" : "SubnetIPBlocks"} ] },
+                "CidrBlock" : { "Fn::Select" : [ "1", { "Ref" : "SubnetIPBlocks" } ] },
                 "AvailabilityZone" : { "Ref": "AvailabilityZone2"},
-                "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+                "Tags" : [
+                  { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+                  { "Key" : "Name", "Value" : "HA_UTM" }
+                ]
             }
         },
 
@@ -543,7 +549,7 @@
                     "DeviceName" : "/dev/sda",
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
-                "SecurityGroups" : 
+                "SecurityGroups" :
                   { "Fn::If" : [ "UseExistingSG",
                       [ { "Ref" : "ExistingSecurityGroup" },
                     	  { "Fn::GetAtt": [ "UTMSecurityGroup", "GroupId" ] },
