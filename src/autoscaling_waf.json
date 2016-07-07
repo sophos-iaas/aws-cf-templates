@@ -756,7 +756,7 @@
         ]
     },
                 "InstanceType" : {
-			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "InstanceType" ]
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "SwarmInstanceType" ]
 			},
 		"KeyName" : { "Ref" : "awsKeyName" },
 		"BlockDeviceMappings" : [{
@@ -892,7 +892,9 @@
             { "Ref": "awsAMI" }
         ]
     },
-                "InstanceType" : "m4.large",
+                "InstanceType" : {
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "QueenInstanceType" ]
+			},
 		"KeyName" : { "Ref" : "awsKeyName" },
 		"BlockDeviceMappings" : [{
 		    "DeviceName" : "/dev/xvda",
