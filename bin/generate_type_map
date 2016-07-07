@@ -3,10 +3,15 @@
 require 'slop'
 require 'json'
 
-INSTANCE_TYPES = {
+SWARM_TYPES = {
   'ap-northeast-2' => 'c4.large',
   'default' => 'm3.medium'
-}
+}.freeze
+
+QUEEN_TYPES = {
+  'sa-east-1' => 'm3.large',
+  'default' => 'm4.large'
+}.freeze
 
 def read_json_file(filename)
   doc = File.read(filename)
@@ -37,7 +42,8 @@ begin
   region_map = read_json_file(opts[:in])
 
   region_map.each do |region, vars|
-    vars['InstanceType'] = INSTANCE_TYPES[region] || INSTANCE_TYPES['default']
+    vars['SwarmInstanceType'] = SWARM_TYPES[region] || SWARM_TYPES['default']
+    vars['QueenInstanceType'] = QUEEN_TYPES[region] || QUEEN_TYPES['default']
   end
 
   write_output(region_map, opts[:out]);

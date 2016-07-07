@@ -827,7 +827,7 @@
         "AssociatePublicIpAddress": true,
         "IamInstanceProfile": {"Ref":"WorkerInstanceProfile"},
         "ImageId": {"Fn::If":["UseRegionMap",{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},{"Ref":"awsLicenseType"}]},{"Ref":"awsAMI"}]},
-        "InstanceType": {"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"InstanceType"]},
+        "InstanceType": {"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"SwarmInstanceType"]},
         "KeyName": {"Ref":"awsKeyName"},
         "BlockDeviceMappings": [
           {
@@ -963,7 +963,9 @@
         "AssociatePublicIpAddress": true,
         "IamInstanceProfile": {"Ref":"QueenInstanceProfile"},
         "ImageId": {"Fn::If":["UseRegionMap",{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},{"Ref":"awsLicenseType"}]},{"Ref":"awsAMI"}]},
-        "InstanceType": "m4.large",
+        "InstanceType": {
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "QueenInstanceType" ]
+			},
         "KeyName": {"Ref":"awsKeyName"},
         "BlockDeviceMappings": [
           {
