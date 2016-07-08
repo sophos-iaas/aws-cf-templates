@@ -19,9 +19,9 @@
       "Default": "autodetect"
     },
     "InstanceSize" : {
+      "Description" : "Size of the Gateway instance. Default selects m3.medium or c4.large depending on the region.",
       "Type" : "String",
-      "Default" : "m3.medium",
-      "Description" : "Size of the Gateway instance. Eg. t2.micro, m3.medium, or m4.large..."
+      "Default" : "default"
     },
     "ControllerSecurityGroup": {
       "Description": "Security group ID of the Controller node. Only SSH access to the Gateway will be allowed from this security group.",
@@ -98,7 +98,8 @@
   },
 
   "Conditions": {
-    "UseRegionMap": { "Fn::Equals": [ {"Ref": "ImageID"}, "autodetect" ] }
+    "UseRegionMap": { "Fn::Equals": [ {"Ref": "ImageID"}, "autodetect" ] },
+    "DetectInstanceSize": { "Fn::Equals": [ {"Ref": "InstanceSize"}, "default" ] }
   },
 
   "Resources": {
@@ -287,7 +288,11 @@
           ]
         },
         "InstanceType": {
-          "Ref": "InstanceSize"
+          "Fn::If": [
+            "DetectInstanceSize",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "EGWInstanceType" ] },
+            { "Ref": "InstanceSize" }
+          ]
         },
         "NetworkInterfaces": [ {
           "AssociatePublicIpAddress": "true",
