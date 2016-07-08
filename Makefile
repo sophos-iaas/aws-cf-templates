@@ -27,9 +27,10 @@ EGW_TEMPLATES := templates/egw/$(EGW_VERSION)/egw.template
 
 ## bins
 BUNDLE_EXEC = bundle exec
-FETCH_REGIONMAP = $(BUNDLE_EXEC) ./bin/fetch_regionmap
+CREATE_REGIONMAP = $(BUNDLE_EXEC) ./bin/create_regionmap
+CREATE_REGIONMAP_DEV = $(BUNDLE_EXEC) ./bin/create_regionmap_dev
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
-GENERATE_TYPES = $(BUNDLE_EXEC) ./bin/generate_type_map
+ADD_TYPES_TO_MAP = $(BUNDLE_EXEC) ./bin/add_types_to_map
 
 all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) egw_publish
 
@@ -42,36 +43,36 @@ ifeq ($(DEVEL),1)
 # entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
 # Using verdi branch (axg*_verdi) for HA
 $(HA_REGIONMAP): $(dir $(HA_REGIONMAP))
-	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
             --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
-	@$(GENERATE_TYPES) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
-	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
 	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
-	@$(GENERATE_TYPES) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
 
 # Build EGW templates using aws branch
 $(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
-	$(BUNDLE_EXEC) ./bin/fetch_region_ami_map_dev --owner '$(DEVEL_OWNER)' \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
-	@$(GENERATE_TYPES) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
 else
 $(HA_REGIONMAP): tmp
 	@echo Building HA regionmap
-	@$(FETCH_REGIONMAP) $(HA_ARGS) --out $@
-	@$(GENERATE_TYPES) --in $@ --out $@
+	@$(CREATE_REGIONMAP) $(HA_ARGS) --out $@
+	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
 
 $(AUTOSCALING_REGIONMAP): tmp
 	@echo Building Autoscaling RegionMap
-	@$(FETCH_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
-	@$(GENERATE_TYPES) --in $@ --out $@
+	@$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
+	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
 
 $(EGW_REGIONMAP): tmp
 	@echo Building EGW RegionMap
-	@$(FETCH_REGIONMAP) $(EGW_ARGS) --out $@
-	@$(GENERATE_TYPES) --in $@ --out $@
+	@$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@
+	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
 
 endif
 
