@@ -542,7 +542,7 @@
                     ]
                 },
                 "InstanceType" : {
-			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "InstanceType" ]
+			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "HAInstanceType" ]
 			},
                 "KeyName" : { "Ref" : "KeyName" },
                 "BlockDeviceMappings" : [{

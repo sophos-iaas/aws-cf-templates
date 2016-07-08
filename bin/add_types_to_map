@@ -3,6 +3,13 @@
 require 'slop'
 require 'json'
 
+
+HA_TYPES = {
+  'ap-northeast-2' => 'c4.large',
+  'ap-south-1' => 'c4.large',
+  'default' => 'm3.medium'
+}.freeze
+
 EGW_TYPES = {
   'ap-northeast-2' => 'c4.large',
   'ap-south-1' => 'c4.large',
@@ -49,6 +56,7 @@ begin
   region_map = read_json_file(opts[:in])
 
   region_map.each do |region, vars|
+    vars['HAInstanceType'] = HA_TYPES[region] || HA_TYPES['default']
     vars['EGWInstanceType'] = EGW_TYPES[region] || EGW_TYPES['default']
     vars['SwarmInstanceType'] = SWARM_TYPES[region] || SWARM_TYPES['default']
     vars['QueenInstanceType'] = QUEEN_TYPES[region] || QUEEN_TYPES['default']
