@@ -3,8 +3,22 @@
 require 'slop'
 require 'json'
 
+
+HA_TYPES = {
+  'ap-northeast-2' => 'c4.large',
+  'ap-south-1' => 'c4.large',
+  'default' => 'm3.medium'
+}.freeze
+
+EGW_TYPES = {
+  'ap-northeast-2' => 'c4.large',
+  'ap-south-1' => 'c4.large',
+  'default' => 'm3.medium'
+}.freeze
+
 SWARM_TYPES = {
   'ap-northeast-2' => 'c4.large',
+  'ap-south-1' => 'c4.large',
   'default' => 'm3.medium'
 }.freeze
 
@@ -26,6 +40,7 @@ end
 
 begin
   opts = Slop.parse do |o|
+    o.string '--type'
     o.string '-i', '--in', 'input region map'
     o.string '-o', '--out', 'output file', default: '/dev/stdout'
     o.on '-h', '--help' do
@@ -42,8 +57,14 @@ begin
   region_map = read_json_file(opts[:in])
 
   region_map.each do |region, vars|
-    vars['SwarmInstanceType'] = SWARM_TYPES[region] || SWARM_TYPES['default']
-    vars['QueenInstanceType'] = QUEEN_TYPES[region] || QUEEN_TYPES['default']
+    if (opts[:type] == "HA")
+      vars['HAInstanceType'] = HA_TYPES[region] || HA_TYPES['default']
+    elsif (opts[:type] == "AS")
+      vars['SwarmInstanceType'] = SWARM_TYPES[region] || SWARM_TYPES['default']
+      vars['QueenInstanceType'] = QUEEN_TYPES[region] || QUEEN_TYPES['default']
+    elsif (opts[:type] == "EGW")
+      vars['EGWInstanceType'] = EGW_TYPES[region] || EGW_TYPES['default']
+    end
   end
 
   write_output(region_map, opts[:out]);
