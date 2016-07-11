@@ -12,9 +12,9 @@ EGW_ARGS = --EGW
 DEVEL_OWNER := 159737981378
 
 # Args for instance type mappings
-HA_TYPES_ARGS = --HA
-AUTOSCALING_TYPES_ARGS = --AS
-EGW_TYPES_ARGS = --EGW
+HA_TYPES_ARGS = --type HA
+AUTOSCALING_TYPES_ARGS = --type AS
+EGW_TYPES_ARGS = --type EGW
 
 # set to 1 to use devel amis in region/ami map
 DEVEL :=
