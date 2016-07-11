@@ -11,6 +11,11 @@ HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
 EGW_ARGS = --EGW
 DEVEL_OWNER := 159737981378
 
+# Args for instance type mappings
+HA_TYPES_ARGS = --HA
+AUTOSCALING_TYPES_ARGS = --AS
+EGW_TYPES_ARGS = --EGW
+
 # set to 1 to use devel amis in region/ami map
 DEVEL :=
 
@@ -45,35 +50,34 @@ ifeq ($(DEVEL),1)
 $(HA_REGIONMAP): $(dir $(HA_REGIONMAP))
 	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
             --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
-	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
 	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
 	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
-	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
 
 # Build EGW templates using aws branch
 $(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
 	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
-	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
 else
 $(HA_REGIONMAP): tmp
 	@echo Building HA regionmap
 	@$(CREATE_REGIONMAP) $(HA_ARGS) --out $@
-	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
 
 $(AUTOSCALING_REGIONMAP): tmp
 	@echo Building Autoscaling RegionMap
 	@$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
-	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
+	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
 
 $(EGW_REGIONMAP): tmp
 	@echo Building EGW RegionMap
 	@$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@
-	@$(ADD_TYPES_TO_MAP) --in $@ --out $@
-
+	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
 endif
 
 # Overwrite autoscaling target to use autoscaling region map

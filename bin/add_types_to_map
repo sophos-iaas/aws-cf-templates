@@ -40,6 +40,9 @@ end
 
 begin
   opts = Slop.parse do |o|
+    o.string '--HA'
+    o.string '--AS'
+    o.string '--EGW'
     o.string '-i', '--in', 'input region map'
     o.string '-o', '--out', 'output file', default: '/dev/stdout'
     o.on '-h', '--help' do
@@ -56,10 +59,14 @@ begin
   region_map = read_json_file(opts[:in])
 
   region_map.each do |region, vars|
-    vars['HAInstanceType'] = HA_TYPES[region] || HA_TYPES['default']
-    vars['EGWInstanceType'] = EGW_TYPES[region] || EGW_TYPES['default']
-    vars['SwarmInstanceType'] = SWARM_TYPES[region] || SWARM_TYPES['default']
-    vars['QueenInstanceType'] = QUEEN_TYPES[region] || QUEEN_TYPES['default']
+    if (opts[:HA])
+      vars['HAInstanceType'] = HA_TYPES[region] || HA_TYPES['default']
+    elsif (opts[:AS])
+      vars['SwarmInstanceType'] = SWARM_TYPES[region] || SWARM_TYPES['default']
+      vars['QueenInstanceType'] = QUEEN_TYPES[region] || QUEEN_TYPES['default']
+    elsif (opts[:EGW])
+      vars['EGWInstanceType'] = EGW_TYPES[region] || EGW_TYPES['default']
+    end
   end
 
   write_output(region_map, opts[:out]);
