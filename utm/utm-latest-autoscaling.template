@@ -119,7 +119,7 @@
         "Ghana",
         "Gibraltar",
         "Greenland",
-        " Gambia",
+        "Gambia",
         "Guinea",
         "Guadeloupe",
         "Equatorial Guinea",
@@ -335,54 +335,64 @@
   "Mappings": {
     "RegionMap": {
       "eu-west-1": {
-        "BYOL": "ami-743dbf07",
-        "Hourly": "ami-bf149acc",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-9e5034ed",
+        "Hourly": "ami-eb543098",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "ap-southeast-1": {
-        "BYOL": "ami-14914577",
-        "Hourly": "ami-5bb26538",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-0dc21f6e",
+        "Hourly": "ami-0ec21f6d",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "ap-southeast-2": {
-        "BYOL": "ami-25ddff46",
-        "Hourly": "ami-fca68b9f",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-18edc67b",
+        "Hourly": "ami-1bedc678",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "eu-central-1": {
-        "BYOL": "ami-4b04e424",
-        "Hourly": "ami-7192701e",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-6d997302",
+        "Hourly": "ami-849b71eb",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "ap-northeast-2": {
-        "BYOL": "ami-29f33b47",
-        "Hourly": "ami-383bf356",
-        "InstanceType": "c4.large"
+        "BYOL": "ami-08935966",
+        "Hourly": "ami-ce905aa0",
+        "SwarmInstanceType": "c4.large",
+        "QueenInstanceType": "m4.large"
       },
       "ap-northeast-1": {
-        "BYOL": "ami-518e933f",
-        "Hourly": "ami-cfffe7a1",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-daf301bb",
+        "Hourly": "ami-c88f7da9",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "us-east-1": {
-        "BYOL": "ami-651a070f",
-        "Hourly": "ami-1d9c7870",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-23c14534",
+        "Hourly": "ami-a9c440be",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "sa-east-1": {
-        "BYOL": "ami-8a8608e6",
-        "Hourly": "ami-c5e76ea9",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-14c65278",
+        "Hourly": "ami-17c6527b",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m3.large"
       },
       "us-west-1": {
-        "BYOL": "ami-eb7c038b",
-        "Hourly": "ami-afb1cfcf",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-89ce89e9",
+        "Hourly": "ami-82d691e2",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       },
       "us-west-2": {
-        "BYOL": "ami-0f55a26f",
-        "Hourly": "ami-3c55a55c",
-        "InstanceType": "m3.medium"
+        "BYOL": "ami-aab373ca",
+        "Hourly": "ami-29b07049",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large"
       }
     }
   },
@@ -427,6 +437,7 @@
   "Resources": {
     "WorkerRole": {
       "Type": "AWS::IAM::Role",
+      "DependsOn": "QueenRole",
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
@@ -471,69 +482,24 @@
                   "Resource": "*"
                 },
                 {
-                  "Resource": [
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              }
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              }
-                            ]
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:aws:s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        }
-                      ]
-                    }
-                  ],
+                  "Resource": "*",
                   "Action": [
                     "s3:List*",
                     "s3:Get*"
                   ],
                   "Effect": "Allow"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                  ],
+                  "Resource": [
+                    "arn:aws:logs:*:*:*"
+                  ]
                 }
               ]
             }
@@ -760,6 +726,26 @@
                     "s3:*"
                   ],
                   "Effect": "Allow"
+                },
+                {
+                  "Resource": "*",
+                  "Action": [
+                    "s3:List*",
+                    "s3:Get*"
+                  ],
+                  "Effect": "Allow"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                  ],
+                  "Resource": [
+                    "arn:aws:logs:*:*:*"
+                  ]
                 }
               ]
             }
@@ -831,6 +817,10 @@
             "Value": {
               "Ref": "AWS::StackId"
             }
+          },
+          {
+            "Key": "Name",
+            "Value": "QueenSubnetAZ1"
           }
         ]
       },
@@ -862,6 +852,10 @@
             "Value": {
               "Ref": "AWS::StackId"
             }
+          },
+          {
+            "Key": "Name",
+            "Value": "QueenSubnetAZ2"
           }
         ]
       },
@@ -893,6 +887,10 @@
             "Value": {
               "Ref": "AWS::StackId"
             }
+          },
+          {
+            "Key": "Name",
+            "Value": "SwarmSubnetAZ1"
           }
         ]
       },
@@ -924,6 +922,10 @@
             "Value": {
               "Ref": "AWS::StackId"
             }
+          },
+          {
+            "Key": "Name",
+            "Value": "SwarmSubnetAZ2"
           }
         ]
       },
@@ -996,99 +998,6 @@
         ]
       }
     },
-    "QueenNetworkAcl": {
-      "Type": "AWS::EC2::NetworkAcl",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
-          }
-        ]
-      }
-    },
-    "InboundTCPQueenNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "QueenNetworkAcl"
-        },
-        "RuleNumber": "100",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "0",
-          "To": "65535"
-        }
-      }
-    },
-    "InboundUDPQueenNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "QueenNetworkAcl"
-        },
-        "RuleNumber": "200",
-        "Protocol": "17",
-        "RuleAction": "allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "0",
-          "To": "65535"
-        }
-      }
-    },
-    "OutboundTCPQueenNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "QueenNetworkAcl"
-        },
-        "RuleNumber": "150",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "true",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "0",
-          "To": "65535"
-        }
-      }
-    },
-    "OutboundUDPQueenNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "QueenNetworkAcl"
-        },
-        "RuleNumber": "250",
-        "Protocol": "17",
-        "RuleAction": "allow",
-        "Egress": "true",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "0",
-          "To": "65535"
-        }
-      }
-    },
     "QueenSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "DependsOn": "QueenRole",
@@ -1110,30 +1019,6 @@
         },
         "RouteTableId": {
           "Ref": "RouteTable"
-        }
-      }
-    },
-    "QueenSubnet1NetworkAclAssociation": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "QueenSubnet1"
-        },
-        "NetworkAclId": {
-          "Ref": "QueenNetworkAcl"
-        }
-      }
-    },
-    "QueenSubnet2NetworkAclAssociation": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "QueenSubnet2"
-        },
-        "NetworkAclId": {
-          "Ref": "QueenNetworkAcl"
         }
       }
     },
@@ -1174,161 +1059,6 @@
         }
       }
     },
-    "SwarmNetworkAcl": {
-      "Type": "AWS::EC2::NetworkAcl",
-      "DependsOn": "QueenRole",
-      "Metadata": {
-        "waf": [
-          "incoming-acl",
-          "outgoing-acl"
-        ]
-      },
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
-          }
-        ]
-      }
-    },
-    "InboundHTTPSwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "100",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "80",
-          "To": "80"
-        }
-      }
-    },
-    "InboundHTTPSSwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "200",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "443",
-          "To": "443"
-        }
-      }
-    },
-    "InboundSSHSwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "400",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "false",
-        "CidrBlock": {
-          "Ref": "awsTrustedNetwork"
-        },
-        "PortRange": {
-          "From": "22",
-          "To": "22"
-        }
-      }
-    },
-    "InboundDynamicPorts1SwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "500",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "1024",
-          "To": "65535"
-        }
-      }
-    },
-    "OutBoundDynamicPortSwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "100",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "true",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "1024",
-          "To": "65535"
-        }
-      }
-    },
-    "OutboundHTTPSSwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "200",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "true",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "443",
-          "To": "443"
-        }
-      }
-    },
-    "OutboundHTTPSwarmNetworkAclEntry": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        },
-        "RuleNumber": "300",
-        "Protocol": "6",
-        "RuleAction": "allow",
-        "Egress": "true",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "80",
-          "To": "80"
-        }
-      }
-    },
     "SwarmSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "DependsOn": "QueenRole",
@@ -1350,30 +1080,6 @@
         },
         "RouteTableId": {
           "Ref": "SwarmRouteTable"
-        }
-      }
-    },
-    "SwarmSubnet1NetworkAclAssociation": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "SwarmSubnet1"
-        },
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
-        }
-      }
-    },
-    "SwarmSubnet2NetworkAclAssociation": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "DependsOn": "QueenRole",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "SwarmSubnet2"
-        },
-        "NetworkAclId": {
-          "Ref": "SwarmNetworkAcl"
         }
       }
     },
@@ -1415,7 +1121,8 @@
       }
     },
     "ConfdSNSTopic": {
-      "Type": "AWS::SNS::Topic"
+      "Type": "AWS::SNS::Topic",
+      "DependsOn": "QueenRole"
     },
     "SwarmSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
@@ -1762,7 +1469,7 @@
             {
               "Ref": "AWS::Region"
             },
-            "InstanceType"
+            "SwarmInstanceType"
           ]
         },
         "KeyName": {
@@ -1994,7 +1701,7 @@
             {
               "Ref": "AWS::Region"
             },
-            "InstanceType"
+            "QueenInstanceType"
           ]
         },
         "KeyName": {
@@ -2234,16 +1941,6 @@
                         "Ref": "ElasticLoadBalancer"
                       },
                       "\n",
-                      "incoming_acl: ",
-                      {
-                        "Ref": "SwarmNetworkAcl"
-                      },
-                      "\n",
-                      "outgoing_acl: ",
-                      {
-                        "Ref": "SwarmNetworkAcl"
-                      },
-                      "\n",
                       "elb_security_group: ",
                       {
                         "Ref": "LoadBalancerSecurityGroup"
@@ -2285,17 +1982,6 @@
                       "    - ",
                       {
                         "Ref": "SwarmSecurityGroup"
-                      },
-                      "\n",
-                      "  acls:\n",
-                      "    - ",
-                      {
-                        "Ref": "QueenNetworkAcl"
-                      },
-                      "\n",
-                      "    - ",
-                      {
-                        "Ref": "SwarmNetworkAcl"
                       },
                       "\n",
                       "  elbs:\n"
@@ -2384,87 +2070,8 @@
                       "    outgoing:\n",
                       "      - from_port: 0\n",
                       "        to_port: 65535\n",
-                      "        protocol: TCP\n",
+                      "        protocol: ANY\n",
                       "        source: 0.0.0.0/0\n",
-                      "      - from_port: 514\n",
-                      "        to_port: 514\n",
-                      "        protocol: UDP\n",
-                      "        source: ",
-                      {
-                        "Ref": "QueenSecurityGroup"
-                      },
-                      "\n",
-                      "acls:\n",
-                      "  ",
-                      {
-                        "Ref": "QueenNetworkAcl"
-                      },
-                      ":\n",
-                      "    incoming:\n",
-                      "      - from_port: 0\n",
-                      "        to_port: 65535\n",
-                      "        protocol: 6\n",
-                      "        source: 0.0.0.0/0\n",
-                      "        action: ALLOW\n",
-                      "      - from_port: 0\n",
-                      "        to_port: 65535\n",
-                      "        protocol: 17\n",
-                      "        source: 0.0.0.0/0\n",
-                      "        action: ALLOW\n",
-                      "    outgoing:\n",
-                      "      - from_port: 0\n",
-                      "        to_port: 65535\n",
-                      "        protocol: 6\n",
-                      "        source: 0.0.0.0/0\n",
-                      "        action: ALLOW\n",
-                      "      - from_port: 0\n",
-                      "        to_port: 65535\n",
-                      "        protocol: 17\n",
-                      "        source: 0.0.0.0/0\n",
-                      "        action: ALLOW\n",
-                      "  ",
-                      {
-                        "Ref": "SwarmNetworkAcl"
-                      },
-                      ":\n",
-                      "    incoming:\n",
-                      "      - from_port: 22\n",
-                      "        to_port: 22\n",
-                      "        protocol: 6\n",
-                      "        source: ",
-                      {
-                        "Ref": "awsTrustedNetwork"
-                      },
-                      "\n",
-                      "        action: ALLOW\n",
-                      "      - from_port: 1024\n",
-                      "        to_port: 65535\n",
-                      "        protocol: 6\n",
-                      "        source: 0.0.0.0/0\n",
-                      "        action: ALLOW\n",
-                      "    outgoing:\n",
-                      "      - from_port: 514\n",
-                      "        to_port: 514\n",
-                      "        protocol: 17\n",
-                      "        source: ",
-                      {
-                        "Fn::Join": [
-                          ".",
-                          [
-                            {
-                              "Ref": "awsNetworkPrefix"
-                            },
-                            "0.0/16"
-                          ]
-                        ]
-                      },
-                      "\n",
-                      "        action: ALLOW\n",
-                      "      - from_port: 0\n",
-                      "        to_port: 65535\n",
-                      "        protocol: -1\n",
-                      "        source: 0.0.0.0/0\n",
-                      "        action: ALLOW\n",
                       "elbs:\n"
                     ]
                   ]
