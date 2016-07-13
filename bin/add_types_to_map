@@ -30,6 +30,8 @@ QUEEN_TYPES = {
 def read_json_file(filename)
   doc = File.read(filename)
   JSON.parse(doc)
+rescue
+    return {}
 end
 
 def write_output(data, filename)

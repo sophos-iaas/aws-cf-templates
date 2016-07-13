@@ -6,10 +6,14 @@ UTM_VERSION ?= 9.405
 # EGW_VERSION = version of interface paramters (if they change in an
 # incompatible way, the version updates also)
 EGW_VERSION ?= 1.0
-AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
-HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
-EGW_ARGS = --EGW
+
+# Account IDs of AMI owner
 DEVEL_OWNER := 159737981378
+
+# Args for create_regionmap
+HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
+AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
+EGW_ARGS = --EGW
 
 # Args for instance type mappings
 HA_TYPES_ARGS = --type HA
@@ -23,6 +27,12 @@ DEVEL :=
 HA_REGIONMAP = tmp/HA_REGIONMAP.json
 AUTOSCALING_REGIONMAP = tmp/AUTOSCALING_REGIONMAP.json
 EGW_REGIONMAP = tmp/EGW_REGIONMAP.json
+HA_REGIONMAP_GOV = tmp/HA_REGIONMAP_GOV.json
+AUTOSCALING_REGIONMAP_GOV = tmp/AUTOSCALING_REGIONMAP_GOV.json
+EGW_REGIONMAP_GOV = tmp/EGW_REGIONMAP_GOV.json
+HA_REGIONMAP_COMBINED = tmp/HA_REGIONMAP_COMBINED.json
+AUTOSCALING_REGIONMAP_COMBINED = tmp/AUTOSCALING_REGIONMAP_COMBINED.json
+EGW_REGIONMAP_COMBINED = tmp/EGW_REGIONMAP_COMBINED.json
 UTM_VERSION_DIR = templates/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = templates/egw/$(EGW_VERSION)
 
@@ -37,9 +47,17 @@ CREATE_REGIONMAP_DEV = $(BUNDLE_EXEC) ./bin/create_regionmap_dev
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 ADD_TYPES_TO_MAP = $(BUNDLE_EXEC) ./bin/add_types_to_map
 
-all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) egw_publish
+all: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) egw_publish $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES)
 
 egw_publish: $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
+
+# use these three targets in separate calls to build combined Cloud/GovCloud templates
+region_map_regular_cloud: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP)
+# remember to set GovCloud access credentials befor running this target!
+# DEVEL_OWNER is changed to GovClooud owner ID
+region_map_gov_cloud: DEVEL_OWNER = 219379113529
+region_map_gov_cloud: $(AUTOSCALING_REGIONMAP_GOV) $(HA_REGIONMAP_GOV) $(EGW_REGIONMAP_GOV)
+templates: merge_region_maps $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
@@ -63,9 +81,28 @@ $(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
 	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
+
+# same for GovCloud ..
+# Using verdi branch (axg*_verdi) for HA
+$(HA_REGIONMAP_GOV): $(dir $(HA_REGIONMAP))
+	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' --gov \
+            --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
+
+# Using aws branch (asg*_aws) for Autoscaling
+$(AUTOSCALING_REGIONMAP_GOV): $(dir $(AUTOSCALING_REGIONMAP))
+	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' --gov \
+	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
+
+# Build EGW templates using aws branch
+$(EGW_REGIONMAP_GOV): $(dir $(EGW_REGIONMAP))
+	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' --gov \
+	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
+	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
 else
 $(HA_REGIONMAP): tmp
-	@echo Building HA regionmap
+	@echo Building HA RegionMap
 	@$(CREATE_REGIONMAP) $(HA_ARGS) --out $@
 	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
 
@@ -78,30 +115,51 @@ $(EGW_REGIONMAP): tmp
 	@echo Building EGW RegionMap
 	@$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@
 	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
+
+# same for GovCloud ..
+$(HA_REGIONMAP_GOV): tmp
+	@echo Building HA RegionMap for GovCloud
+	@$(CREATE_REGIONMAP) $(HA_ARGS) --gov --out $@
+	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
+
+$(AUTOSCALING_REGIONMAP_GOV): tmp
+	@echo Building Autoscaling RegionMap for GovCloud
+	@$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --gov --out $@
+	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
+
+$(EGW_REGIONMAP_GOV): tmp
+	@echo Building EGW RegionMap for GovCloud
+	@$(CREATE_REGIONMAP) $(EGW_ARGS) --gov --out $@
+	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
 endif
 
-# Overwrite autoscaling target to use autoscaling region map
-templates/autoscaling_waf.template: src/autoscaling_waf.json $(AUTOSCALING_REGIONMAP)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
-
-templates/%.template: src/%.json $(HA_REGIONMAP)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
+merge_region_maps:
+	jq -s add $(HA_REGIONMAP) $(HA_REGIONMAP_GOV) > $(HA_REGIONMAP_COMBINED) 2>/dev/null; true
+	jq -s add $(AUTOSCALING_REGIONMAP) $(AUTOSCALING_REGIONMAP_GOV) > $(AUTOSCALING_REGIONMAP_COMBINED) 2>/dev/null; true
+	jq -s add $(EGW_REGIONMAP) $(EGW_REGIONMAP_GOV) > $(EGW_REGIONMAP_COMBINED) 2>/dev/null; true
 
 # Overwrite autoscaling target to use autoscaling region map
-templates/conversion/$(UTM_VERSION)/autoscaling.template: src/conversion/autoscaling.json $(AUTOSCALING_REGIONMAP)
+templates/autoscaling_waf.template: src/autoscaling_waf.json merge_region_maps
 	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP_COMBINED) --out $@
 
-templates/conversion/$(UTM_VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP)
+templates/%.template: src/%.json merge_region_maps
 	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP_COMBINED) --out $@
+
+# Overwrite autoscaling target to use autoscaling region map
+templates/conversion/$(UTM_VERSION)/autoscaling.template: src/conversion/autoscaling.json merge_region_maps
+	@echo building $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP_COMBINED) --out $@
+
+templates/conversion/$(UTM_VERSION)/%.template: src/conversion/%.json merge_region_maps
+	@echo building $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP_COMBINED) --out $@
 
 # Create EGW templates from src directory.
-templates/egw/$(EGW_VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP)
+templates/egw/$(EGW_VERSION)/%.template: src/egw/%.json merge_region_maps
 	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP) --out $@
+	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP_COMBINED) --out $@
 
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
 	@echo Creating $@ directory
@@ -114,7 +172,8 @@ tmp:
 	@mkdir $@
 
 clean:
-	rm -rf templates/conversion templates/egw templates/*.template
+	rm -rf templates/conversion templates/egw templates/*.template tmp/*.json
 
 .PHONY: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP) \
+	$(AUTOSCALING_REGIONMAP_GOV) $(HA_REGIONMAP_GOV) $(EGW_REGIONMAP_GOV) \
 	$(UTM_VERSION_DIR) clean

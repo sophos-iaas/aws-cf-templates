@@ -25,6 +25,7 @@ begin
     o.string '--BYOL', 'product-code'
     o.string '--Hourly', 'product-code'
     o.string '--EGW'
+    o.string '--gov', 'build map for GovCloud'
     o.string '-o', '--out', 'output file', default: '/dev/stdout'
     o.on '-h', '--help' do
       puts o
@@ -37,8 +38,9 @@ begin
   end
 
   region_map = {}
+  start_region = opts[:gov] ? "us-gov-west-1" : "us-east-1"
   if (opts[:BYOL] && opts[:Hourly])
-    region_map = TemplateHelper::RegionMap.new( 'BYOL'   => opts[:BYOL], 'Hourly' => opts[:Hourly])
+    region_map = TemplateHelper::RegionMap.new(start_region, 'BYOL' => opts[:BYOL], 'Hourly' => opts[:Hourly])
     old_map = read_map_file(opts[:out])
     if (region_map.to_hash == old_map)
       puts "#{opts[:out]} has not changed. Not touching."
@@ -46,7 +48,7 @@ begin
       dump_map_file(region_map,opts[:out])
     end
   elsif (opts[:EGW])
-    region_map = TemplateHelper::RegionMap.new("XXX", "EGW")
+    region_map = TemplateHelper::RegionMap.new(start_region, "XXX", "EGW")
     old_map = read_map_file(opts[:out])
     if (region_map.to_hash == old_map)
       puts "#{opts[:out]} has not changed. Not touching."
