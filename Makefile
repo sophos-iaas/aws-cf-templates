@@ -7,8 +7,13 @@ UTM_VERSION ?= 9.405
 # incompatible way, the version updates also)
 EGW_VERSION ?= 1.0
 
-# Account IDs of AMI owner
-DEVEL_OWNER := 159737981378
+# devel AMI owner ID
+AMI_OWNER := 159737981378
+export AMI_OWNER
+# GovCloud AMI owner ID
+GOV_OWNER := 219379113529
+
+export AWS_DEFAULT_REGION := us-east-1
 
 # Args for create_regionmap
 HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
@@ -55,7 +60,8 @@ egw_publish: $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 region_map_regular_cloud: $(AUTOSCALING_REGIONMAP) $(HA_REGIONMAP) $(EGW_REGIONMAP)
 # remember to set GovCloud access credentials befor running this target!
 # DEVEL_OWNER is changed to GovClooud owner ID
-region_map_gov_cloud: DEVEL_OWNER = 219379113529
+region_map_gov_cloud: AMI_OWNER = $(GOV_OWNER)
+region_map_gov_cloud: AWS_DEFAULT_REGION = us-gov-west-1
 region_map_gov_cloud: $(AUTOSCALING_REGIONMAP_GOV) $(HA_REGIONMAP_GOV) $(EGW_REGIONMAP_GOV)
 templates: merge_region_maps $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 
@@ -66,38 +72,38 @@ ifeq ($(DEVEL),1)
 # entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
 # Using verdi branch (axg*_verdi) for HA
 $(HA_REGIONMAP): $(dir $(HA_REGIONMAP))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
             --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP): $(dir $(AUTOSCALING_REGIONMAP))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
 
 # Build EGW templates using aws branch
 $(EGW_REGIONMAP): $(dir $(EGW_REGIONMAP))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
 
 # same for GovCloud ..
 # Using verdi branch (axg*_verdi) for HA
 $(HA_REGIONMAP_GOV): $(dir $(HA_REGIONMAP))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' --gov \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' --gov \
             --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP_GOV): $(dir $(AUTOSCALING_REGIONMAP))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' --gov \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' --gov \
 	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
 
 # Build EGW templates using aws branch
 $(EGW_REGIONMAP_GOV): $(dir $(EGW_REGIONMAP))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(DEVEL_OWNER)' --gov \
+	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' --gov \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
 	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
 else

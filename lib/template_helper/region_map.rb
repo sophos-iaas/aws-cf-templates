@@ -5,12 +5,12 @@ require 'aws-sdk'
 
 module TemplateHelper
   class RegionMap
-    def initialize(start_region, product_codes, ami='UTM')
+    def initialize(product_codes, ami='UTM')
       @region_map = {}
       if ami == 'UTM'
-        build_map(start_region, product_codes)
+        build_map(product_codes)
       else
-        build_egw_map(start_region)
+        build_egw_map()
       end
     end
 
@@ -24,8 +24,8 @@ module TemplateHelper
 
     private
 
-    def build_map(start_region, product_codes)
-      Aws.config.update(region: start_region)
+    def build_map(product_codes)
+      Aws.config.update(region: ENV["AWS_DEFAULT_REGION"])
       ec2_cl = Aws::EC2::Client.new
 
       regions = ec2_cl.describe_regions.regions.map(&:region_name)
@@ -54,12 +54,11 @@ module TemplateHelper
       end
     end
 
-    def build_egw_map(start_region)
-      Aws.config.update(region: start_region)
+    def build_egw_map()
+      Aws.config.update(region: ENV["AWS_DEFAULT_REGION"])
       ec2_cl = Aws::EC2::Client.new
 
       regions = ec2_cl.describe_regions.regions.map(&:region_name)
-      owner_id = (start_region == "us-gov-west-1" ? "219379113529" : "159737981378")
 
       regions.each do |region|
         ec2_client = Aws::EC2::Client.new(region: region)
@@ -67,7 +66,7 @@ module TemplateHelper
           filters: [
             { name: 'state', values: ['available'] },
             { name: 'is-public', values: ['true'] },
-            { name: 'owner-id', values: [owner_id]}
+            { name: 'owner-id', values: [ENV["AMI_OWNER"]]}
           ]
         ).images
         if (images.size == 0)

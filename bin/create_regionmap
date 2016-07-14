@@ -38,9 +38,8 @@ begin
   end
 
   region_map = {}
-  start_region = opts[:gov] ? "us-gov-west-1" : "us-east-1"
   if (opts[:BYOL] && opts[:Hourly])
-    region_map = TemplateHelper::RegionMap.new(start_region, 'BYOL' => opts[:BYOL], 'Hourly' => opts[:Hourly])
+    region_map = TemplateHelper::RegionMap.new('BYOL' => opts[:BYOL], 'Hourly' => opts[:Hourly])
     old_map = read_map_file(opts[:out])
     if (region_map.to_hash == old_map)
       puts "#{opts[:out]} has not changed. Not touching."
@@ -48,7 +47,11 @@ begin
       dump_map_file(region_map,opts[:out])
     end
   elsif (opts[:EGW])
-    region_map = TemplateHelper::RegionMap.new(start_region, "XXX", "EGW")
+    if !ENV.has_key?("AMI_OWNER")
+      puts "AMI_OWNER environment variable not set!"
+      exit
+    end
+    region_map = TemplateHelper::RegionMap.new("XXX", "EGW")
     old_map = read_map_file(opts[:out])
     if (region_map.to_hash == old_map)
       puts "#{opts[:out]} has not changed. Not touching."

@@ -39,7 +39,7 @@ begin
     o.string '--regex', 'regex for the amis, maybe with capture groups for limited sorting parts'
     o.string '--owner', 'only search for amis with this owner_id'
     o.string '--key', 'use BYOL for UTM ami or EGW for EGW ami'
-	o.string '--gov', 'build map for GovCloud'
+    o.string '--gov', 'build map for GovCloud'
     o.on '-h', '--help' do
       puts o
       exit
@@ -55,8 +55,7 @@ begin
 
   region_ami_map = {}   # the reponse map
 
-  start_region = opts[:gov] ? 'us-gov-west-1' : 'us-east-1'
-  ec2_client = Aws::EC2::Client.new(region:start_region)
+  ec2_client = Aws::EC2::Client.new(region: ENV["AWS_DEFAULT_REGION"])
   all_regions = ec2_client.describe_regions.regions.map(&:region_name)
 
   all_regions.each do | region_name |
