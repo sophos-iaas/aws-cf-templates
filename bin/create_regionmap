@@ -25,7 +25,6 @@ begin
     o.string '--BYOL', 'product-code'
     o.string '--Hourly', 'product-code'
     o.string '--EGW'
-    o.string '--gov', 'build map for GovCloud'
     o.string '-o', '--out', 'output file', default: '/dev/stdout'
     o.on '-h', '--help' do
       puts o

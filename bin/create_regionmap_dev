@@ -39,7 +39,6 @@ begin
     o.string '--regex', 'regex for the amis, maybe with capture groups for limited sorting parts'
     o.string '--owner', 'only search for amis with this owner_id'
     o.string '--key', 'use BYOL for UTM ami or EGW for EGW ami'
-    o.string '--gov', 'build map for GovCloud'
     o.on '-h', '--help' do
       puts o
       exit
