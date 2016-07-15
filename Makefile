@@ -56,17 +56,26 @@ CREATE_REGIONMAP_DEV = $(BUNDLE_EXEC) ./bin/create_regionmap_dev
 BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
 ADD_TYPES_TO_MAP = $(BUNDLE_EXEC) ./bin/add_types_to_map
 
-all: clean region_map_regular_cloud templates
+AWS_PROFILE ?= default
+export AWS_PROFILE
 
-egw_publish: $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
+# templates for regular cloud
+regular: clean region_map_regular_cloud templates
 
-# use these three targets in separate calls to build combined Cloud/GovCloud templates
+# only egw templates
+egw_publish: clean $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
+
+# templates for regular and gov cloud
+all: export BOTH_CLOUDS = true
+all: region_map_regular_cloud region_map_gov_cloud templates
+
 region_map_regular_cloud: AWS_DEFAULT_REGION = $(shell basename $(REGULAR_REGION))
 region_map_regular_cloud: $(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP) $(EGW_REGIONMAP)
-# remember to set GovCloud access credentials befor running this target!
-# DEVEL_OWNER is changed to GovClooud owner ID
+# DEVEL_OWNER is changed to GovCloud owner ID
 region_map_gov_cloud: AMI_OWNER = $(GOV_OWNER)
 region_map_gov_cloud: AWS_DEFAULT_REGION = $(shell basename $(GOV_REGION))
+region_map_gov_cloud: export AWS_PROFILE = govcloud_build
+region_map_gov_cloud: export BOTH_CLOUDS = true
 region_map_gov_cloud: $(HA_REGIONMAP_COMBINED) $(AUTOSCALING_REGIONMAP_COMBINED) $(EGW_REGIONMAP_COMBINED)
 templates: $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 
@@ -93,18 +102,18 @@ $(EGW_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
 # same for GovCloud ..
 # Using verdi branch (axg*_verdi) for HA
 $(HA_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
-            --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
+            --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@', > $@)
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
-	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
+	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
+	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@', > $@)
 
 # Build EGW templates using aws branch
 $(EGW_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
-	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
-	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
+	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
+	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@', > $@)
 else
 $(HA_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
 	@echo Building HA RegionMap \($(AWS_DEFAULT_REGION)\)
@@ -121,19 +130,18 @@ $(EGW_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
 # same for GovCloud ..
 $(HA_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
 	@echo Building HA RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\)
-	@$(CREATE_REGIONMAP) $(HA_ARGS) --out $@
+	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP) $(HA_ARGS) --out $@, > $@)
 
 $(AUTOSCALING_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
-	@echo Building Autoscaling RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\)
-	@$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
+	@echo Building Autoscaling RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\) when required
+	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@ , > $@ )
 
 $(EGW_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
-	@echo Building EGW RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\)
-	@$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@
+	@echo Building EGW RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\) when required
+	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@, > $@)
 endif
 
 ## combine region maps
-ifeq ($(AWS_DEFAULT_REGION),us-gov-west-1)
 $(HA_REGIONMAP_COMBINED): $(HA_REGIONMAP) $(HA_REGIONMAP_GOV) $(COMBINED_REGION)
 	jq -s add $(HA_REGIONMAP) $(HA_REGIONMAP_GOV) > $@
 	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
@@ -145,19 +153,6 @@ $(AUTOSCALING_REGIONMAP_COMBINED): $(AUTOSCALING_REGIONMAP) $(AUTOSCALING_REGION
 $(EGW_REGIONMAP_COMBINED): $(EGW_REGIONMAP) $(EGW_REGIONMAP_GOV) $(COMBINED_REGION)
 	jq -s add $(EGW_REGIONMAP) $(EGW_REGIONMAP_GOV) > $@
 	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
-else
-$(HA_REGIONMAP_COMBINED): $(HA_REGIONMAP) $(COMBINED_REGION)
-	cat $(HA_REGIONMAP) > $@
-	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
-
-$(AUTOSCALING_REGIONMAP_COMBINED): $(AUTOSCALING_REGIONMAP) $(COMBINED_REGION)
-	cat $(AUTOSCALING_REGIONMAP) > $@
-	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
-
-$(EGW_REGIONMAP_COMBINED): $(EGW_REGIONMAP) $(COMBINED_REGION)
-	cat $(EGW_REGIONMAP) > $@
-	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
-endif
 
 # Overwrite autoscaling target to use autoscaling region map
 templates/autoscaling_waf.template: src/autoscaling_waf.json $(AUTOSCALING_REGIONMAP_COMBINED)
@@ -193,6 +188,6 @@ tmp/%:
 	@mkdir -p $@
 
 clean:
-	rm -rf templates/conversion templates/egw templates/*.template $(REGULAR_REGION) $(GOV_REGION) $(COMBINED_REGION)
+	rm -rf templates/conversion templates/egw templates/*.template tmp
 
 .PHONY: $(UTM_VERSION_DIR) clean
