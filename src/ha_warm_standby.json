@@ -439,7 +439,7 @@
                             "logs:PutLogEvents",
                             "logs:DescribeLogStreams"
                           ],
-                          "Resource": [ "arn:aws:logs:*:*:*" ]
+                          "Resource": [ { "Fn::Join": ["", ["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":logs:*:*:*"] ] } ]
                         }]
                     }
                 }]

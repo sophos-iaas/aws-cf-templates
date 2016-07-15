@@ -3,6 +3,10 @@
 require 'slop'
 require 'json'
 
+ARNs = {
+  'us-gov-west-1' => 'aws-us-gov',
+  'default' => 'aws'
+}
 
 HA_TYPES = {
   'ap-northeast-2' => 'c4.large',
@@ -59,6 +63,7 @@ begin
   region_map = read_json_file(opts[:in])
 
   region_map.each do |region, vars|
+    # instance types
     if (opts[:type] == "HA")
       vars['HAInstanceType'] = HA_TYPES[region] || HA_TYPES['default']
     elsif (opts[:type] == "AS")
@@ -67,6 +72,8 @@ begin
     elsif (opts[:type] == "EGW")
       vars['EGWInstanceType'] = EGW_TYPES[region] || EGW_TYPES['default']
     end
+    # ARNs
+    vars['ARN'] = ARNs[region] || ARNs['default']
   end
 
   write_output(region_map, opts[:out]);

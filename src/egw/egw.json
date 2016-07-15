@@ -398,9 +398,13 @@
         "ComparisonOperator": "GreaterThanThreshold",
         "Threshold": "0",
         "AlarmActions": [{
-          "Fn::Join": ["", ["arn:aws:automate:", {
-            "Ref": "AWS::Region"
-          }, ":ec2:recover"]]
+          "Fn::Join": ["", [
+            "arn:",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] },
+            ":automate:",
+            { "Ref": "AWS::Region" },
+            ":ec2:recover"]
+          ]
         }],
         "Dimensions": [{
           "Name": "InstanceId",
@@ -423,7 +427,15 @@
         "ComparisonOperator": "GreaterThanThreshold",
         "Threshold": "0",
         "AlarmActions": [{
-          "Fn::Join": ["", ["arn:aws:swf:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId"}, ":action/actions/AWS_EC2.InstanceId.Reboot/1.0"]]
+          "Fn::Join": ["", [
+            "arn:",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] },
+            ":swf:",
+            { "Ref": "AWS::Region" },
+            ":",
+            { "Ref": "AWS::AccountId"},
+            ":action/actions/AWS_EC2.InstanceId.Reboot/1.0"]
+          ]
         }],
         "Dimensions": [ {
           "Name": "InstanceId",
