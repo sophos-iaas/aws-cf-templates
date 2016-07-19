@@ -3,20 +3,21 @@
     "Description": "Sophos UTM 9 BYOL",
     "Parameters": {
         "VPC": {
-            "Type": "String",
+            "Type": "AWS::EC2::VPC::Id",
             "Description": "VPCIDtolaunchinto"
         },
         "PublicSubnet": {
             "Description": "Public Subnet",
-            "Type": "String"
+            "Type": "AWS::EC2::Subnet::Id"
         },
         "PrivateSubnet": {
             "Description": "Private Subnet",
-            "Type": "String"
+            "Type": "AWS::EC2::Subnet::Id"
         },
         "InstanceType": {
             "Description": "TypeofEC2instancetouse",
             "Type": "String",
+            "Default": "m3.medium",
             "AllowedValues": [
                 "t1.micro",
                 "m1.small",
@@ -32,17 +33,16 @@
             ]
         },
         "KeyName": {
-            "Type": "String",
+            "Type": "AWS::EC2::KeyPair::KeyName",
             "Description": "InstanceswilllaunchwiththisKeyPair"
         },
         "EIPAllocationId": {
-            "Description": "EIP for the instance",
+            "Description": "EIP ID for the instance",
             "Type": "String"
         },
         "CidrIp1": {
             "Description": "CidrIp #1",
             "Type": "String",
-            "Default": "0.0.0.0/0",
             "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
             "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
         },
@@ -129,7 +129,7 @@
             "sa-east-1": {
                 "64": "ami-07840a6b"
             },
-			"eu-central-1": {
+            "eu-central-1": {
                 "64": "ami-8e01e1e1"
             }
         }
@@ -298,4 +298,3 @@
         }
     }
 }
-
