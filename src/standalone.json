@@ -2,20 +2,39 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Sophos UTM 9 BYOL",
     "Parameters": {
-        "VPC": {
+        "VpcId": {
             "Type": "AWS::EC2::VPC::Id",
-            "Description": "VPCIDtolaunchinto"
+            "Description": "Existing VPC into which the UTM should be deployed."
         },
-        "PublicSubnet": {
-            "Description": "Public Subnet",
+        "PrivateSubnetId": {
+            "Description": "Subnet ID for private network interface.",
             "Type": "AWS::EC2::Subnet::Id"
         },
-        "PrivateSubnet": {
-            "Description": "Private Subnet",
+        "PublicSubnetId": {
+            "Description": "Subnet ID for public network interface.",
             "Type": "AWS::EC2::Subnet::Id"
+        },
+        "PrivateNetworkCIDR": {
+            "Description": "Allow all traffic from/to this CIDR on the private network interface.",
+            "Type": "String",
+            "Default": "0.0.0.0/0",
+            "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
+            "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
+        },
+        "PublicNetworkCIDR": {
+            "Description": "Allow all traffic (except incoming TCP port 22 and 4444) from/to this CIDR on the public network interface.",
+            "Type": "String",
+            "Default": "0.0.0.0/0",
+            "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
+            "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
+        },
+        "OptTrustedNetworkCIDR": {
+            "Description": "Optional: Allow all traffic (including! incoming TCP port 22 and 4444) from/to this CIDR on the public network interface.",
+            "Type": "String",
+            "Default": ""
         },
         "InstanceType": {
-            "Description": "TypeofEC2instancetouse",
+            "Description": "Type of the UTM instance.",
             "Type": "String",
             "Default": "m3.medium",
             "AllowedValues": [
@@ -34,38 +53,11 @@
         },
         "KeyName": {
             "Type": "AWS::EC2::KeyPair::KeyName",
-            "Description": "InstanceswilllaunchwiththisKeyPair"
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access."
         },
-        "EIPAllocationId": {
-            "Description": "EIP ID for the instance",
+        "OptExistingElasticIpId": {
+            "Description": "Optional: Association ID of an existing Elastic IP. If no ID is specified a new EIP is created.",
             "Type": "String"
-        },
-        "CidrIp1": {
-            "Description": "CidrIp #1",
-            "Type": "String",
-            "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
-            "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
-        },
-        "CidrIp2": {
-            "Description": "CidrIp #2",
-            "Type": "String",
-            "Default": "0.0.0.0/0",
-            "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
-            "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
-        },
-        "CidrIp3": {
-            "Description": "CidrIp #3",
-            "Type": "String",
-            "Default": "0.0.0.0/0",
-            "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
-            "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
-        },
-        "CidrIp4": {
-            "Description": "CidrIp #4",
-            "Type": "String",
-            "Default": "0.0.0.0/0",
-            "AllowedPattern": "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}",
-            "ConstraintDescription": "Please specify a valid source IP range. Eg: 192.168.2.0/24"
         }
     },
     "Mappings": {
@@ -134,19 +126,35 @@
             }
         }
     },
+    "Conditions": {
+        "TrustedPublicNetwork": {
+            "Fn::Not" : [{
+                "Fn::Equals": [
+                    {"Ref": "OptTrustedNetworkCIDR"},
+                    ""
+                ]
+            }]
+        },
+        "AllocateElasticIP": {
+            "Fn::Equals": [
+                {"Ref": "OptExistingElasticIpId"},
+                ""
+            ]
+        }
+    },
     "Resources": {
         "SecurityGroupPrivate": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupDescription": "Security Group",
                 "VpcId": {
-                    "Ref": "VPC"
+                    "Ref": "VpcId"
                 },
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "-1",
                         "CidrIp": {
-                            "Ref": "CidrIp1"
+                            "Ref": "PrivateNetworkCIDR"
                         }
                     }
                 ]
@@ -157,13 +165,13 @@
             "Properties": {
                 "GroupDescription": "Security Group",
                 "VpcId": {
-                    "Ref": "VPC"
+                    "Ref": "VpcId"
                 },
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
                         "CidrIp": {
-                            "Ref": "CidrIp2"
+                            "Ref": "PublicNetworkCIDR"
                         },
                         "FromPort": "0",
                         "ToPort": "21"
@@ -171,7 +179,7 @@
                     {
                         "IpProtocol": "tcp",
                         "CidrIp": {
-                            "Ref": "CidrIp3"
+                            "Ref": "PublicNetworkCIDR"
                         },
                         "FromPort": "23",
                         "ToPort": "4443"
@@ -179,7 +187,7 @@
                     {
                         "IpProtocol": "tcp",
                         "CidrIp": {
-                            "Ref": "CidrIp4"
+                            "Ref": "PublicNetworkCIDR"
                         },
                         "FromPort": "4445",
                         "ToPort": "65535"
@@ -187,17 +195,38 @@
                 ]
             }
         },
+        "SecurityGroupTrusted": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group",
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "-1",
+                        "CidrIp": {
+                            "Ref": "OptTrustedNetworkCIDR"
+                        }
+                    }
+                ]
+            },
+            "Condition": "TrustedPublicNetwork"
+        },
         "PublicENI": {
             "Type": "AWS::EC2::NetworkInterface",
             "Properties": {
                 "SubnetId": {
-                    "Ref": "PublicSubnet"
+                    "Ref": "PublicSubnetId"
                 },
                 "Description": "ENI for Public Subnet",
                 "GroupSet": [
-                    {
-                        "Ref": "SecurityGroupPrivate"
-                    }
+                    {"Fn::If" : [
+                        "TrustedPublicNetwork",
+                        {"Ref": "SecurityGroupTrusted"},
+                        {"Ref" : "SecurityGroupPublic"}
+                    ]},
+                    {"Ref" : "SecurityGroupPublic"}
                 ],
                 "SourceDestCheck": "false"
             }
@@ -206,7 +235,7 @@
             "Type": "AWS::EC2::NetworkInterface",
             "Properties": {
                 "SubnetId": {
-                    "Ref": "PrivateSubnet"
+                    "Ref": "PrivateSubnetId"
                 },
                 "Description": "ENI for Private Subnet",
                 "GroupSet": [
@@ -265,14 +294,25 @@
                 }
             }
         },
-        "IPAssoc": {
+        "NewEIP": {
+            "Type": "AWS::EC2::EIP",
+            "Condition": "AllocateElasticIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "EIPAssociation": {
             "Type": "AWS::EC2::EIPAssociation",
             "Properties": {
                 "NetworkInterfaceId": {
                     "Ref": "PublicENI"
                 },
                 "AllocationId": {
-                    "Ref": "EIPAllocationId"
+                    "Fn::If": [
+                        "AllocateElasticIP",
+                        {"Fn::GetAtt": ["NewEIP", "AllocationId"]},
+                        {"Ref": "OptExistingElasticIpId"}
+                    ]
                 }
             }
         }
