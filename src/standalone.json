@@ -1,7 +1,18 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Sophos UTM 9 BYOL",
+    "Description": "Sophos UTM 9",
     "Parameters": {
+        "AMI" : {
+          "Description" : "The UTM AMI with cloud capabilities. With autodetect latest ami is used based on the license type",
+            "Type" : "String",
+            "Default" : "autodetect"
+        },
+        "LicenseType": {
+            "Description": "Bring your own license or hourly billing licensing type. This parameter has no effect, If the AMI parameter is set to an AMI ID.",
+            "Type": "String",
+            "AllowedValues": ["Hourly", "BYOL" ],
+            "Default": "Hourly"
+        },
         "VpcId": {
             "Type": "AWS::EC2::VPC::Id",
             "Description": "Existing VPC into which the UTM should be deployed."
@@ -33,23 +44,10 @@
             "Type": "String",
             "Default": ""
         },
-        "InstanceType": {
-            "Description": "Type of the UTM instance.",
-            "Type": "String",
-            "Default": "m3.medium",
-            "AllowedValues": [
-                "t1.micro",
-                "m1.small",
-                "m3.medium",
-                "m3.large",
-                "m3.xlarge",
-                "m3.2xlarge",
-                "c3.large",
-                "c3.xlarge",
-                "c3.2xlarge",
-                "c3.4xlarge",
-                "c3.8xlarge"
-            ]
+        "InstanceSize" : {
+          "Description" : "Size of the UTM instance. Default selects m3.medium or c4.large depending on the region.",
+          "Type" : "String",
+          "Default" : "default"
         },
         "KeyName": {
             "Type": "AWS::EC2::KeyPair::KeyName",
@@ -61,72 +59,11 @@
         }
     },
     "Mappings": {
-        "AWSInstanceType2Arch": {
-            "t1.micro": {
-                "Arch": "64"
-            },
-            "m1.small": {
-                "Arch": "64"
-            },
-            "m3.medium": {
-                "Arch": "64"
-            },
-            "m3.large": {
-                "Arch": "64"
-            },
-            "m3.xlarge": {
-                "Arch": "64"
-            },
-            "m3.2xlarge": {
-                "Arch": "64"
-            },
-            "c3.large": {
-                "Arch": "64"
-            },
-            "c3.xlarge": {
-                "Arch": "64"
-            },
-            "c3.2xlarge": {
-                "Arch": "64"
-            },
-            "c3.4xlarge": {
-                "Arch": "64"
-            },
-            "c3.8xlarge": {
-                "Arch": "64"
-            }
-        },
-        "AWSRegionArch2AMI": {
-            "us-east-1": {
-                "64": "ami-1d180577"
-            },
-            "us-west-1": {
-                "64": "ami-3d7e015d"
-            },
-            "us-west-2": {
-                "64": "ami-ee54a38e"
-            },
-            "eu-west-1": {
-                "64": "ami-32cd4041"
-            },
-            "ap-southeast-1": {
-                "64": "ami-d29044b1"
-            },
-            "ap-southeast-2": {
-                "64": "ami-52defc31"
-            },
-            "ap-northeast-1": {
-                "64": "ami-2d8f9243"
-            },
-            "sa-east-1": {
-                "64": "ami-07840a6b"
-            },
-            "eu-central-1": {
-                "64": "ami-8e01e1e1"
-            }
-        }
+        "RegionMap": {}
     },
     "Conditions": {
+        "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
+        "DetectInstanceSize": { "Fn::Equals": [ {"Ref": "InstanceSize"}, "default" ] },
         "TrustedPublicNetwork": {
             "Fn::Not" : [{
                 "Fn::Equals": [
@@ -256,7 +193,11 @@
                     }
                 ],
                 "InstanceType": {
-                    "Ref": "InstanceType"
+                    "Fn::If": [
+                        "DetectInstanceSize",
+                        { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "HAInstanceType" ] },
+                        { "Ref": "InstanceSize" }
+                    ]
                 },
                 "KeyName": {
                     "Ref": "KeyName"
@@ -276,20 +217,10 @@
                     }
                 ],
                 "ImageId": {
-                    "Fn::FindInMap": [
-                        "AWSRegionArch2AMI",
-                        {
-                            "Ref": "AWS::Region"
-                        },
-                        {
-                            "Fn::FindInMap": [
-                                "AWSInstanceType2Arch",
-                                {
-                                    "Ref": "InstanceType"
-                                },
-                                "Arch"
-                            ]
-                        }
+                    "Fn::If": [
+                        "UseRegionMap",
+                        { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, { "Ref": "LicenseType" } ] },
+                        { "Ref": "AMI" }
                     ]
                 }
             }
