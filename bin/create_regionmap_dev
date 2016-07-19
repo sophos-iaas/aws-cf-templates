@@ -54,7 +54,7 @@ begin
 
   region_ami_map = {}   # the reponse map
 
-  ec2_client = Aws::EC2::Client.new(region:'us-east-1')
+  ec2_client = Aws::EC2::Client.new(region: ENV["AWS_DEFAULT_REGION"])
   all_regions = ec2_client.describe_regions.regions.map(&:region_name)
 
   all_regions.each do | region_name |

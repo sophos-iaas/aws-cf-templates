@@ -172,7 +172,7 @@
                     "logs:PutLogEvents",
                     "logs:DescribeLogStreams"
                   ],
-                  "Resource": ["arn:aws:logs:*:*:*"]
+                  "Resource": [ { "Fn::Join": ["", ["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":logs:*:*:*"] ] } ]
                 }
               ]
             }
@@ -294,28 +294,28 @@
                     {
                       "Fn::If": [
                         "CreateS3Bucket",
-                        {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"S3Bucket"}]]},
-                        {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"optionalExistingS3Bucket"}]]}
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"}]]},
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"}]]}
                       ]
                     },
                     {
                       "Fn::If": [
                         "CreateS3Bucket",
-                        {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"S3Bucket"},"/*"]]},
-                        {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"optionalExistingS3Bucket"},"/*"]]}
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"},"/*"]]},
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"},"/*"]]}
                       ]
                     },
                     {
                       "Fn::If": [
                         "EnableLicensePool",
-                        {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"optionalLicensePool"}]]},
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalLicensePool"}]]},
                         {"Ref":"AWS::NoValue"                        }
                       ]
                     },
                     {
                       "Fn::If": [
                         "EnableLicensePool",
-                        {"Fn::Join":["",["arn:aws:s3:::",{"Ref":"optionalLicensePool"},"/*"]]},
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalLicensePool"},"/*"]]},
                         {"Ref":"AWS::NoValue"}
                       ]
                     }
@@ -336,7 +336,7 @@
                     "logs:PutLogEvents",
                     "logs:DescribeLogStreams"
                   ],
-                  "Resource": ["arn:aws:logs:*:*:*"]
+                  "Resource": [ { "Fn::Join": ["", ["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":logs:*:*:*"] ] } ]
                 }
               ]
             }

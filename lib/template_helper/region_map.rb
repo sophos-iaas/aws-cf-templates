@@ -25,7 +25,7 @@ module TemplateHelper
     private
 
     def build_map(product_codes)
-      Aws.config.update(region: 'us-east-1')
+      Aws.config.update(region: ENV["AWS_DEFAULT_REGION"])
       ec2_cl = Aws::EC2::Client.new
 
       regions = ec2_cl.describe_regions.regions.map(&:region_name)
@@ -55,7 +55,7 @@ module TemplateHelper
     end
 
     def build_egw_map()
-      Aws.config.update(region: 'us-east-1')
+      Aws.config.update(region: ENV["AWS_DEFAULT_REGION"])
       ec2_cl = Aws::EC2::Client.new
 
       regions = ec2_cl.describe_regions.regions.map(&:region_name)
@@ -66,7 +66,7 @@ module TemplateHelper
           filters: [
             { name: 'state', values: ['available'] },
             { name: 'is-public', values: ['true'] },
-            { name: 'owner-id', values: ['159737981378']}
+            { name: 'owner-id', values: [ENV["AMI_OWNER"]]}
           ]
         ).images
         if (images.size == 0)
