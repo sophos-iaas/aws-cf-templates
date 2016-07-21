@@ -6,18 +6,18 @@
   "Parameters": {
     "basicAdminEmail": {
       "Default": "",
-      "Description": "UTM admin email",
+      "Description": "UTM admin email address",
       "Type": "String"
     },
 
     "awsAMI": {
-      "Description": "The UTM AMI with cloud capabilities. With autodetect latest ami is used based on the license type",
+      "Description": "The UTM AMI with cloud capabilities. With autodetect latest AMI is used based on the license type.",
       "Type": "String",
       "Default": "autodetect"
     },
 
     "awsLicenseType": {
-      "Description": "Bring your own license or hourly billing licensing type. This parameter has no effect, If the awsAMI parameter is set to an AMI ID.",
+      "Description": "Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the awsAMI parameter is set to an AMI ID.",
       "Type": "String",
       "AllowedValues": ["Hourly","BYOL"],
       "Default": "Hourly"
@@ -49,7 +49,7 @@
     },
 
     "basicOrganization": {
-      "Description": "Name of your Organization",
+      "Description": "Name of your organization",
       "Type": "String"
     },
 
@@ -65,12 +65,12 @@
     },
 
     "awsGatewayID": {
-      "Description": "The Internet of the VPC.",
+      "Description": "The Internet Gateway of the VPC.",
       "Type": "String"
     },
 
     "awsSubnetIPBlocks": {
-      "Description": "Four subnet CIDR blocks with the VPC.",
+      "Description": "Four subnet CIDR blocks within the VPC.",
       "Type": "CommaDelimitedList"
     },
 
@@ -85,12 +85,12 @@
     },
 
     "awsTrustedNetwork": {
-      "Description": "Trusted network. Only connections from this network are allowed to ports 22 and 8080. E.g 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
+      "Description": "Trusted network. Only connections from this network are allowed to ports 22 and 8080. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
       "Type": "String"
     },
 
     "optionalExistingS3Bucket": {
-      "Description": "Optional. The S3 Bucket to store and restore backups. If left empty a new bucket will be created automatically.",
+      "Description": "Optional. The S3 Bucket to store and restore backups. If left empty a new Bucket will be created automatically.",
       "Type": "String",
       "Default": ""
     },
@@ -102,13 +102,13 @@
     },
 
     "optionalExistingSecurityGroup": {
-      "Description": "Optional. A security group to assign to the new stack",
+      "Description": "Optional. A security group to assign to the new stack.",
       "Type": "String",
       "Default": ""
     },
 
     "optionalLicensePool": {
-      "Description": "Optional. S3 bucket where the licenses are stored",
+      "Description": "Optional. S3 Bucket containing the licenses.",
       "Type": "String",
       "Default": ""
     }
