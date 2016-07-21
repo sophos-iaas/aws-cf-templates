@@ -489,7 +489,7 @@
 
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
-      "DependsOn": ["QueenRole","AttachGateway"],
+      "DependsOn": "QueenRole",
       "Condition": "AllocateElasticIP",
       "Properties": {"Domain":"vpc"}
     },
@@ -661,8 +661,7 @@
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": [
         "ConfdSNSTopic",
-        "QueenScalingGroup",
-        "AttachGateway"
+        "QueenScalingGroup"
       ],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
@@ -923,7 +922,7 @@
 
     "QueenScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": ["ConfdSNSTopic","AttachGateway"],
+      "DependsOn": ["ConfdSNSTopic"],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
           "MinInstancesInService": "1",
