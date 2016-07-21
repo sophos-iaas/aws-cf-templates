@@ -80,7 +80,7 @@ begin
   ## GovCloud modifications
   # There is no Marketplace available -> no separate Hourly AMI for AS/HA.
   # The Hourly AMI points to the BYOL one so the same template works for both partitions.
-  if region_map['us-gov-west-1']['BYOL']
+  if region_map['us-gov-west-1'] && region_map['us-gov-west-1']['BYOL']
     region_map['us-gov-west-1']['Hourly'] = region_map['us-gov-west-1']['BYOL']
   end
 
