@@ -160,18 +160,7 @@
               "Statement": [
                 {
                   "Action": [
-                    "autoscaling:Describe*",
-                    "cloudformation:DescribeStacks",
-                    "cloudformation:DescribeStackEvents",
-                    "cloudformation:DescribeStackResource",
-                    "cloudformation:DescribeStackResources",
-                    "cloudformation:GetTemplate",
-                    "cloudformation:List*",
-                    "cloudwatch:Describe*",
-                    "cloudwatch:Get*",
-                    "cloudwatch:List*",
                     "ec2:Describe*",
-                    "elasticloadbalancing:Describe*",
                     "SNS:*"
                   ],
                   "Effect": "Allow",

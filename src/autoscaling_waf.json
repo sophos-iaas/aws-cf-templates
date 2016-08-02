@@ -142,18 +142,7 @@
               "Statement": [
                 {
                   "Action": [
-                    "autoscaling:Describe*",
-                    "cloudformation:DescribeStacks",
-                    "cloudformation:DescribeStackEvents",
-                    "cloudformation:DescribeStackResource",
-                    "cloudformation:DescribeStackResources",
-                    "cloudformation:GetTemplate",
-                    "cloudformation:List*",
-                    "cloudwatch:Describe*",
-                    "cloudwatch:Get*",
-                    "cloudwatch:List*",
                     "ec2:Describe*",
-                    "elasticloadbalancing:Describe*",
                     "SNS:*"
                   ],
                   "Effect": "Allow",
@@ -163,16 +152,6 @@
                   "Resource": "*",
                   "Action": ["s3:List*","s3:Get*"],
                   "Effect": "Allow"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                    "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                    "logs:DescribeLogStreams"
-                  ],
-                  "Resource": [ { "Fn::Join": ["", ["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":logs:*:*:*"] ] } ]
                 }
               ]
             }
