@@ -245,7 +245,7 @@
                   "Effect": "Allow",
                   "Action": "elasticloadbalancing:*",
 		  "Resource": [
-			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":elb:::",{"Ref":"ElasticLoadBalancer"}]]}
+			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":elasticloadbalancing:::",{"Ref":"ElasticLoadBalancer"}]]}
 		  ]
                 },
                 {
