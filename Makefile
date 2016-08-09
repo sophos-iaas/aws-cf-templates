@@ -85,58 +85,58 @@ ifeq ($(DEVEL),1)
 # We don't use capture groups in the regex, so the sort (for 'newest') is using the
 # entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
 # Using verdi branch (axg*_verdi) for HA
-$(HA_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
+$(HA_REGIONMAP): $(REGULAR_REGION)
 	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
             --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 
 # Using aws branch (asg*_aws) for Autoscaling
-$(AUTOSCALING_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
+$(AUTOSCALING_REGIONMAP): $(REGULAR_REGION)
 	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 
 # Build EGW templates using aws branch
-$(EGW_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
+$(EGW_REGIONMAP): $(REGULAR_REGION)
 	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@'
 
 # same for GovCloud ..
 # Using verdi branch (axg*_verdi) for HA
-$(HA_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
+$(HA_REGIONMAP_GOV): $(GOV_REGION)
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
             --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@', > $@)
 
 # Using aws branch (asg*_aws) for Autoscaling
-$(AUTOSCALING_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
+$(AUTOSCALING_REGIONMAP_GOV): $(GOV_REGION)
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	    --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@', > $@)
 
 # Build EGW templates using aws branch
-$(EGW_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
+$(EGW_REGIONMAP_GOV): $(GOV_REGION)
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@', > $@)
 else
-$(HA_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
+$(HA_REGIONMAP): $(REGULAR_REGION)
 	@echo Building HA RegionMap \($(AWS_DEFAULT_REGION)\)
 	@$(CREATE_REGIONMAP) $(HA_ARGS) --out $@
 
-$(AUTOSCALING_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
+$(AUTOSCALING_REGIONMAP): $(REGULAR_REGION)
 	@echo Building Autoscaling RegionMap \($(AWS_DEFAULT_REGION)\)
 	@$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
 
-$(EGW_REGIONMAP): $(filter-out $(wildcard $(REGULAR_REGION)), $(REGULAR_REGION))
+$(EGW_REGIONMAP): $(REGULAR_REGION)
 	@echo Building EGW RegionMap \($(AWS_DEFAULT_REGION)\)
 	@$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@
 
 # same for GovCloud ..
-$(HA_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
+$(HA_REGIONMAP_GOV): $(GOV_REGION)
 	@echo Building HA RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\)
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP) $(HA_ARGS) --out $@, > $@)
 
-$(AUTOSCALING_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
+$(AUTOSCALING_REGIONMAP_GOV): $(GOV_REGION)
 	@echo Building Autoscaling RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\) when required
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@ , > $@ )
 
-$(EGW_REGIONMAP_GOV): $(filter-out $(wildcard $(GOV_REGION)), $(GOV_REGION))
+$(EGW_REGIONMAP_GOV): $(GOV_REGION)
 	@echo Building EGW RegionMap for GovCloud \($(AWS_DEFAULT_REGION)\) when required
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP) $(EGW_ARGS) --out $@, > $@)
 endif
@@ -184,8 +184,10 @@ $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
 	-@ln -sf $(shell basename $@) $(dir $@)current
 
 #tmp dir is not in git and empty. Must be created if it does not exist yet
-tmp/%:
-	@mkdir -p $@
+tmp/%: tmp
+	@mkdir $@
+tmp:
+	@mkdir $@
 
 clean:
 	rm -rf templates/conversion templates/egw templates/*.template tmp
