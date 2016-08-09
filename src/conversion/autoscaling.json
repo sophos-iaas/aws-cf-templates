@@ -268,6 +268,11 @@
                 },
                 {
                   "Effect": "Allow",
+                  "Action": "elasticloadbalancing:DescribeLoadBalancers:*",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
                   "Action": "sns:*",
                   "Resource": { "Ref":"ConfdSNSTopic" }
                 },
