@@ -263,12 +263,12 @@
                   "Effect": "Allow",
                   "Action": "elasticloadbalancing:*",
 		  "Resource": [
-			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":elasticloadbalancing:::",{"Ref":"ElasticLoadBalancer"}]]}
+			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":elasticloadbalancing:*:*:loadbalancer/",{"Ref":"ElasticLoadBalancer"}]]}
 		  ]
                 },
                 {
                   "Effect": "Allow",
-                  "Action": "elasticloadbalancing:DescribeLoadBalancers:*",
+                  "Action": "elasticloadbalancing:DescribeLoadBalancers",
                   "Resource": "*"
                 },
                 {
