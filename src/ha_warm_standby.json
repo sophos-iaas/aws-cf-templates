@@ -571,7 +571,7 @@
 			},
                 "KeyName" : { "Ref" : "KeyName" },
                 "BlockDeviceMappings" : [{
-                    "DeviceName" : "/dev/sda",
+                    "DeviceName" : "/dev/xvda",
                     "Ebs" : { "VolumeSize" : "100" }
                   }],
                 "SecurityGroups" : [
