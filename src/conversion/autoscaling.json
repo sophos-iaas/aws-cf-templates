@@ -139,7 +139,6 @@
   "Resources": {
     "WorkerRole": {
       "Type": "AWS::IAM::Role",
-      "DependsOn": "QueenRole",
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
@@ -160,25 +159,33 @@
               "Statement": [
                 {
                   "Action": [
-                    "autoscaling:Describe*",
-                    "cloudformation:DescribeStacks",
-                    "cloudformation:DescribeStackEvents",
-                    "cloudformation:DescribeStackResource",
-                    "cloudformation:DescribeStackResources",
-                    "cloudformation:GetTemplate",
-                    "cloudformation:List*",
-                    "cloudwatch:Describe*",
-                    "cloudwatch:Get*",
-                    "cloudwatch:List*",
-                    "ec2:Describe*",
-                    "elasticloadbalancing:Describe*",
-                    "SNS:*"
+                    "ec2:Describe*"
                   ],
                   "Effect": "Allow",
                   "Resource": "*"
                 },
                 {
-                  "Resource": "*",
+                  "Effect": "Allow",
+                  "Action": "sns:*",
+                  "Resource": { "Ref":"ConfdSNSTopic" }
+		},
+                {
+                  "Resource": [
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"}]]},
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"}]]}
+                      ]
+                    },
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"},"/*"]]},
+                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"},"/*"]]}
+                      ]
+                    }
+		  ],
                   "Action": ["s3:List*","s3:Get*"],
                   "Effect": "Allow"
                 }
@@ -219,47 +226,17 @@
               "Statement": [
                 {
                   "Effect": "Allow",
-                  "Action": "iam:PassRole",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:CreateRole",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:PutRolePolicy",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:DeleteRolePolicy",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:CreateInstanceProfile",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:AddRoleToInstanceProfile",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:RemoveRoleFromInstanceProfile",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:DeleteInstanceProfile",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "iam:DeleteRole",
+                  "Action": [
+			"iam:PassRole",
+			"iam:CreateRole",
+			"iam:PutRolePolicy",
+			"iam:DeleteRolePolicy",
+			"iam:CreateInstanceProfile",
+			"iam:AddRoleToInstanceProfile",
+			"iam:RemoveRoleFromInstanceProfile",
+			"iam:DeleteInstanceProfile",
+			"iam:DeleteRole"
+		  ],
                   "Resource": "*"
                 },
                 {
@@ -276,26 +253,28 @@
                   "Effect": "Allow",
                   "Action": "autoscaling:*",
                   "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "cloudwatch:*",
-                  "Resource": "*"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "elb:*",
-                  "Resource": "*"
-                },
+		},
+		{
+		  "Action": "cloudwatch:*",
+		  "Resource": "*",
+		  "Effect": "Allow"
+		},
                 {
                   "Effect": "Allow",
                   "Action": "elasticloadbalancing:*",
+		  "Resource": [
+			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":elasticloadbalancing:*:*:loadbalancer/",{"Ref":"ElasticLoadBalancer"}]]}
+		  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "elasticloadbalancing:DescribeLoadBalancers",
                   "Resource": "*"
                 },
                 {
                   "Effect": "Allow",
                   "Action": "sns:*",
-                  "Resource": "*"
+                  "Resource": { "Ref":"ConfdSNSTopic" }
                 },
                 {
                   "Resource": [
@@ -317,7 +296,7 @@
                       "Fn::If": [
                         "EnableLicensePool",
                         {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalLicensePool"}]]},
-                        {"Ref":"AWS::NoValue"}
+                        {"Ref":"AWS::NoValue"                        }
                       ]
                     },
                     {
@@ -332,9 +311,22 @@
                   "Effect": "Allow"
                 },
                 {
-                  "Resource": "*",
+                  "Resource": [
+			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::sophos-nsg-cf-dev"]]},
+			{"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::sophos-nsg-cf"]]}
+		  ],
                   "Action": ["s3:List*","s3:Get*"],
                   "Effect": "Allow"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                  ],
+                  "Resource": [ { "Fn::Join": ["", ["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":logs:*:*:*"] ] } ]
                 }
               ]
             }
@@ -361,8 +353,7 @@
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Name","Value":"QueenSubnetAZ1"}
         ]
-      },
-      "DependsOn": "QueenRole"
+      }
     },
 
     "QueenSubnet2": {
@@ -375,8 +366,7 @@
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Name","Value":"QueenSubnetAZ2"}
         ]
-      },
-      "DependsOn": "QueenRole"
+      }
     },
 
     "SwarmSubnet1": {
@@ -389,8 +379,7 @@
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Name","Value":"SwarmSubnetAZ1"}
         ]
-      },
-      "DependsOn": "QueenRole"
+      }
     },
 
     "SwarmSubnet2": {
@@ -403,13 +392,11 @@
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Name","Value":"SwarmSubnetAZ2"}
         ]
-      },
-      "DependsOn": "QueenRole"
+      }
     },
 
     "QueenRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "QueenRole",
       "Properties": {
         "RouteTableId": {"Ref":"RouteTable"},
         "DestinationCidrBlock": "0.0.0.0/0",
@@ -419,7 +406,6 @@
 
     "RouteTable": {
       "Type": "AWS::EC2::RouteTable",
-      "DependsOn": "QueenRole",
       "Properties": {
         "VpcId": {"Ref":"awsVPCID"},
         "Tags": [
@@ -431,7 +417,6 @@
 
     "QueenSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "DependsOn": "QueenRole",
       "Properties": {
         "SubnetId": {"Ref":"QueenSubnet1"},
         "RouteTableId": {"Ref":"RouteTable"}
@@ -440,7 +425,6 @@
 
     "QueenSubnet2RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "DependsOn": "QueenRole",
       "Properties": {
         "SubnetId": {"Ref":"QueenSubnet2"},
         "RouteTableId": {"Ref":"RouteTable"}
@@ -449,7 +433,6 @@
 
     "SwarmRouteTable": {
       "Type": "AWS::EC2::RouteTable",
-      "DependsOn": "QueenRole",
       "Properties": {
         "VpcId": {"Ref":"awsVPCID"},
         "Tags": [
@@ -461,7 +444,6 @@
 
     "SwarmRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "QueenRole",
       "Properties": {
         "RouteTableId": {"Ref":"SwarmRouteTable"},
         "DestinationCidrBlock": "0.0.0.0/0",
@@ -471,7 +453,6 @@
 
     "SwarmSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "DependsOn": "QueenRole",
       "Properties": {
         "SubnetId": {"Ref":"SwarmSubnet1"},
         "RouteTableId": {"Ref":"SwarmRouteTable"}
@@ -480,7 +461,6 @@
 
     "SwarmSubnet2RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "DependsOn": "QueenRole",
       "Properties": {
         "SubnetId": {"Ref":"SwarmSubnet2"},
         "RouteTableId": {"Ref":"SwarmRouteTable"}
@@ -489,7 +469,6 @@
 
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
-      "DependsOn": "QueenRole",
       "Condition": "AllocateElasticIP",
       "Properties": {"Domain":"vpc"}
     },
@@ -522,8 +501,7 @@
     },
 
     "ConfdSNSTopic": {
-      "Type": "AWS::SNS::Topic",
-      "DependsOn": "QueenRole"
+      "Type": "AWS::SNS::Topic"
     },
 
     "SwarmSecurityGroup": {
@@ -632,7 +610,6 @@
     "ElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Metadata": {"waf":["elb"]},
-      "DependsOn": "QueenRole",
       "Properties": {
         "CrossZone": "true",
         "SecurityGroups": [{"Ref":"LoadBalancerSecurityGroup"}],
