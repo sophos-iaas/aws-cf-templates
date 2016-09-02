@@ -98,6 +98,11 @@
           "Description" : "Optional. S3 Bucket containing the licenses.",
           "Type" : "String",
           "Default": ""
+        },
+        "InstanceSize" : {
+          "Description" : "Default selects m3.medium if available in your region, c4.large otherwise.",
+          "Type" : "String",
+          "Default" : "default"
         }
     },
 
@@ -107,6 +112,7 @@
 
 	  "Conditions" : {
       "UseRegionMap" : { "Fn::Equals": [ {"Ref": "AMI"}, "autodetect" ] },
+      "DetectInstanceSize": { "Fn::Equals": [ {"Ref": "InstanceSize"}, "default" ] },
 		  "CreateS3Bucket" : { "Fn::Equals" : [{"Ref" : "ExistingS3Bucket"}, ""] },
 		  "AllocateElasticIP" : { "Fn::Equals" : [{"Ref" : "ExistingElasticIP"}, ""] }
     },
@@ -566,9 +572,13 @@
                       { "Ref": "AMI" }
                     ]
                 },
-                "InstanceType" : {
-			"Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "HAInstanceType" ]
-			},
+                "InstanceType": {
+                    "Fn::If": [
+                        "DetectInstanceSize",
+                        { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "HAInstanceType" ] },
+                        { "Ref": "InstanceSize" }
+                    ]
+                },
                 "KeyName" : { "Ref" : "KeyName" },
                 "BlockDeviceMappings" : [{
                     "DeviceName" : "/dev/xvda",
