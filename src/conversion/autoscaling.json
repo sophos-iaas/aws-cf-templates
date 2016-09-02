@@ -89,6 +89,18 @@
       "Type": "String"
     },
 
+    "utmControllerInstanceSize" : {
+      "Description" : "Default selects m4.large if available in your region, m3.large otherwise.",
+      "Type" : "String",
+      "Default" : "default"
+    },
+
+    "utmWorkerInstanceSize" : {
+      "Description" : "Default selects m3.medium if available in your region, c4.large otherwise.",
+      "Type" : "String",
+      "Default" : "default"
+    },
+
     "optionalExistingS3Bucket": {
       "Description": "Optional. The S3 Bucket to store and restore backups. If left empty a new Bucket will be created automatically.",
       "Type": "String",
@@ -121,6 +133,12 @@
   "Conditions": {
     "UseRegionMap": {
       "Fn::Equals": [{"Ref":"awsAMI"},"autodetect"]
+    },
+    "DetectWorkerInstanceSize": {
+      "Fn::Equals": [{"Ref": "utmControllerInstanceSize"}, "default"]
+    },
+    "DetectWorkerInstanceSize": {
+      "Fn::Equals": [ {"Ref": "utmWorkerInstanceSize"}, "default" ]
     },
     "CreateS3Bucket": {
       "Fn::Equals": [{"Ref":"optionalExistingS3Bucket"},""]
@@ -784,10 +802,10 @@
           ]
         },
         "InstanceType": {
-          "Fn::FindInMap": [
-            "RegionMap",
-            {"Ref":"AWS::Region"},
-            "SwarmInstanceType"
+          "Fn::If": [
+            "DetectWorkerInstanceSize",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "SwarmInstanceType" ] },
+            { "Ref": "utmWorkerInstanceSize" }
           ]
         },
         "KeyName": {"Ref":"awsKeyName"},
@@ -943,8 +961,12 @@
           ]
         },
         "InstanceType": {
-		  "Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "QueenInstanceType" ]
-		},
+          "Fn::If": [
+            "DetectWorkerInstanceSize",
+            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "QueenInstanceType" ] },
+            { "Ref": "utmControllerInstanceSize" }
+          ]
+        },
         "KeyName": {"Ref":"awsKeyName"},
         "BlockDeviceMappings": [
           {
