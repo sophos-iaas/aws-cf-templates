@@ -258,6 +258,11 @@
                   "Resource": "*"
                 },
                 {
+                  "Action": "iam:AttachRolePolicy",
+                  "Resource": "arn:aws:iam::*:role/actions/EC2ActionsAccess",
+                  "Effect": "Allow"
+                },
+                {
                   "Effect": "Allow",
                   "Action": "cloudformation:*",
                   "Resource": "*"
@@ -1036,6 +1041,7 @@
                 " --region ",
                 {"Ref":"AWS::Region"},
                 "\n",
+                "/usr/bin/sg-iaas ogw-cw-role >> /tmp/user_data.log 2>&1\n",
                 "exit 0\n"
               ]
             ]
