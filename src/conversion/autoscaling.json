@@ -1041,7 +1041,7 @@
                 " --region ",
                 {"Ref":"AWS::Region"},
                 "\n",
-                "/usr/bin/sg-iaas ogw-cw-role >> /tmp/user_data.log 2>&1\n",
+                "/usr/bin/sg-iaas ogw-create-cw-role >> /tmp/user_data.log 2>&1\n",
                 "exit 0\n"
               ]
             ]
