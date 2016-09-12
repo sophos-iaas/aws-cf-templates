@@ -1,8 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-
   "Description": "Scalable UTM CloudFormation template",
-
   "Parameters": {
     "AMI": {
       "Description": "With autodetect latest AMI is used based on the license type.",
@@ -127,7 +125,6 @@
   "Mappings": {
     "RegionMap": {}
   },
-
   "Conditions": {
     "DetectAMI": {
       "Fn::Equals": [{"Ref":"AMI"},"autodetect"]
@@ -148,7 +145,6 @@
       "Fn::Not": [{"Fn::Equals":[{"Ref":"LicensePool"},""]}]
     }
   },
-
   "Resources": {
     "WorkerRole": {
       "Type": "AWS::IAM::Role",
@@ -208,7 +204,6 @@
         ]
       }
     },
-
     "WorkerInstanceProfile": {
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
@@ -216,7 +211,6 @@
         "Roles": [{"Ref":"WorkerRole"}]
       }
     },
-
     "QueenRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -352,7 +346,6 @@
         ]
       }
     },
-
     "QueenInstanceProfile": {
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
@@ -360,7 +353,6 @@
         "Roles": [{"Ref":"QueenRole"}]
       }
     },
-
     "VPC": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
@@ -372,7 +364,6 @@
         "Tags": [{"Key":"Application","Value":{"Ref":"AWS::StackId"}}]
       }
     },
-
     "QueenSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -385,7 +376,6 @@
         ]
       }
     },
-
     "QueenSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -398,7 +388,6 @@
         ]
       }
     },
-
     "SwarmSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -411,7 +400,6 @@
         ]
       }
     },
-
     "SwarmSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -424,7 +412,6 @@
         ]
       }
     },
-
     "InternetGateway": {
       "Type": "AWS::EC2::InternetGateway",
       "Properties": {
@@ -434,7 +421,6 @@
         ]
       }
     },
-
     "AttachGateway": {
       "Type": "AWS::EC2::VPCGatewayAttachment",
       "Properties": {
@@ -442,7 +428,6 @@
         "InternetGatewayId": {"Ref":"InternetGateway"}
       }
     },
-
     "QueenRoute": {
       "Type": "AWS::EC2::Route",
       "DependsOn": "AttachGateway",
@@ -452,7 +437,6 @@
         "GatewayId": {"Ref":"InternetGateway"}
       }
     },
-
     "RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
@@ -463,7 +447,6 @@
         ]
       }
     },
-
     "QueenSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
@@ -471,7 +454,6 @@
         "RouteTableId": {"Ref":"RouteTable"}
       }
     },
-
     "QueenSubnet2RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
@@ -479,7 +461,6 @@
         "RouteTableId": {"Ref":"RouteTable"}
       }
     },
-
     "SwarmRouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
@@ -490,7 +471,6 @@
         ]
       }
     },
-
     "SwarmRoute": {
       "Type": "AWS::EC2::Route",
       "DependsOn": "AttachGateway",
@@ -500,7 +480,6 @@
         "GatewayId": {"Ref":"InternetGateway"}
       }
     },
-
     "SwarmSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
@@ -508,7 +487,6 @@
         "RouteTableId": {"Ref":"SwarmRouteTable"}
       }
     },
-
     "SwarmSubnet2RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
@@ -516,14 +494,12 @@
         "RouteTableId": {"Ref":"SwarmRouteTable"}
       }
     },
-
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
       "DependsOn": "AttachGateway",
       "Condition": "AllocateElasticIP",
       "Properties": {"Domain":"vpc"}
     },
-
     "S3Bucket": {
       "Type": "AWS::S3::Bucket",
       "Condition": "CreateS3Bucket",
@@ -550,11 +526,9 @@
         }
       }
     },
-
     "ConfdSNSTopic": {
       "Type": "AWS::SNS::Topic"
     },
-
     "SwarmSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Metadata": {
@@ -568,7 +542,6 @@
         "VpcId": {"Ref":"VPC"}
       }
     },
-
     "LoadBalancerReceiverSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Metadata": {
@@ -579,7 +552,6 @@
         "VpcId": {"Ref":"VPC"}
       }
     },
-
     "QueenSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -601,7 +573,6 @@
         ]
       }
     },
-
     "TrustedNetworkGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -617,7 +588,6 @@
         "VpcId": {"Ref":"VPC"}
       }
     },
-
     "UntrustedGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -651,7 +621,6 @@
         "VpcId": {"Ref":"VPC"}
       }
     },
-
     "LoadBalancerSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Metadata": {
@@ -689,7 +658,6 @@
       },
       "DependsOn": "AttachGateway"
     },
-
     "SwarmScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": [
@@ -729,7 +697,6 @@
         "LoadBalancerNames": [{"Ref":"ElasticLoadBalancer"}]
       }
     },
-
     "SwarmScaleUpPolicy": {
       "Type": "AWS::AutoScaling::ScalingPolicy",
       "Properties": {
@@ -741,7 +708,6 @@
         "ScalingAdjustment": "1"
       }
     },
-
     "SwarmScaleDownPolicy": {
       "Type": "AWS::AutoScaling::ScalingPolicy",
       "Properties": {
@@ -753,7 +719,6 @@
         "ScalingAdjustment": "-1"
       }
     },
-
     "SwarmCPUAlarmHigh": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
@@ -774,7 +739,6 @@
         "ComparisonOperator": "GreaterThanThreshold"
       }
     },
-
     "SwarmCPUAlarmVeryHigh": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
@@ -797,7 +761,6 @@
         "ComparisonOperator": "GreaterThanThreshold"
       }
     },
-
     "SwarmCPUAlarmLow": {
       "Type": "AWS::CloudWatch::Alarm",
       "Properties": {
@@ -818,7 +781,6 @@
         "ComparisonOperator": "LessThanThreshold"
       }
     },
-
     "SwarmLaunchConfiguration": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
@@ -949,7 +911,6 @@
         }
       }
     },
-
     "QueenScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": ["ConfdSNSTopic","AttachGateway"],
@@ -978,7 +939,6 @@
         "Tags": [{"Key":"Name","Value":"Queen UTM","PropagateAtLaunch":"true"}]
       }
     },
-
     "QueenLaunchConfiguration": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
