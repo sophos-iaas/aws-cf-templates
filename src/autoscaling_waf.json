@@ -404,9 +404,7 @@
       "Properties": {
         "VpcId": {"Ref":"VPC"},
         "CidrBlock": {"Fn::Join":[".",[{"Ref":"awsNetworkPrefix"},"5.0/24"]]},
-        "AvailabilityZone": {
-          "Ref": "awsAvailabilityZone2"
-        },
+        "AvailabilityZone": {"Ref":"awsAvailabilityZone2"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Name","Value":"SwarmSubnetAZ2"}
@@ -651,7 +649,6 @@
         "VpcId": {"Ref":"VPC"}
       }
     },
-
     "ElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Metadata": {"waf":["elb"]},
@@ -724,7 +721,9 @@
       "Type": "AWS::AutoScaling::ScalingPolicy",
       "Properties": {
         "AdjustmentType": "ChangeInCapacity",
-        "AutoScalingGroupName": {"Ref":"SwarmScalingGroup"},
+        "AutoScalingGroupName": {
+          "Ref": "SwarmScalingGroup"
+        },
         "Cooldown": "60",
         "ScalingAdjustment": "1"
       }
@@ -734,7 +733,9 @@
       "Type": "AWS::AutoScaling::ScalingPolicy",
       "Properties": {
         "AdjustmentType": "ChangeInCapacity",
-        "AutoScalingGroupName": {"Ref":"SwarmScalingGroup"},
+        "AutoScalingGroupName": {
+          "Ref": "SwarmScalingGroup"
+        },
         "Cooldown": "60",
         "ScalingAdjustment": "-1"
       }
@@ -771,7 +772,9 @@
         "Period": "60",
         "EvaluationPeriods": "1",
         "Threshold": "85",
-        "AlarmActions": [{"Ref":"SwarmScaleUpPolicy"}],
+        "AlarmActions": [
+          {"Ref":"SwarmScaleUpPolicy"}
+        ],
         "Dimensions": [
           {
             "Name": "AutoScalingGroupName",
@@ -807,8 +810,22 @@
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "AssociatePublicIpAddress": true,
-        "IamInstanceProfile": {"Ref":"WorkerInstanceProfile"},
-        "ImageId": {"Fn::If":["UseRegionMap",{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},{"Ref":"awsLicenseType"}]},{"Ref":"awsAMI"}]},
+        "IamInstanceProfile": {
+          "Ref": "WorkerInstanceProfile"
+        },
+        "ImageId": {
+          "Fn::If": [
+            "UseRegionMap",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {"Ref":"AWS::Region"},
+                {"Ref":"awsLicenseType"}
+              ]
+            },
+            {"Ref":"awsAMI"}
+          ]
+        },
         "InstanceType": {
           "Fn::If": [
             "DetectWorkerInstanceSize",
@@ -863,7 +880,7 @@
       "Metadata": {
         "AWS::CloudFormation::Init": {
           "configSets": {
-            "swarm_node": ["swarm_config","swarm_commands"]
+            "swarm_node": ["swarm_config", "swarm_commands"]
           },
           "swarm_config": {
             "files": {
@@ -879,7 +896,7 @@
                       "instance_role: worker\n",
                       "deployment_type: autoscaling\n",
                       "license_pool: ",
-                      {"Ref":"optionalLicensePool"                      },
+                      {"Ref":"optionalLicensePool"},
                       "\n",
                       "s3_bucket: ",
                       {"Fn::If":["CreateS3Bucket",{"Ref":"S3Bucket"},{"Ref":"optionalExistingS3Bucket"}]},
@@ -908,8 +925,12 @@
           },
           "swarm_commands": {
             "commands": {
-              "userdata_secret": {"command":"echo \"sns_secret: $shared_secret\" >> /etc/cloud/user_data.yml"},
-              "mod_rewrite_secret": {"command":"sed -rie \"s/@SHARED_SECRET@/$shared_secret/\" /var/chroot-httpd/etc/httpd/vhost/httpd-sns.conf"}
+              "userdata_secret": {
+                "command": "echo \"sns_secret: $shared_secret\" >> /etc/cloud/user_data.yml"
+              },
+              "mod_rewrite_secret": {
+                "command": "sed -rie \"s/@SHARED_SECRET@/$shared_secret/\" /var/chroot-httpd/etc/httpd/vhost/httpd-sns.conf"
+              }
             }
           }
         }
@@ -949,8 +970,16 @@
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "AssociatePublicIpAddress": true,
-        "IamInstanceProfile": {"Ref":"QueenInstanceProfile"},
-        "ImageId": {"Fn::If":["UseRegionMap",{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},{"Ref":"awsLicenseType"}]},{"Ref":"awsAMI"}]},
+        "IamInstanceProfile": {
+          "Ref": "QueenInstanceProfile"
+        },
+        "ImageId": {
+          "Fn::If": [
+            "UseRegionMap",
+            {"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},{"Ref":"awsLicenseType"}]},
+            {"Ref":"awsAMI"}
+          ]
+        },
         "InstanceType": {
           "Fn::If": [
             "DetectWorkerInstanceSize",
@@ -1025,7 +1054,7 @@
       },
       "Metadata": {
         "AWS::CloudFormation::Init": {
-          "configSets": {"queen_node":["queen_config"]},
+          "configSets": {"queen_node": ["queen_config"]},
           "queen_config": {
             "files": {
               "/etc/cloud/user_data.yml": {
@@ -1217,10 +1246,15 @@
       }
     }
   },
-
   "Outputs": {
     "PublicIPAddress": {
-      "Value": {"Fn::If":["AllocateElasticIP",{"Ref":"IPAddress"},{"Ref":"optionalExistingElasticIP"}]},
+      "Value": {
+        "Fn::If": [
+          "AllocateElasticIP",
+          {"Ref":"IPAddress"},
+          {"Ref":"optionalExistingElasticIP"}
+        ]
+      },
       "Description": "Use this IP to connect and to forward traffic to the UTM."
     },
     "QueenScalingGroup": {

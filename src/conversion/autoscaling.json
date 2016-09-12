@@ -543,7 +543,9 @@
 
     "LoadBalancerReceiverSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
-      "Metadata": {"waf":["frontend-security-group"]},
+      "Metadata": {
+        "waf": ["frontend-security-group"]
+      },
       "Properties": {
         "GroupDescription": "Group for the receivers of the ElasticLoadBalancer",
         "VpcId": {"Ref":"awsVPCID"}
@@ -624,7 +626,9 @@
 
     "LoadBalancerSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
-      "Metadata": {"waf":["elb-security-group"]   },
+      "Metadata": {
+        "waf": ["elb-security-group"]
+      },
       "Properties": {
         "GroupDescription": "Enable HTTP access on port 8080",
         "VpcId": {"Ref":"awsVPCID"}
@@ -671,7 +675,6 @@
           "PauseTime": "PT15M"
         }
       },
-
       "Properties": {
         "DesiredCapacity": "2",
         "MaxSize": "100",
@@ -839,17 +842,17 @@
                 "mkdir -p /var/chroot-httpd/etc/sns\n",
                 "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s ",
-                {"Ref":"AWS::StackId"                },
+                {"Ref":"AWS::StackId"},
                 " -r SwarmLaunchConfiguration --region ",
-                {"Ref":"AWS::Region"                },
+                {"Ref":"AWS::Region"},
                 " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n",
                 "/etc/init.d/httpd restart\n",
                 "/etc/init.d/worker_config_management start\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
-                {"Ref":"AWS::StackName"                },
+                {"Ref":"AWS::StackName"},
                 " --resource SwarmScalingGroup ",
                 " --region ",
-                {"Ref":"AWS::Region"                },
+                {"Ref":"AWS::Region"},
                 "\n",
                 "exit 0\n"
               ]
@@ -860,10 +863,7 @@
       "Metadata": {
         "AWS::CloudFormation::Init": {
           "configSets": {
-            "swarm_node": [
-              "swarm_config",
-              "swarm_commands"
-            ]
+            "swarm_node": ["swarm_config", "swarm_commands"]
           },
           "swarm_config": {
             "files": {
@@ -945,9 +945,7 @@
           {"Ref":"awsAvailabilityZone2"}
         ],
         "LaunchConfigurationName": {"Ref":"QueenLaunchConfiguration"},
-        "Tags": [
-          {"Key":"Name","Value":"Queen UTM","PropagateAtLaunch":"true"}
-        ]
+        "Tags": [{"Key":"Name","Value":"Queen UTM","PropagateAtLaunch":"true"}]
       }
     },
 
@@ -1050,9 +1048,7 @@
       },
       "Metadata": {
         "AWS::CloudFormation::Init": {
-          "configSets": {
-            "queen_node": ["queen_config"]
-          },
+          "configSets": {"queen_node": ["queen_config"]},
           "queen_config": {
             "files": {
               "/etc/cloud/user_data.yml": {
