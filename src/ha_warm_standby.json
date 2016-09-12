@@ -57,7 +57,7 @@
       "AllowedPattern": "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$",
       "ConstraintDescription": "Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters)."
     },
-    "AdminEmail": {
+    "Email": {
       "Default": "",
       "Type": "String"
     },
@@ -92,7 +92,7 @@
           "Parameters":["AvailabilityZone1", "AvailabilityZone2", "NetworkPrefix", "TrustedNetwork", "ExistingElasticIP", "ExistingS3Bucket", "LicensePool"]
         },{
           "Label":{ "default": "Settings for Initial UTM Setup" },
-          "Parameters":["Hostname", "AdminEmail", "AdminPassword", "Organization", "City", "Country", "KeyName"]
+          "Parameters":["Hostname", "Email", "AdminPassword", "Organization", "City", "Country", "KeyName"]
         }
       ],
       "ParameterLabels":{
@@ -107,7 +107,7 @@
         "ExistingS3Bucket": { "default": "S3 Bucket for UTM Synchronization and Backup (optional)" },
         "LicensePool": { "default": "S3 Bucket Containing Licenses (optional)" },
         "Hostname": { "default": "Hostname" },
-        "AdminEmail": { "default": "Admin E-Mail Address" },
+        "Email": { "default": "Admin E-Mail Address" },
         "AdminPassword": { "default": "Admin Password" },
         "Organization": { "default": "Organization" },
         "City": { "default": "City" },
@@ -575,7 +575,7 @@
           "echo 'license_pool: \"", { "Ref": "LicensePool" }, "\"' >> /etc/cloud/user_data.yml\n",
           "echo 'region: \"", { "Ref": "AWS::Region" }, "\"' >> /etc/cloud/user_data.yml\n",
           "cc=`/usr/local/bin/confd-client.plx country_name_to_code \"",{ "Ref": "Country" },"\"`\n",
-          "echo \"{ hostname => '", { "Ref": "Hostname" }, "', organization => '", { "Ref": "Organization"}, "', city => '", { "Ref" : "City" },"', country => '$cc', email => '", { "Ref": "AdminEmail" }, "', password => '", { "Ref": "AdminPassword" }, "' }\" > /var/confd/var/storage/setup.ph\n",
+          "echo \"{ hostname => '", { "Ref": "Hostname" }, "', organization => '", { "Ref": "Organization"}, "', city => '", { "Ref" : "City" },"', country => '$cc', email => '", { "Ref": "Email" }, "', password => '", { "Ref": "AdminPassword" }, "' }\" > /var/confd/var/storage/setup.ph\n",
           "/etc/init.d/confd restart\n",
           "sleep 5\n",
           "echo 'elastic_ip: \"",
@@ -669,7 +669,7 @@
       "Type": "AWS::SNS::Topic",
       "Properties": {
         "Subscription": [{
-          "Endpoint": { "Ref": "AdminEmail" },
+          "Endpoint": { "Ref": "Email" },
           "Protocol": "email"
         }]
       }

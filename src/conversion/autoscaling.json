@@ -2,97 +2,97 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Scalable UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.",
   "Parameters": {
-    "AMI": {
+    "awsAMI": {
       "Description": "With autodetect latest AMI is used based on the license type.",
       "Type": "String",
       "Default": "autodetect"
     },
-    "LicenseType": {
+    "awsLicenseType": {
       "Description": "Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.",
       "Type": "String",
       "AllowedValues": ["Hourly","BYOL"],
       "Default": "Hourly"
     },
-    "ControllerInstanceSize" : {
+    "utmControllerInstanceSize" : {
       "Description" : "Default selects m4.large if available in your region, m3.large otherwise.",
       "Type" : "String",
       "Default" : "default"
     },
-    "WorkerInstanceSize" : {
+    "utmWorkerInstanceSize" : {
       "Description" : "Default selects m3.medium if available in your region, c4.large otherwise.",
       "Type" : "String",
       "Default" : "default"
     },
-    "AvailabilityZone1": {
+    "awsAvailabilityZone1": {
       "Type": "AWS::EC2::AvailabilityZone::Name",
       "Description": "Please provide an Availability Zone."
     },
-    "AvailabilityZone2": {
+    "awsAvailabilityZone2": {
       "Type": "AWS::EC2::AvailabilityZone::Name",
       "Description": "Please provide another (different) Availability Zone."
     },
-    "VPCID": {
+    "awsVPCID": {
       "Description": "ID of an existing VPC to launch the deployment in.",
       "Type": "AWS::EC2::VPC::Id"
     },
-    "GatewayID": {
+    "awsGatewayID": {
       "Description": "The Internet Gateway ID of the VPC.",
       "Type": "String"
     },
-    "SubnetIPBlocks": {
+    "awsSubnetIPBlocks": {
       "Description": "Please provide a comma-separated list of 4 CIDR blocks within the VPC. The four subnets will be created automatically.",
       "Type": "CommaDelimitedList"
     },
-    "TrustedNetwork": {
+    "awsTrustedNetwork": {
       "Description": "Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
       "Type": "String"
     },
-    "ExistingSecurityGroup": {
+    "optionalExistingSecurityGroup": {
       "Description": "A security group to assign to the new stack.",
       "Type": "String",
       "Default": ""
     },
-    "ExistingElasticIP": {
+    "optionalExistingElasticIP": {
       "Description": "Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
       "Type": "String",
       "Default": ""
     },
-    "ExistingS3Bucket": {
+    "optionalExistingS3Bucket": {
       "Description": "S3 Bucket to store and restore backups. If left empty a new Bucket will be created automatically.",
       "Type": "String",
       "Default": ""
     },
-    "LicensePool": {
+    "optionalLicensePool": {
       "Description": "In case of a BYOL scenario the license is automatically selected from this S3 Bucket (works only if there is at least one running UTM instance already using this license). If left empty the license can be installed using webadmin.",
       "Type": "String",
       "Default": ""
     },
-    "Hostname": {
+    "basicHostname": {
       "Description": "The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).",
       "Type": "String",
       "MaxLength": "64",
       "AllowedPattern": "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$",
       "ConstraintDescription": "Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters)."
     },
-    "AdminEmail": {
+    "basicAdminEmail": {
       "Default": "",
       "Type": "String"
     },
-    "AdminPassword": {
+    "basicAdminPassword": {
       "Type": "String",
       "NoEcho": "True"
     },
-    "Organization": {
+    "basicOrganization": {
       "Type": "String"
     },
-    "City": {
+    "basicCity": {
       "Type": "String"
     },
-    "Country": {
+    "basicCountry": {
       "Type": "String",
       "AllowedValues": ["Andorra","United Arab Emirates","Afghanistan","Antigua and Barbuda","Anguilla","Albania","Armenia","Netherlands Antilles","Angola","Antarctica","Argentina","American Samoa","Austria","Australia","Aland Islands","Aruba","Azerbaidjan","Bosnia and Herzegovina","Barbados","Bangladesh","Belgium","Burkina Faso","Bulgaria","Bahrain","Burundi","Benin","Saint Barthelemey","Bermuda","Brunei Darussalam","Bolivia","Brazil","Bahamas","Bhutan","Bouvet Island","Botswana","Belarus","Belize","Canada","Cocos Islands","Congo, Democratic Rebpulic of the","Central African Republic","Congo","Switzerland","Ivory Coast","Cook Islands","Chile","Cameroon","China","Colombia","Costa Rica","Cuba","Cape Verde","Christmas Island","Cyprus","Czech Republic","Germany","Djibouti","Denmark","Dominica","Dominican Republic","Algeria","Ecuador","Estonia","Egypt","Western Sahara","Eritrea","Spain","Ethiopia","Finland","Fiji","Falkland Islands","Micronesia","Faroe Islands","France","Gabon","Great Britain","Grenada","Georgia","French Guyana","Guernsey","Ghana","Gibraltar","Greenland","Gambia","Guinea","Guadeloupe","Equatorial Guinea","Greece","S. Georgia & S. Sandwich Isls.","Guatemala","Guam (USA)","Guinea Bissau","Guyana","Hong Kong","Heard and McDonald Islands","Honduras","Croatia","Haiti","Hungary","Indonesia","Ireland","Israel","Isle of Man","India","British Indian Ocean Territory","Iraq","Iran","Iceland","Italy","Jersey","Jamaica","Jordan","Japan","Kenya","Kyrgyz Republic (Kyrgyzstan)","Cambodia, Kingdom of","Kiribati","Comoros","Saint Kitts & Nevis Anguilla","North Korea","South Korea","Kuwait","Cayman Islands","Kazakhstan","Laos","Lebanon","Saint Lucia","Liechtenstein","Sri Lanka","Liberia","Lesotho","Lithuania","Luxembourg","Latvia","Libya","Morocco","Monaco","Moldavia","Montenegro","Saint Martin (French)","Madagascar","Marshall Islands","Macedonia","Mali","Myanmar","Mongolia","Macau","Northern Mariana Islands","Martinique (French)","Mauritania","Montserrat","Malta","Mauritius","Maldives","Malawi","Mexico","Malaysia","Mozambique","Namibia","New Caledonia (French)","Niger","Norfolk Island","Nigeria","Nicaragua","Netherlands","Norway","Nepal","Nauru","Niue","New Zealand","Oman","Panama","Peru","Polynesia (French)","Papua New Guinea","Philippines","Pakistan","Poland","Saint Pierre and Miquelon","Pitcairn Island","Puerto Rico","Palestinian Territory (Occupied)","Portugal","Palau","Paraguay","Qatar","Reunion (French)","Romania","Serbia","Russian Federation","Rwanda","Saudi Arabia","Solomon Islands","Seychelles","Sudan","Sweden","Singapore","Saint Helena","Slovenia","Svalbard Jan Mayen Islands","Slovak Republic","Sierra Leone","San Marino","Senegal","Somalia","Suriname","Saint Tome and Principe","El Salvador","Syria","Swaziland","Turks and Caicos Islands","Chad","French Southern Territories","Togo","Thailand","Tadjikistan","Tokelau","Timor-Leste","Turkmenistan","Tunisia","Tonga","Turkey","Trinidad and Tobago","Tuvalu","Taiwan","Tanzania","Ukraine","Uganda","United Kingdom","USA Minor Outlying Islands","United States","Uruguay","Uzbekistan","Holy See (Vatican City State)","Saint Vincent & Grenadines","Venezuela","Virgin Islands (British)","Virgin Islands (USA)","Vietnam","Vanuatu","Wallis and Futuna Islands","Samoa","Yemen","Mayotte","South Africa","Zambia","Zimbabwe"]
     },
-    "KeyName": {
+    "awsKeyName": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access.",
       "Type": "AWS::EC2::KeyPair::KeyName",
       "Default": ""
@@ -103,37 +103,37 @@
       "ParameterGroups": [
         {
           "Label": {"default": "Instance Configuration"},
-          "Parameters":["AMI", "LicenseType", "ControllerInstanceSize", "WorkerInstanceSize"]
+          "Parameters":["awsAMI", "awsLicenseType", "utmControllerInstanceSize", "utmWorkerInstanceSize"]
         },{
           "Label":{ "default": "UTM Infrastructure Configuration" },
-          "Parameters":["AvailabilityZone1", "AvailabilityZone2", "VPCID", "GatewayID", "SubnetIPBlocks", "TrustedNetwork", "ExistingSecurityGroup", "ExistingElasticIP", "ExistingS3Bucket", "LicensePool"]
+          "Parameters":["awsAvailabilityZone1", "awsAvailabilityZone2", "awsVPCID", "awsGatewayID", "awsSubnetIPBlocks", "awsTrustedNetwork", "optionalExistingSecurityGroup", "optionalExistingElasticIP", "optionalExistingS3Bucket", "optionalLicensePool"]
         },{
           "Label":{ "default": "Settings for Initial UTM Setup" },
-          "Parameters":["Hostname", "AdminEmail", "AdminPassword", "Organization", "City", "Country", "KeyName"]
+          "Parameters":["basicHostname", "basicAdminEmail", "basicAdminPassword", "basicOrganization", "basicCity", "basicCountry", "awsKeyName"]
         }
       ],
       "ParameterLabels":{
-        "AMI": { "default": "UTM AMI" },
-        "LicenseType":{ "default": "License Type" },
-        "ControllerInstanceSize": { "default": "Instance Size of UTM Controller" },
-        "WorkerInstanceSize": { "default": "Instance Size of UTM Worker" },
-        "AvailabilityZone1": { "default": "Availability Zone 1" },
-        "AvailabilityZone2": { "default": "Availability Zone 2" },
-        "VPCID": { "default": "VPC ID" },
-        "GatewayID": { "default": "Gateway ID" },
-        "SubnetIPBlocks": { "default": "Four Subnet CIDR Blocks" },
-        "TrustedNetwork": { "default": "Trusted Network CIDR" },
-        "ExistingSecurityGroup": { "default": "Existing SecurityGroup (optional)" },
-        "ExistingElasticIP":{"default": "Existing Elastic IP (optional)"},
-        "ExistingS3Bucket": { "default": "S3 Bucket for UTM Synchronization and Backup (optional)" },
-        "LicensePool": { "default": "S3 Bucket Containing Licenses (optional)" },
-        "Hostname": { "default": "Hostname" },
-        "AdminEmail": { "default": "Admin E-Mail Address" },
-        "AdminPassword": { "default": "Admin Password" },
-        "Organization": { "default": "Organization" },
-        "City": { "default": "City" },
-        "Country": { "default": "Country" },
-        "KeyName": { "default": "SSH Key" }
+        "awsAMI": { "default": "UTM AMI" },
+        "awsLicenseType": { "default": "License Type" },
+        "utmControllerInstanceSize": { "default": "Instance Size of UTM Controller" },
+        "utmWorkerInstanceSize": { "default": "Instance Size of UTM Worker" },
+        "awsAvailabilityZone1": { "default": "Availability Zone 1" },
+        "awsAvailabilityZone2": { "default": "Availability Zone 2" },
+        "awsVPCID": { "default": "VPC ID" },
+        "awsGatewayID": { "default": "Gateway ID" },
+        "awsSubnetIPBlocks": { "default": "Four Subnet CIDR Blocks" },
+        "awsTrustedNetwork": { "default": "Trusted Network CIDR" },
+        "optionalExistingSecurityGroup": { "default": "Existing SecurityGroup (optional)" },
+        "optionalExistingElasticIP":{"default": "Existing Elastic IP (optional)"},
+        "optionalExistingS3Bucket": { "default": "S3 Bucket for UTM Synchronization and Backup (optional)" },
+        "optionalLicensePool": { "default": "S3 Bucket Containing Licenses (optional)" },
+        "basicHostname": { "default": "basicHostname" },
+        "basicAdminEmail": { "default": "Admin E-Mail Address" },
+        "basicAdminPassword": { "default": "Admin Password" },
+        "basicOrganization": { "default": "basicOrganization" },
+        "basicCity": { "default": "basicCity" },
+        "basicCountry": { "default": "basicCountry" },
+        "awsKeyName": { "default": "SSH Key" }
       }
     }
   },
@@ -160,7 +160,7 @@
       "Fn::Not": [{"Fn::Equals":[{"Ref":"LicensePool"},""]}]
     },
     "UseExistingSG": {
-      "Fn::Not": [{"Fn::Equals":[{"Ref":"ExistingSecurityGroup"},""]}]
+      "Fn::Not": [{"Fn::Equals":[{"Ref":"optionalExistingSecurityGroup"},""]}]
     }
   },
   "Resources": {
@@ -374,8 +374,8 @@
     "QueenSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"VPCID"},
-        "CidrBlock": {"Fn::Select":["0",{"Ref":"SubnetIPBlocks"}]},
+        "VpcId": {"Ref":"awsVPCID"},
+        "CidrBlock": {"Fn::Select":["0",{"Ref":"awsSubnetIPBlocks"}]},
         "AvailabilityZone": {"Ref":"AvailabilityZone1"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
@@ -386,8 +386,8 @@
     "QueenSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"VPCID"},
-        "CidrBlock": {"Fn::Select":["1",{"Ref":"SubnetIPBlocks"}]},
+        "VpcId": {"Ref":"awsVPCID"},
+        "CidrBlock": {"Fn::Select":["1",{"Ref":"awsSubnetIPBlocks"}]},
         "AvailabilityZone": {"Ref":"AvailabilityZone2"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
@@ -398,8 +398,8 @@
     "SwarmSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"VPCID"},
-        "CidrBlock": {"Fn::Select":["2",{"Ref":"SubnetIPBlocks"}]},
+        "VpcId": {"Ref":"awsVPCID"},
+        "CidrBlock": {"Fn::Select":["2",{"Ref":"awsSubnetIPBlocks"}]},
         "AvailabilityZone": {"Ref":"AvailabilityZone1"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
@@ -410,8 +410,8 @@
     "SwarmSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"VPCID"},
-        "CidrBlock": {"Fn::Select":["3",{"Ref":"SubnetIPBlocks"}]},
+        "VpcId": {"Ref":"awsVPCID"},
+        "CidrBlock": {"Fn::Select":["3",{"Ref":"awsSubnetIPBlocks"}]},
         "AvailabilityZone": {"Ref":"AvailabilityZone2"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
@@ -424,13 +424,13 @@
       "Properties": {
         "RouteTableId": {"Ref":"RouteTable"},
         "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {"Ref":"GatewayID"}
+        "GatewayId": {"Ref":"awsGatewayID"}
       }
     },
     "RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
-        "VpcId": {"Ref":"VPCID"},
+        "VpcId": {"Ref":"awsVPCID"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Network","Value":"Public"}
@@ -454,7 +454,7 @@
     "SwarmRouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
-        "VpcId": {"Ref":"VPCID"},
+        "VpcId": {"Ref":"awsVPCID"},
         "Tags": [
           {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
           {"Key":"Network","Value":"Public"}
@@ -466,7 +466,7 @@
       "Properties": {
         "RouteTableId": {"Ref":"SwarmRouteTable"},
         "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {"Ref":"GatewayID"}
+        "GatewayId": {"Ref":"awsGatewayID"}
       }
     },
     "SwarmSubnet1RouteTableAssociation": {
@@ -527,7 +527,7 @@
       },
       "Properties": {
         "GroupDescription": "Identifying security group",
-        "VpcId": {"Ref":"VPCID"}
+        "VpcId": {"Ref":"awsVPCID"}
       }
     },
     "LoadBalancerReceiverSecurityGroup": {
@@ -537,14 +537,14 @@
       },
       "Properties": {
         "GroupDescription": "Group for the receivers of the ElasticLoadBalancer",
-        "VpcId": {"Ref":"VPCID"}
+        "VpcId": {"Ref":"awsVPCID"}
       }
     },
     "QueenSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Identifying security group",
-        "VpcId": {"Ref":"VPCID"},
+        "VpcId": {"Ref":"awsVPCID"},
         "SecurityGroupEgress": [
           {
             "IpProtocol": "tcp",
@@ -573,7 +573,7 @@
             "CidrIp": {"Ref":"TrustedNetwork"}
           }
         ],
-        "VpcId": {"Ref":"VPCID"}
+        "VpcId": {"Ref":"awsVPCID"}
       }
     },
     "UntrustedGroup": {
@@ -606,7 +606,7 @@
             "CidrIp": "0.0.0.0/0"
           }
         ],
-        "VpcId": {"Ref":"VPCID"}
+        "VpcId": {"Ref":"awsVPCID"}
       }
     },
     "LoadBalancerSecurityGroup": {
@@ -616,7 +616,7 @@
       },
       "Properties": {
         "GroupDescription": "Enable HTTP access on port 8080",
-        "VpcId": {"Ref":"VPCID"}
+        "VpcId": {"Ref":"awsVPCID"}
       }
     },
     "ElasticLoadBalancer": {
@@ -957,7 +957,7 @@
           "Fn::If": [
             "UseExistingSG",
             [
-              {"Ref":"ExistingSecurityGroup"},
+              {"Ref":"optionalExistingSecurityGroup"},
               {"Fn::GetAtt":["QueenSecurityGroup","GroupId"]},
               {"Fn::GetAtt":["TrustedNetworkGroup","GroupId"]},
               {"Fn::GetAtt":["UntrustedGroup","GroupId"]}
@@ -1243,8 +1243,8 @@
       "Value": {"Ref":"SwarmScalingGroup"},
       "Description": "The Swarm scaling group."
     },
-    "VPCID": {
-      "Value": {"Ref":"VPCID"},
+    "awsVPCID": {
+      "Value": {"Ref":"awsVPCID"},
       "Description": "The VPC of the Swarm"
     },
     "Region": {

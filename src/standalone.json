@@ -10,7 +10,7 @@
     "LicenseType": {
       "Description": "Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.",
       "Type": "String",
-      "AllowedValues": ["Hourly", "BYOL" ],
+      "AllowedValues": ["Hourly", "BYOL"],
       "Default": "Hourly"
     },
     "VpcId": {
