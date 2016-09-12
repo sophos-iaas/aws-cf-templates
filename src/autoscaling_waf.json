@@ -308,7 +308,7 @@
                       "Fn::If": [
                         "EnableLicensePool",
                         {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalLicensePool"}]]},
-                        {"Ref":"AWS::NoValue"                        }
+                        {"Ref":"AWS::NoValue"}
                       ]
                     },
                     {
@@ -573,7 +573,7 @@
         ]
       }
     },
-    "awsTrustedNetworkGroup": {
+    "TrustedNetworkGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Enable TCP access from trusted network",
@@ -808,7 +808,7 @@
             { "Ref": "utmWorkerInstanceSize" }
           ]
         },
-        "awsKeyName": {"Ref":"awsKeyName"},
+        "KeyName": {"Ref":"awsKeyName"},
         "BlockDeviceMappings": [
           {
             "DeviceName": "/dev/xvda",
@@ -817,7 +817,7 @@
         ],
         "SecurityGroups": [
           {"Ref":"SwarmSecurityGroup"},
-          {"Ref":"awsTrustedNetworkGroup"},
+          {"Ref":"TrustedNetworkGroup"},
           {"Ref":"LoadBalancerReceiverSecurityGroup"}
         ],
         "UserData": {
@@ -960,7 +960,7 @@
             { "Ref": "utmControllerInstanceSize" }
           ]
         },
-        "awsKeyName": {"Ref":"awsKeyName"},
+        "KeyName": {"Ref":"awsKeyName"},
         "BlockDeviceMappings": [
           {
             "DeviceName": "/dev/xvda",
@@ -969,7 +969,7 @@
         ],
         "SecurityGroups": [
           {"Ref":"QueenSecurityGroup"},
-          {"Ref":"awsTrustedNetworkGroup"},
+          {"Ref":"TrustedNetworkGroup"},
           {"Ref":"UntrustedGroup"}
         ],
         "UserData": {
@@ -1122,7 +1122,7 @@
                         "infrastructure:\n",
                         "  security_groups:\n",
                         "    - ",
-                        {"Ref":"awsTrustedNetworkGroup"},
+                        {"Ref":"TrustedNetworkGroup"},
                         "\n",
                         "    - ",
                         {"Ref":"UntrustedGroup"},
@@ -1166,7 +1166,7 @@
                       "        protocol: UDP\n",
                       "        source: 0.0.0.0/0\n",
                       "  ",
-                      {"Ref":"awsTrustedNetworkGroup"},
+                      {"Ref":"TrustedNetworkGroup"},
                       ":\n",
                       "    incoming:\n",
                       "      - from_port: 0\n",
