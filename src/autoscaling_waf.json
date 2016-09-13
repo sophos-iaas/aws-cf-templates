@@ -838,7 +838,7 @@
                 " -r SwarmLaunchConfiguration --region ",
                 {"Ref":"AWS::Region"},
                 " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n",
-								"/etc/init.d/mdw restart && sleep 10\n",
+                "/etc/init.d/mdw restart && sleep 10\n",
                 "/etc/init.d/httpd restart\n",
                 "/etc/init.d/worker_config_management start\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
