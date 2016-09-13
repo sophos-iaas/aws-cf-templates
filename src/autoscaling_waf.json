@@ -112,12 +112,12 @@
         "optionalExistingElasticIP":{"default": "Existing Elastic IP (optional)"},
         "optionalExistingS3Bucket": { "default": "S3 Bucket for UTM Synchronization and Backup (optional)" },
         "optionalLicensePool": { "default": "S3 Bucket Containing Licenses (optional)" },
-        "basicHostname": { "default": "basicHostname" },
+        "basicHostname": { "default": "Hostname" },
         "basicAdminEmail": { "default": "Admin E-Mail Address" },
         "basicAdminPassword": { "default": "Admin Password" },
-        "basicOrganization": { "default": "basicOrganization" },
-        "basicCity": { "default": "basicCity" },
-        "basicCountry": { "default": "basicCountry" },
+        "basicOrganization": { "default": "Organization" },
+        "basicCity": { "default": "City" },
+        "basicCountry": { "default": "Country" },
         "awsKeyName": { "default": "SSH Key" }
       }
     }
