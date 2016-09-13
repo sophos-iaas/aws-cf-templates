@@ -40,7 +40,7 @@
       "Type": "String"
     },
     "awsSubnetIPBlocks": {
-      "Description": "Please provide a comma-separated list of 4 CIDR blocks within the VPC. The four subnets will be created automatically.",
+      "Description": "Please provide a comma-separated list of four CIDR blocks within the VPC. The four subnets will be created automatically.",
       "Type": "CommaDelimitedList"
     },
     "awsTrustedNetwork": {
