@@ -1011,7 +1011,7 @@
                 "/etc/init.d/ha_aws start\n",
                 "/etc/init.d/aws_resource_management start\n",
                 "date +'UserData aws deamons end %c' >> /tmp/user_data.log\n",
-                "/usr/local/bin/aws_set_sd_check disable\n",
+                "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n",
                 "/usr/local/bin/confd-client.plx trigger ha_aws\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
                 {"Ref":"AWS::StackName"},

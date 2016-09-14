@@ -481,7 +481,7 @@
           "date +'UserData awslogs agent setup start %c' >> /tmp/user_data.log\n",
           "/usr/local/bin/awslogs-agent-setup.py -n -r ", { "Ref" : "AWS::Region" }, "  -c /etc/cloud/awslogs.conf >> /tmp/user_data.log\n",
           "date +'UserData awslogs agent setup end %c' >> /tmp/user_data.log\n",
-          "/usr/local/bin/aws_set_sd_check disable\n",
+          "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n",
           "/usr/local/bin/confd-client.plx trigger ha_aws\n",
           "exit 0\n"
         ] ] } }
