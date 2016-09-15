@@ -886,6 +886,9 @@
                       "confd_filter: /etc/cloud/confd_filter.ph\n",
                       "region: ",
                       {"Ref":"AWS::Region"},
+                      "\n",
+                      "aws_partition: ",
+                      { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] },
                       "\n"
                     ]
                   ]
@@ -1062,6 +1065,9 @@
                       "\n",
                       "region: ",
                       {"Ref":"AWS::Region"},
+                      "\n",
+                      "aws_partition: ",
+                      { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] },
                       "\n"
                     ]
                   ]
