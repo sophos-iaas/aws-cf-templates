@@ -248,7 +248,9 @@
                 },
                 {
                   "Action": "iam:AttachRolePolicy",
-                  "Resource": "arn:aws:iam::*:role/actions/EC2ActionsAccess",
+                  "Resource": [
+                    {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":iam::*:role/actions/EC2ActionsAccess"]]}
+                  ],
                   "Effect": "Allow"
                 },
                 {
