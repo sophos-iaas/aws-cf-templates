@@ -2,7 +2,7 @@
 # UTM_VERSION = *_verdi branch version that has been deployed to aws
 # The default here is only for convenience, and usually is passed with the
 # jenkins build job or during execution
-UTM_VERSION ?= 9.406
+UTM_VERSION ?= 9.407
 # EGW_VERSION = version of interface paramters (if they change in an
 # incompatible way, the version updates also)
 EGW_VERSION ?= 1.0
