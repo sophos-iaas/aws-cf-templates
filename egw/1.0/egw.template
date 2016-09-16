@@ -139,48 +139,64 @@
   "Mappings": {
     "RegionMap": {
       "ap-south-1": {
-        "EGW": "ami-1bf09a74",
-        "EGWInstanceType": "c4.large"
+        "EGW": "ami-36e79259",
+        "EGWInstanceType": "c4.large",
+        "ARN": "aws"
       },
       "eu-west-1": {
-        "EGW": "ami-ca1c7ab9",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-4592eb36",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "ap-southeast-1": {
-        "EGW": "ami-0f77aa6c",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-b321fbd0",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "ap-southeast-2": {
-        "EGW": "ami-8595bee6",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-9599a8f6",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "eu-central-1": {
-        "EGW": "ami-c041abaf",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-0755a768",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "ap-northeast-2": {
-        "EGW": "ami-76b77d18",
-        "EGWInstanceType": "c4.large"
+        "EGW": "ami-1d23f673",
+        "EGWInstanceType": "c4.large",
+        "ARN": "aws"
       },
       "ap-northeast-1": {
-        "EGW": "ami-4bda262a",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-c6a273a7",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "us-east-1": {
-        "EGW": "ami-3934b52e",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-67057870",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "sa-east-1": {
-        "EGW": "ami-c68a1eaa",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-e82aba84",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "us-west-1": {
-        "EGW": "ami-21602641",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-3e58175e",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
       },
       "us-west-2": {
-        "EGW": "ami-3513d055",
-        "EGWInstanceType": "m3.medium"
+        "EGW": "ami-4139eb21",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws"
+      },
+      "us-gov-west-1": {
+        "EGW": "ami-1468d175",
+        "EGWInstanceType": "m3.medium",
+        "ARN": "aws-us-gov"
       }
     }
   },
@@ -569,7 +585,17 @@
             "Fn::Join": [
               "",
               [
-                "arn:aws:automate:",
+                "arn:",
+                {
+                  "Fn::FindInMap": [
+                    "RegionMap",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "ARN"
+                  ]
+                },
+                ":automate:",
                 {
                   "Ref": "AWS::Region"
                 },
@@ -607,7 +633,17 @@
             "Fn::Join": [
               "",
               [
-                "arn:aws:swf:",
+                "arn:",
+                {
+                  "Fn::FindInMap": [
+                    "RegionMap",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "ARN"
+                  ]
+                },
+                ":swf:",
                 {
                   "Ref": "AWS::Region"
                 },
