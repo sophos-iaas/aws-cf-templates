@@ -67,7 +67,7 @@ egw_publish: clean $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 
 # templates for regular and gov cloud
 all: export BOTH_CLOUDS = true
-all: region_map_regular_cloud region_map_gov_cloud templates
+all: clean region_map_regular_cloud region_map_gov_cloud templates
 
 region_map_regular_cloud: AWS_DEFAULT_REGION = $(shell basename $(REGULAR_REGION))
 region_map_regular_cloud: $(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP) $(EGW_REGIONMAP)
