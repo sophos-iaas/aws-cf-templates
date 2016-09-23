@@ -1014,6 +1014,8 @@
                 "date +'UserData awslogs agent setup end %c' >> /tmp/user_data.log\n",
                 "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n",
                 "/etc/init.d/ha_aws start\n",
+                "rm /etc/no-selfmonitor/queen_config_management\n",
+                "/etc/init.d/queen_config_management start\n",
                 "/etc/init.d/aws_resource_management start\n",
                 "date +'UserData aws deamons end %c' >> /tmp/user_data.log\n",
                 "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n",
