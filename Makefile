@@ -78,6 +78,9 @@ templates: $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_VERSION
 
 ifeq ($(DEVEL),1)
 CRG = $(CREATE_REGIONMAP_DEV)
+# Only for development: using the newest amis
+# We don't use capture groups in the regex, so the sort (for 'newest') is using the
+# entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
 HA_ARGS = --owner $(AMI_OWNER) --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$'
 AUTOSCALING_ARGS = --owner $(AMI_OWNER) --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$'
 EGW_ARGS = --owner $(AMI_OWNER) --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+'
@@ -102,7 +105,7 @@ $(EGW_REGIONMAP): $(REGULAR_REGION)
 	$(Q)$(CRG) $(EGW_ARGS) --out $@
 
 $(HA_REGIONMAP_GOV): $(GOV_REGION)
-	@echo "Building HA RegionMap for GovCloud $(AWS_DEFAULT_REGION)"
+	@echo "Building HA RegionMap for GovCloud $(AWS_DEFAULT_REGION) when required"
 	$(if $(filter $(BOTH_CLOUDS),true), $(Q)$(CRG) $(HA_ARGS) --out $@, > $@)
 
 $(AUTOSCALING_REGIONMAP_GOV): $(GOV_REGION)
