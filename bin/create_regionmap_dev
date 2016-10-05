@@ -15,6 +15,12 @@ require 'aws-sdk'
 #   }
 # }
 
+def dump_map_file(data, filename)
+  file = File.new(filename, File::CREAT|File::TRUNC|File::RDWR)
+  file.write(JSON.pretty_generate(data))
+  file.close
+end
+
 # Find the newest ami in images with name matching regex.
 # If the regex contains captures groups (), sort by this, else with the entire name.
 # Insert the ami-id in the region/ami map.
@@ -39,6 +45,7 @@ begin
     o.string '--regex', 'regex for the amis, maybe with capture groups for limited sorting parts'
     o.string '--owner', 'only search for amis with this owner_id'
     o.string '--key', 'use BYOL for UTM ami or EGW for EGW ami'
+    o.string '-o', '--out', 'output file', default: '/dev/stdout'
     o.on '-h', '--help' do
       puts o
       exit
@@ -70,5 +77,5 @@ begin
     insert_latest_ami_map(dev_images, /#{opts[:regex]}/, region_ami_map, region_name, opts[:key])
   end
 
-  STDOUT.write(JSON.pretty_generate(region_ami_map))
+  dump_map_file(region_ami_map, opts[:out])
 end

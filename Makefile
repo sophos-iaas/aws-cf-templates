@@ -79,15 +79,24 @@ region_map_gov_cloud: export BOTH_CLOUDS = true
 region_map_gov_cloud: $(HA_REGIONMAP_COMBINED) $(AUTOSCALING_REGIONMAP_COMBINED) $(EGW_REGIONMAP_COMBINED)
 templates: $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
 
+ifeq ($(DEVEL),1)
+CRG = $(CREATE_REGIONMAP_DEV)
+HA_ARGS = --owner $(AMI_OWNER) --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$'
+else
+CRG = $(CREATE_REGIONMAP)
+HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
+endif
+
+$(HA_REGIONMAP): $(REGULAR_REGION)
+	@echo Building HA RegionMap \($(AWS_DEFAULT_REGION)\)
+	$(CRG) $(HA_ARGS) --out $@
+
 # Always rebuild region maps
 ifeq ($(DEVEL),1)
 # Only for development: using the newest amis
 # We don't use capture groups in the regex, so the sort (for 'newest') is using the
 # entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
 # Using verdi branch (axg*_verdi) for HA
-$(HA_REGIONMAP): $(REGULAR_REGION)
-	@$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
-            --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$' > '$@'
 
 # Using aws branch (asg*_aws) for Autoscaling
 $(AUTOSCALING_REGIONMAP): $(REGULAR_REGION)
@@ -115,10 +124,6 @@ $(EGW_REGIONMAP_GOV): $(GOV_REGION)
 	$(if $(filter $(BOTH_CLOUDS),true), @$(CREATE_REGIONMAP_DEV) --owner '$(AMI_OWNER)' \
 	   --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+' > '$@', > $@)
 else
-$(HA_REGIONMAP): $(REGULAR_REGION)
-	@echo Building HA RegionMap \($(AWS_DEFAULT_REGION)\)
-	@$(CREATE_REGIONMAP) $(HA_ARGS) --out $@
-
 $(AUTOSCALING_REGIONMAP): $(REGULAR_REGION)
 	@echo Building Autoscaling RegionMap \($(AWS_DEFAULT_REGION)\)
 	@$(CREATE_REGIONMAP) $(AUTOSCALING_ARGS) --out $@
