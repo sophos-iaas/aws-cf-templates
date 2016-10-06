@@ -816,7 +816,7 @@
                 "#!/bin/bash\n",
                 "date +'UserData start %c' > /tmp/user_data.log\n",
                 "sed -i 's/^/#/' /etc/crontab.reporting\n",
-                "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab",
+                "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab\n",
                 "/usr/local/bin/confd-client.plx trigger crontab\n",
                 "touch /etc/no-selfmonitor/queen_config_management\n",
                 "touch /etc/no-selfmonitor/aws_resource_management\n",
