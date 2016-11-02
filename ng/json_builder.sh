@@ -8,4 +8,4 @@ FILENAME="$2"
 for i in out/* ; do
   test -d $i || continue
   echo "{\"${i#*/}\":{\"$KEY\":\"$(cat $i/$FILENAME)\"}}"
-done
+done | jq -s add
