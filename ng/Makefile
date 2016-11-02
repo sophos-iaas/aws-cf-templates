@@ -28,7 +28,7 @@ AUTOSCALING_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
 
 # Several lists of intermediate folders/files per region
-ALL_REGIONS := $(shell ./aws_regions.sh)
+ALL_REGIONS := $(shell ./bin/aws_regions.sh)
 ALL_REGION_DIRS := $(addprefix $(TMP_OUT)/,$(ALL_REGIONS))
 
 ALL_HA_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_byol.ami)
@@ -46,7 +46,7 @@ ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_i
 # Misc
 Q=@
 ECHO=$(Q)echo
-BUILD_JSON=./json_builder.sh
+BUILD_JSON=./bin/json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 ifeq ($(PUBLIC),1)
@@ -131,7 +131,7 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 ## AWS AMI dump
 %/aws.dump:
 	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
-	$(Q)./ami_dumper.sh --region $(call get_region,$@) $(PUBLIC) --out $@
+	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC) --out $@
 
 ## Build actual templates by merging region map and template source
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
