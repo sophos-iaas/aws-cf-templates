@@ -6,165 +6,175 @@ UTM_VERSION ?= 9.408
 # EGW_VERSION = version of interface paramters (if they change in an
 # incompatible way, the version updates also)
 EGW_VERSION ?= 1.0
+# Build templates using public AMIs (default: no)
+PUBLIC ?= 0
+# Execute make in parallel and disable internal rules
+MAKEFLAGS += --jobs=100 -r
 
-# devel AMI owner ID
-AMI_OWNER := 159737981378
-export AMI_OWNER
-# GovCloud AMI owner ID
-GOV_OWNER := 219379113529
+## Variables
+# tmp dir for region maps, aws ami dump, other intermediate files
+TMP_OUT := tmp
+# template output folder
+TEMPLATES := templates
+UTM_VERSION_DIR = $(TEMPLATES)/conversion/$(UTM_VERSION)
+EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
-# Args for instance type mappings
-HA_TYPES_ARGS = --type HA
-AUTOSCALING_TYPES_ARGS = --type AS
-EGW_TYPES_ARGS = --type EGW
+# Template paths
+STANDALONE_TEMPLATE := $(TEMPLATES)/standalone.template
+HA_TEMPLATE := $(TEMPLATES)/ha_standalone.template $(TEMPLATES)/ha_warm_standby.template
+HA_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/ha_standalone.template $(UTM_VERSION_DIR)/ha_warm_standby.template
+AUTOSCALING_TEMPLATE := $(TEMPLATES)/autoscaling_waf.template
+AUTOSCALING_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/autoscaling.template
+EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
 
-# set to 1 to use devel amis in region/ami map
-DEVEL :=
-# set Q to @ to omit debug output
-Q :=
+# Several lists of intermediate folders/files per region
+ALL_REGIONS := $(shell ./bin/aws_regions.sh)
+ALL_REGION_DIRS := $(addprefix $(TMP_OUT)/,$(ALL_REGIONS))
 
-## region names
-REGULAR_REGION = tmp/us-east-1
-GOV_REGION = tmp/us-gov-west-1
-COMBINED_REGION = tmp/combined
-export AWS_DEFAULT_REGION
+ALL_HA_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_byol.ami)
+ALL_HA_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_mp.ami)
+ALL_AS_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_byol.ami)
+ALL_AS_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_mp.ami)
+ALL_EGW := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/egw.ami)
 
-## file sets
-HA_REGIONMAP                   = $(REGULAR_REGION)/HA_REGIONMAP.json
-AUTOSCALING_REGIONMAP          = $(REGULAR_REGION)/AUTOSCALING_REGIONMAP.json
-EGW_REGIONMAP                  = $(REGULAR_REGION)/EGW_REGIONMAP.json
-HA_REGIONMAP_GOV               = $(GOV_REGION)/HA_REGIONMAP.json
-AUTOSCALING_REGIONMAP_GOV      = $(GOV_REGION)/AUTOSCALING_REGIONMAP.json
-EGW_REGIONMAP_GOV              = $(GOV_REGION)/EGW_REGIONMAP.json
-HA_REGIONMAP_COMBINED          = $(COMBINED_REGION)/HA_REGIONMAP.json
-AUTOSCALING_REGIONMAP_COMBINED = $(COMBINED_REGION)/AUTOSCALING_REGIONMAP.json
-EGW_REGIONMAP_COMBINED         = $(COMBINED_REGION)/EGW_REGIONMAP.json
-UTM_VERSION_DIR                = templates/conversion/$(UTM_VERSION)
-EGW_VERSION_DIR                = templates/egw/$(EGW_VERSION)
+ALL_ARN := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/arn.static)
+# default instance type for EGW, UTM
+ALL_DEFAULT_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/default_instance_type.static)
+# larger instance type for Queen
+ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_instance_type.static)
 
-TEMPLATES := $(addprefix templates/, $(patsubst %.json,%.template,$(notdir $(wildcard src/*.json))))
-CONVERSION_TEMPLATES := $(addprefix templates/conversion/$(UTM_VERSION)/, $(patsubst %.json,%.template,$(notdir $(wildcard src/conversion/*.json))))
-EGW_TEMPLATES := templates/egw/$(EGW_VERSION)/egw.template
+# Misc
+Q=@
+ECHO=$(Q)echo
+BUILD_JSON=./bin/json_builder.sh
+MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
+ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 
-## bins
-BUNDLE_EXEC = bundle exec
-CREATE_REGIONMAP = $(BUNDLE_EXEC) ./bin/create_regionmap
-CREATE_REGIONMAP_DEV = $(BUNDLE_EXEC) ./bin/create_regionmap_dev
-BUILD_TEMPLATE = $(BUNDLE_EXEC) ./bin/build_template
-ADD_TYPES_TO_MAP = $(BUNDLE_EXEC) ./bin/add_types_to_map
-
-AWS_PROFILE ?= default
-export AWS_PROFILE
-
-# templates for regular cloud
-regular: clean region_map_regular_cloud templates
-
-# only egw templates
-egw_publish: clean $(EGW_REGIONMAP) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
-
-# templates for regular and gov cloud
-all: export BOTH_CLOUDS = true
-all: clean region_map_regular_cloud region_map_gov_cloud templates
-
-region_map_regular_cloud: AWS_DEFAULT_REGION = $(shell basename $(REGULAR_REGION))
-region_map_regular_cloud: $(HA_REGIONMAP) $(AUTOSCALING_REGIONMAP) $(EGW_REGIONMAP)
-# DEVEL_OWNER is changed to GovCloud owner ID
-region_map_gov_cloud: AMI_OWNER = $(GOV_OWNER)
-region_map_gov_cloud: AWS_DEFAULT_REGION = $(shell basename $(GOV_REGION))
-region_map_gov_cloud: export AWS_PROFILE = govcloud_build
-region_map_gov_cloud: export BOTH_CLOUDS = true
-region_map_gov_cloud: $(HA_REGIONMAP_COMBINED) $(AUTOSCALING_REGIONMAP_COMBINED) $(EGW_REGIONMAP_COMBINED)
-templates: $(UTM_VERSION_DIR) $(TEMPLATES) $(CONVERSION_TEMPLATES) $(EGW_VERSION_DIR) $(EGW_TEMPLATES)
-
-ifeq ($(DEVEL),1)
-CRG = $(CREATE_REGIONMAP_DEV)
-# Only for development: using the newest amis
-# We don't use capture groups in the regex, so the sort (for 'newest') is using the
-# entire name string like axg9400_verdi-asg-9.375-20160216.2_64_ebs_byol
-HA_ARGS = --owner $(AMI_OWNER) --key BYOL --regex '^axg\d+_verdi-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$'
-AUTOSCALING_ARGS = --owner $(AMI_OWNER) --key BYOL --regex '^axg\d+_aws-asg-\d+\.\d+-\d+\.\d+_64_ebs_byol$$'
-EGW_ARGS = --owner $(AMI_OWNER) --key EGW --regex '^egw-\d+\.\d+\.\d+-\d+'
+ifeq ($(PUBLIC),1)
+PUBLIC_AMIS=--public
+STANDALONE_REGEX=asg
+AUTOSCALING_REGEX=axg9400_aws-asg
+STANDALONE_BYOL_REGEX=^asg-.*byol.*$$
+STANDALONE_MP_REGEX=^asg-.*mp.*$$
+AUTOSCALING_BYOL_REGEX=^axg9400_aws-asg-.*byol.*$$
+AUTOSCALING_MP_REGEX=^axg9400_aws-asg-.*mp.*$$
 else
-CRG = $(CREATE_REGIONMAP)
-HA_ARGS = --BYOL 2xxxjwpanvt6wvbuy0bzrqed7 --Hourly 9xg6czodp2h82gs0tuc1sfhsn
-AUTOSCALING_ARGS = --BYOL 3kn396xknha6uumomjcubi57w --Hourly 9b24287dgv39qtltt9nqvp9kx
-EGW_ARGS = --EGW
+PUBLIC_AMIS=
+STANDALONE_BYOL_REGEX=^sophos_utm_standalone_.*byol$$
+STANDALONE_MP_REGEX=^sophos_utm_standalone_.*mp$$
+AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_.*byol$$
+AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_.*mp$$
 endif
 
-$(HA_REGIONMAP): $(REGULAR_REGION)
-	@echo "Building HA RegionMap $(AWS_DEFAULT_REGION)"
-	$(Q)$(CRG) $(HA_ARGS) --out $@
+# Function to filter the region name from a folder name
+define get_region
+$(lastword $(subst /, ,$(dir $(1))))
+endef
 
-$(AUTOSCALING_REGIONMAP): $(REGULAR_REGION)
-	@echo "Building Autoscaling RegionMap $(AWS_DEFAULT_REGION)"
-	$(Q)$(CRG) $(AUTOSCALING_ARGS) --out $@
+## Targets
+# build all templates
+all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
 
-# Build EGW templates using aws branch
-$(EGW_REGIONMAP): $(REGULAR_REGION)
-	@echo "Building EGW RegionMap $(AWS_DEFAULT_REGION)"
-	$(Q)$(CRG) $(EGW_ARGS) --out $@
-
-$(HA_REGIONMAP_GOV): $(GOV_REGION)
-	@echo "Building HA RegionMap for GovCloud $(AWS_DEFAULT_REGION) when required"
-	$(if $(filter $(BOTH_CLOUDS),true), $(Q)$(CRG) $(HA_ARGS) --out $@, > $@)
-
-$(AUTOSCALING_REGIONMAP_GOV): $(GOV_REGION)
-	@echo "Building Autoscaling RegionMap for GovCloud $(AWS_DEFAULT_REGION) when required"
-	$(if $(filter $(BOTH_CLOUDS),true), $(Q)$(CRG) $(AUTOSCALING_ARGS) --out $@ , > $@ )
-
-$(EGW_REGIONMAP_GOV): $(GOV_REGION)
-	@echo "Building EGW RegionMap for GovCloud $(AWS_DEFAULT_REGION) when required"
-	$(if $(filter $(BOTH_CLOUDS),true), $(Q)$(CRG) $(EGW_ARGS) --out $@, > $@)
-
-## combine region maps
-$(HA_REGIONMAP_COMBINED): $(HA_REGIONMAP) $(HA_REGIONMAP_GOV) $(COMBINED_REGION)
-	jq -s add $(HA_REGIONMAP) $(HA_REGIONMAP_GOV) > $@
-	@$(ADD_TYPES_TO_MAP) $(HA_TYPES_ARGS) --in $@ --out $@
-
-$(AUTOSCALING_REGIONMAP_COMBINED): $(AUTOSCALING_REGIONMAP) $(AUTOSCALING_REGIONMAP_GOV) $(COMBINED_REGION)
-	jq -s add $(AUTOSCALING_REGIONMAP) $(AUTOSCALING_REGIONMAP_GOV) > $@
-	@$(ADD_TYPES_TO_MAP) $(AUTOSCALING_TYPES_ARGS) --in $@ --out $@
-
-$(EGW_REGIONMAP_COMBINED): $(EGW_REGIONMAP) $(EGW_REGIONMAP_GOV) $(COMBINED_REGION)
-	jq -s add $(EGW_REGIONMAP) $(EGW_REGIONMAP_GOV) > $@
-	@$(ADD_TYPES_TO_MAP) $(EGW_TYPES_ARGS) --in $@ --out $@
-
-# Overwrite autoscaling target to use autoscaling region map
-templates/autoscaling_waf.template: src/autoscaling_waf.json $(AUTOSCALING_REGIONMAP_COMBINED)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP_COMBINED) --out $@
-
-templates/%.template: src/%.json $(HA_REGIONMAP_COMBINED)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP_COMBINED) --out $@
-
-# Overwrite autoscaling target to use autoscaling region map
-templates/conversion/$(UTM_VERSION)/autoscaling.template: src/conversion/autoscaling.json $(AUTOSCALING_REGIONMAP_COMBINED)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(AUTOSCALING_REGIONMAP_COMBINED) --out $@
-
-templates/conversion/$(UTM_VERSION)/%.template: src/conversion/%.json $(HA_REGIONMAP_COMBINED)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(HA_REGIONMAP_COMBINED) --out $@
-
-# Create EGW templates from src directory.
-templates/egw/$(EGW_VERSION)/%.template: src/egw/%.json $(EGW_REGIONMAP_COMBINED)
-	@echo building $@
-	@$(BUILD_TEMPLATE) --in $< --regionmap $(EGW_REGIONMAP_COMBINED) --out $@
-
-$(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
-	@echo Creating $@ directory
-	@mkdir -p $@
-	@echo Linking $(dir $@)current to $(shell basename $@)
-	-@ln -sf $(shell basename $@) $(dir $@)current
-
-#tmp dir is not in git and empty. Must be created if it does not exist yet
-tmp/%: tmp
-	@mkdir $@
-tmp:
-	@mkdir $@
-
+# always clean before building new templates!
 clean:
-	rm -rf templates/conversion templates/egw templates/*.template tmp
+	rm -rf $(TMP_OUT) $(TEMPLATES)
+	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
 
-.PHONY: $(UTM_VERSION_DIR) clean
+-include clean
+
+
+## Region Maps
+$(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
+	$(ECHO) "[REGIONMAP] standalone"
+	$(Q)(\
+		$(BUILD_JSON) Hourly ha_mp.ami ;\
+		$(BUILD_JSON) BYOL ha_byol.ami ;\
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) HAInstanceType default_instance_type.static \
+	) | $(MERGE_JSON) > $@
+
+$(TMP_OUT)/autoscaling.map: $(ALL_AS_BYOL) $(ALL_AS_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE)
+	$(ECHO) "[REGIONMAP] autoscaling"
+	$(Q)(\
+		$(BUILD_JSON) Hourly as_mp.ami ;\
+		$(BUILD_JSON) BYOL as_byol.ami ;\
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) QueenInstanceType larger_instance_type.static ;\
+		$(BUILD_JSON) SwarmInstanceType default_instance_type.static \
+	) | $(MERGE_JSON) > $@
+
+$(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
+	$(ECHO) "[REGIONMAP] egw"
+	$(Q)(\
+		$(BUILD_JSON) EGW egw.ami ;\
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) EGWInstanceType default_instance_type.static \
+	) | $(MERGE_JSON) > $@
+
+## Region Map enrichment
+# Copy from region specific file, if existing, otherwise use default
+# static/us-east-1/arn.static out/us-east-1/arn.static
+$(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
+	$(ECHO) "[STATIC] $@"
+	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
+
+## Specific AMIs
+%/egw.ami: %/aws.dump
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1].ImageId' $^ > $@
+
+%/ha_byol.ami: %/aws.dump
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_BYOL_REGEX)"))][-1].ImageId' $^ > $@
+
+%/ha_mp.ami: %/aws.dump
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_MP_REGEX)"))][-1].ImageId' $^ > $@
+
+%/as_byol.ami: %/aws.dump
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_BYOL_REGEX)"))][-1].ImageId' $^ > $@
+
+%/as_mp.ami: %/aws.dump
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_MP_REGEX)"))][-1].ImageId' $^ > $@
+
+## AWS AMI dump
+%/aws.dump:
+	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
+	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) --out $@
+
+## Build actual templates by merging region map and template source
+$(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
+	$(Q)mkdir -p $@
+	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
+
+# HA (warm, cold), Standalone
+$(TEMPLATES)/%.template: src/%.json $(TMP_OUT)/standalone.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $^ > $@
+
+# Conversion HA (warm, cold)
+$(UTM_VERSION_DIR)/%.template: $(UTM_VERSION_DIR) src/conversion/%.json $(TMP_OUT)/standalone.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+
+# Autoscaling
+$(TEMPLATES)/autoscaling_waf.template: src/autoscaling_waf.json $(TMP_OUT)/autoscaling.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $^ > $@
+
+# Conversion Autoscaling
+$(UTM_VERSION_DIR)/autoscaling.template: $(UTM_VERSION_DIR) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+
+# EGW
+$(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw/egw.json $(TMP_OUT)/egw.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+
+# Don't remove intermediate files
+.PRECIOUS: %/aws.dump
+
+.PHONY: clean %/aws.dump

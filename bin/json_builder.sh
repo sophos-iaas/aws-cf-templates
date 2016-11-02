@@ -5,7 +5,7 @@
 KEY="$1"
 FILENAME="$2"
 
-for i in out/* ; do
+for i in tmp/* ; do
   test -d $i || continue
   echo "{\"${i#*/}\":{\"$KEY\":\"$(cat $i/$FILENAME)\"}}"
 done | jq -s add

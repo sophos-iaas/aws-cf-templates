@@ -39,7 +39,7 @@ while [[ $# -ge 1 ]] ; do
 done
 
 if [[ -z $region || -z $out ]] ; then
-  help
+        help
 	exit 1
 fi
 
@@ -73,10 +73,10 @@ else
     echo "AMI dumper: $region public AMIs > $out"
     # HA/AS AMIs from MarketPlace
     # TODO: must be changed to sophos_utm_* in the future
-    $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=axg9400_aws*" > $out".1"
+    $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=*asg-*" > ${out}.1
     # EGW AMIs are owned by us
-    $(describe_images) --owner $owner_dev --filters "$public_filter" > $out".2"
-    jq -s '{ Images: (.[0].Images + .[1].Images) }' $out".1" $out".2" | \
+    $(describe_images) --owner $owner_dev --filters "$public_filter" > ${out}.2
+    jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
     jq ".Images | { Images: sort_by(.CreationDate) }" > $out
     # rm $out".1" $out".2"
   else
