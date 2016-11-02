@@ -12,8 +12,8 @@ PUBLIC ?= 0
 MAKEFLAGS += --jobs=100 -r
 
 ## Variables
-TMP := tmp              # tmp dir for region maps, aws ami dump, other intermediate files
-TEMPLATES := templates  # template output folder
+TMP_OUT:=tmp          # tmp dir for region maps, aws ami dump, other intermediate files
+TEMPLATES:=templates  # template output folder
 UTM_VERSION_DIR = $(TEMPLATES)/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
@@ -27,18 +27,20 @@ EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
 
 # Several lists of intermediate folders/files per region
 ALL_REGIONS := $(shell ./aws_regions.sh)
-ALL_REGION_DIRS := $(addprefix $(TMP)/,$(ALL_REGIONS))
-ALL_HA_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/ha_byol.ami)
-ALL_HA_MP := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/ha_mp.ami)
-ALL_AS_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/as_byol.ami)
-ALL_AS_MP := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/as_mp.ami)
-ALL_EGW := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/egw.ami)
-ALL_ARN := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/arn)
-ALL_DEFAULT_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/default_instance_type)  # default instance type for EGW, UTM
-ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP)/$(region)/larger_instance_type)     # larger instance type for Queen
+ALL_REGION_DIRS := $(addprefix $(TMP_OUT)/,$(ALL_REGIONS))
+
+ALL_HA_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_byol.ami)
+ALL_HA_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_mp.ami)
+ALL_AS_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_byol.ami)
+ALL_AS_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_mp.ami)
+ALL_EGW := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/egw.ami)
+
+ALL_ARN := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/arn.static)
+ALL_DEFAULT_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/default_instance_type.static)  # default instance type for EGW, UTM
+ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_instance_type.static)     # larger instance type for Queen
 
 # Misc
-Q=
+Q=@
 ECHO=$(Q)echo
 BUILD_JSON=./json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
@@ -57,7 +59,7 @@ endef
 ## Targets
 # always clean before building new templates!
 enforce_clean:
-	rm -rf $(TMP) $(TEMPLATES)
+	rm -rf $(TMP_OUT) $(TEMPLATES)
 	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
 
 -include enforce_clean
@@ -66,68 +68,65 @@ enforce_clean:
 all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
 
 ## Region Maps
-$(TMP)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
-	(\
+$(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
+	$(ECHO) "[REGIONMAP] standalone"
+	$(Q)(\
 		$(BUILD_JSON) Hourly ha_mp.ami ;\
 		$(BUILD_JSON) BYOL ha_byol.ami ;\
-		$(BUILD_JSON) ARN arn ;\
-		$(BUILD_JSON) HAInstanceType default_instance_type \
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) HAInstanceType default_instance_type.static \
 	) | $(MERGE_JSON) > $@
 
-$(TMP)/autoscaling.map: $(ALL_AS_BYOL) $(ALL_AS_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE)
-	(\
+$(TMP_OUT)/autoscaling.map: $(ALL_AS_BYOL) $(ALL_AS_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE)
+	$(ECHO) "[REGIONMAP] autoscaling"
+	$(Q)(\
 		$(BUILD_JSON) Hourly as_mp.ami ;\
 		$(BUILD_JSON) BYOL as_byol.ami ;\
-		$(BUILD_JSON) ARN arn ;\
-		$(BUILD_JSON) QueenInstanceType larger_instance_type ;\
-		$(BUILD_JSON) WorkerInstanceType default_instance_type \
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) QueenInstanceType larger_instance_type.static ;\
+		$(BUILD_JSON) WorkerInstanceType default_instance_type.static \
 	) | $(MERGE_JSON) > $@
 
-$(TMP)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
-	(\
+$(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
+	$(ECHO) "[REGIONMAP] egw"
+	$(Q)(\
 		$(BUILD_JSON) EGW egw.ami ;\
-		$(BUILD_JSON) ARN arn ;\
-		$(BUILD_JSON) EGWInstanceType default_instance_type \
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) EGWInstanceType default_instance_type.static \
 	) | $(MERGE_JSON) > $@
 
-# Region map enrichment
-$(TMP)/%/arn: static/%/arn
-	cp $^ $@
-
-$(TMP)/%/arn: static/default/arn
-	cp $^ $@
-
-$(TMP)/%/default_instance_type: static/%/default_instance_type
-	cp $^ $@
-
-$(TMP)/%/default_instance_type: static/default/default_instance_type
-	cp $^ $@
-
-$(TMP)/%/larger_instance_type: static/%/larger_instance_type
-	cp $^ $@
-
-$(TMP)/%/larger_instance_type: static/default/larger_instance_type
-	cp $^ $@
+## Region Map enrichment
+# Copy from region specific file, if existing, otherwise use default
+# static/us-east-1/arn.static out/us-east-1/arn.static
+$(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
+	$(ECHO) "[STATIC] $@"
+	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
 
 ## Specific AMIs
 %/egw.ami: %/aws.dump
-	jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1].ImageId' $^ > $@
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1].ImageId' $^ > $@
 
 %/ha_byol.ami: %/aws.dump
-	jq -r '[.Images[] | select(.Name | match("^sophos_utm_standalone_.*byol$$"))][-1].ImageId' $^ > $@
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("^sophos_utm_standalone_.*byol$$"))][-1].ImageId' $^ > $@
 
 %/ha_mp.ami: %/aws.dump
-	jq -r '[.Images[] | select(.Name | match("^sophos_utm_standalone_.*mp$$"))][-1].ImageId' $^ > $@
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("^sophos_utm_standalone_.*mp$$"))][-1].ImageId' $^ > $@
 
 %/as_byol.ami: %/aws.dump
-	jq -r '[.Images[] | select(.Name | match("^sophos_utm_autoscaling_.*byol$$"))][-1].ImageId' $^ > $@
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("^sophos_utm_autoscaling_.*byol$$"))][-1].ImageId' $^ > $@
 
 %/as_mp.ami: %/aws.dump
-	jq -r '[.Images[] | select(.Name | match("^sophos_utm_autoscaling_.*mp$$"))][-1].ImageId' $^ > $@
+	$(ECHO) "[AMI] $@"
+	$(Q)jq -r '[.Images[] | select(.Name | match("^sophos_utm_autoscaling_.*mp$$"))][-1].ImageId' $^ > $@
 
 ## AWS AMI dump
 %/aws.dump:
-	./ami_dumper.sh --region $(call get_region,$@) $(PUBLIC) --out $@
+	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
+	$(Q)./ami_dumper.sh --region $(call get_region,$@) $(PUBLIC) --out $@
 
 ## Build actual templates by merging region map and template source
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
@@ -137,23 +136,23 @@ $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
 	-@ln -sf $(shell basename $@) $(dir $@)current
 
 # HA (warm, cold), Standalone
-$(TEMPLATES)/%.template: src/%.json $(TMP)/standalone.map
+$(TEMPLATES)/%.template: src/%.json $(TMP_OUT)/standalone.map
 	$(ADD_REGION_MAP) $^ > $@
 
 # Conversion HA (warm, cold)
-$(UTM_VERSION_DIR)/%.template: $(UTM_VERSION_DIR) src/conversion/%.json $(TMP)/standalone.map
+$(UTM_VERSION_DIR)/%.template: $(UTM_VERSION_DIR) src/conversion/%.json $(TMP_OUT)/standalone.map
 	$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Autoscaling
-$(TEMPLATES)/autoscaling.template: src/autoscaling.json $(TMP)/autoscaling.map
+$(TEMPLATES)/autoscaling.template: src/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ADD_REGION_MAP) $^ > $@
 
 # Conversion Autoscaling
-$(UTM_VERSION_DIR)/autoscaling.template: $(UTM_VERSION_DIR) src/conversion/autoscaling.json $(TMP)/autoscaling.map
+$(UTM_VERSION_DIR)/autoscaling.template: $(UTM_VERSION_DIR) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # EGW
-$(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw.json $(TMP)/egw.map
+$(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw.json $(TMP_OUT)/egw.map
 	$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Don't remove intermediate files
