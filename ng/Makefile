@@ -39,6 +39,8 @@ ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(OUT)/$(region)/larger_insta
 
 Q=
 ECHO=$(Q)echo
+BUILD_JSON=./json_builder.sh
+MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 
 .PHONY: enforce_clean
 enforce_clean:
@@ -60,28 +62,30 @@ ADD_REGION_MAP := jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
 
 $(OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
-	./json_builder.sh Hourly ha_mp.ami | jq -s add > $@.mp
-	./json_builder.sh BYOL ha_byol.ami | jq -s add > $@.byol
-	./json_builder.sh ARN arn | jq -s add > $@.arn
-	./json_builder.sh HAInstanceType default_instance_type | jq -s add > $@.itype
-	jq -s ".[0] * .[1] * .[2] * .[3]" $@.mp $@.byol $@.arn $@.itype > $@
+	(\
+		$(BUILD_JSON) Hourly ha_mp.ami ;\
+		$(BUILD_JSON) BYOL ha_byol.ami ;\
+		$(BUILD_JSON) ARN arn ;\
+		$(BUILD_JSON) HAInstanceType default_instance_type \
+	) | $(MERGE_JSON) > $@
 
 $(OUT)/autoscaling.map: $(ALL_AS_BYOL) $(ALL_AS_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE)
-	./json_builder.sh Hourly as_mp.ami | jq -s add > $@.mp
-	./json_builder.sh BYOL as_byol.ami | jq -s add > $@.byol
-	./json_builder.sh ARN arn | jq -s add > $@.arn
-	./json_builder.sh QueenInstanceType larger_instance_type | jq -s add > $@.qitype
-	./json_builder.sh WorkerInstanceType default_instance_type | jq -s add > $@.witype
-	jq -s ".[0] * .[1] * .[2] * .[3] * .[4]" $@.mp $@.byol $@.arn $@.qitype $@.witype > $@
+	(\
+		$(BUILD_JSON) Hourly as_mp.ami ;\
+		$(BUILD_JSON) BYOL as_byol.ami ;\
+		$(BUILD_JSON) ARN arn ;\
+		$(BUILD_JSON) QueenInstanceType larger_instance_type ;\
+		$(BUILD_JSON) WorkerInstanceType default_instance_type \
+	) | $(MERGE_JSON) > $@
 
 $(OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
-	./json_builder.sh EGW egw.ami | jq -s add > $@.ami
-	./json_builder.sh ARN arn | jq -s add > $@.arn
-	./json_builder.sh EGWInstanceType default_instance_type | jq -s add > $@.itype
-	jq -s ".[0] * .[1] * .[2]" $@.ami $@.arn $@.itype > $@
+	(\
+		$(BUILD_JSON) EGW egw.ami ;\
+		$(BUILD_JSON) ARN arn ;\
+		$(BUILD_JSON) EGWInstanceType default_instance_type \
+	) | $(MERGE_JSON) > $@
 
 $(OUT)/%/arn: static/%/arn
-	echo $(STATIC)
 	cp $^ $@
 
 $(OUT)/%/arn: static/default/arn
