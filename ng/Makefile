@@ -12,16 +12,18 @@ PUBLIC ?= 0
 MAKEFLAGS += --jobs=100 -r
 
 ## Variables
-TMP_OUT:=tmp          # tmp dir for region maps, aws ami dump, other intermediate files
-TEMPLATES:=templates  # template output folder
+# tmp dir for region maps, aws ami dump, other intermediate files
+TMP_OUT := out
+# template output folder
+TEMPLATES := templates
 UTM_VERSION_DIR = $(TEMPLATES)/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
 # Template paths
 STANDALONE_TEMPLATE := $(TEMPLATES)/standalone.template
-HA_TEMPLATE := $(TEMPLATES)/ha_cold_standby.template $(TEMPLATES)/ha_warm_standby.template
-HA_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/ha_cold_standby.template $(UTM_VERSION_DIR)/ha_warm_standby.template
-AUTOSCALING_TEMPLATE := $(TEMPLATES)/autoscaling.template
+HA_TEMPLATE := $(TEMPLATES)/ha_standalone.template $(TEMPLATES)/ha_warm_standby.template
+HA_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/ha_standalone.template $(UTM_VERSION_DIR)/ha_warm_standby.template
+AUTOSCALING_TEMPLATE := $(TEMPLATES)/autoscaling_waf.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
 
@@ -36,15 +38,17 @@ ALL_AS_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_mp.ami)
 ALL_EGW := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/egw.ami)
 
 ALL_ARN := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/arn.static)
-ALL_DEFAULT_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/default_instance_type.static)  # default instance type for EGW, UTM
-ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_instance_type.static)     # larger instance type for Queen
+# default instance type for EGW, UTM
+ALL_DEFAULT_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/default_instance_type.static)
+# larger instance type for Queen
+ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_instance_type.static)
 
 # Misc
 Q=@
 ECHO=$(Q)echo
 BUILD_JSON=./json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
-ADD_REGION_MAP := jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
+ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 ifeq ($(PUBLIC),1)
 	PUBLIC="--public"
 else
@@ -57,15 +61,16 @@ $(lastword $(subst /, ,$(dir $(1))))
 endef
 
 ## Targets
+# build all templates
+all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
+
 # always clean before building new templates!
-enforce_clean:
+clean:
 	rm -rf $(TMP_OUT) $(TEMPLATES)
 	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
 
--include enforce_clean
+-include clean
 
-
-all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
 
 ## Region Maps
 $(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
@@ -99,7 +104,7 @@ $(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
 # Copy from region specific file, if existing, otherwise use default
 # static/us-east-1/arn.static out/us-east-1/arn.static
 $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
-	$(ECHO) "[STATIC] $@"
+# $(ECHO) "[STATIC] $@"
 	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
 
 ## Specific AMIs
@@ -130,32 +135,35 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 
 ## Build actual templates by merging region map and template source
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
-	@echo Creating $@ directory
-	@mkdir -p $@
-	@echo Linking $(dir $@)current to $(shell basename $@)
-	-@ln -sf $(shell basename $@) $(dir $@)current
+	$(Q)mkdir -p $@
+	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
 
 # HA (warm, cold), Standalone
 $(TEMPLATES)/%.template: src/%.json $(TMP_OUT)/standalone.map
-	$(ADD_REGION_MAP) $^ > $@
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $^ > $@
 
 # Conversion HA (warm, cold)
 $(UTM_VERSION_DIR)/%.template: $(UTM_VERSION_DIR) src/conversion/%.json $(TMP_OUT)/standalone.map
-	$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Autoscaling
 $(TEMPLATES)/autoscaling.template: src/autoscaling.json $(TMP_OUT)/autoscaling.map
-	$(ADD_REGION_MAP) $^ > $@
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $^ > $@
 
 # Conversion Autoscaling
-$(UTM_VERSION_DIR)/autoscaling.template: $(UTM_VERSION_DIR) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
-	$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+$(UTM_VERSION_DIR)/autoscaling_waf.template: $(UTM_VERSION_DIR) src/conversion/autoscaling_waf.json $(TMP_OUT)/autoscaling.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # EGW
-$(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw.json $(TMP_OUT)/egw.map
-	$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+$(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw/egw.json $(TMP_OUT)/egw.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Don't remove intermediate files
 .PRECIOUS: %/aws.dump
 
-.PHONY: enforce_clean %/aws.dump
+.PHONY: clean %/aws.dump
