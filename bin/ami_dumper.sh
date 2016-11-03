@@ -56,21 +56,14 @@ fi
 
 if [[ $region =~ \-gov\- ]] ; then
   profile="govcloud"
-  if [[ $public == "yes" ]]; then
-    echo "AMI dumper: $region public AMIs > $out"
+    echo "AMI dumper: region: $region public: ${public-no} > $out"
     # All AMIs are owned by us as there is no MarketPlace available
     $(describe_images) --owner $owner_gov --filters "$public_filter" | \
       jq ".Images | { Images: sort_by(.CreationDate) }" > $out
-  else
-    echo "AMI dumper: $region dev AMIs > $out"
-    # All AMIs are owned by us
-    $(describe_images) --owner $owner_gov --filters "$public_filter" | \
-      jq ".Images | { Images: sort_by(.CreationDate) }" > $out
-  fi
 else
   profile="default"
   if [[ $public == "yes" ]]; then
-    echo "AMI dumper: $region public AMIs > $out"
+    echo "AMI dumper: region: $region public: $public > $out"
     # HA/AS AMIs from MarketPlace
     # TODO: must be changed to sophos_utm_* in the future
     $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=*asg-*" > ${out}.1
@@ -80,7 +73,7 @@ else
     jq ".Images | { Images: sort_by(.CreationDate) }" > $out
     # rm $out".1" $out".2"
   else
-    echo "AMI dumper: $region dev AMIs > $out"
+    echo "AMI dumper: region: $region public: no > $out"
     # All AMIs are owned by us
     $(describe_images) --owner $owner_dev --filters "$public_filter" | \
       jq ".Images | { Images: sort_by(.CreationDate) }" > $out
