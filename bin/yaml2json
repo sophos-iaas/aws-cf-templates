@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require "yaml"
+require "json"
+
+begin
+  puts JSON.pretty_generate(YAML.load_file(ARGV.shift))
+rescue => e
+  STDERR.puts e
+  exit 1
+end

@@ -23,7 +23,7 @@ EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 STANDALONE_TEMPLATE := $(TEMPLATES)/standalone.template
 HA_TEMPLATE := $(TEMPLATES)/ha_standalone.template $(TEMPLATES)/ha_warm_standby.template
 HA_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/ha_standalone.template $(UTM_VERSION_DIR)/ha_warm_standby.template
-AUTOSCALING_TEMPLATE := $(TEMPLATES)/autoscaling_waf.template
+AUTOSCALING_TEMPLATE := $(TEMPLATES)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
 
@@ -145,6 +145,11 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) --out $@
 
 ## Build actual templates by merging region map and template source
+# convert yaml sources to json
+src/%.json: src/%.yaml
+	$(ECHO) "[YAML2JSON] $< -> $@"
+	$(Q)./bin/yaml2json $< > $@
+
 $(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
 	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
@@ -160,7 +165,7 @@ $(UTM_VERSION_DIR)/%.template: $(UTM_VERSION_DIR) src/conversion/%.json $(TMP_OU
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Autoscaling
-$(TEMPLATES)/autoscaling_waf.template: src/autoscaling_waf.json $(TMP_OUT)/autoscaling.map
+$(TEMPLATES)/autoscaling.template: src/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $^ > $@
 

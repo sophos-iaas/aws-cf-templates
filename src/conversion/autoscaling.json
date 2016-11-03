@@ -10,18 +10,21 @@
     "awsLicenseType": {
       "Description": "Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.",
       "Type": "String",
-      "AllowedValues": ["Hourly","BYOL"],
+      "AllowedValues": [
+        "Hourly",
+        "BYOL"
+      ],
       "Default": "Hourly"
     },
-    "utmControllerInstanceSize" : {
-      "Description" : "Default selects m4.large if available in your region, m3.large otherwise.",
-      "Type" : "String",
-      "Default" : "default"
+    "utmControllerInstanceSize": {
+      "Description": "Default selects m4.large if available in your region, m3.large otherwise.",
+      "Type": "String",
+      "Default": "default"
     },
-    "utmWorkerInstanceSize" : {
-      "Description" : "Default selects m3.medium if available in your region, c4.large otherwise.",
-      "Type" : "String",
-      "Default" : "default"
+    "utmWorkerInstanceSize": {
+      "Description": "Default selects m3.medium if available in your region, c4.large otherwise.",
+      "Type": "String",
+      "Default": "default"
     },
     "awsAvailabilityZone1": {
       "Type": "AWS::EC2::AvailabilityZone::Name",
@@ -90,7 +93,255 @@
     },
     "basicCountry": {
       "Type": "String",
-      "AllowedValues": ["Andorra","United Arab Emirates","Afghanistan","Antigua and Barbuda","Anguilla","Albania","Armenia","Netherlands Antilles","Angola","Antarctica","Argentina","American Samoa","Austria","Australia","Aland Islands","Aruba","Azerbaidjan","Bosnia and Herzegovina","Barbados","Bangladesh","Belgium","Burkina Faso","Bulgaria","Bahrain","Burundi","Benin","Saint Barthelemey","Bermuda","Brunei Darussalam","Bolivia","Brazil","Bahamas","Bhutan","Bouvet Island","Botswana","Belarus","Belize","Canada","Cocos Islands","Congo, Democratic Rebpulic of the","Central African Republic","Congo","Switzerland","Ivory Coast","Cook Islands","Chile","Cameroon","China","Colombia","Costa Rica","Cuba","Cape Verde","Christmas Island","Cyprus","Czech Republic","Germany","Djibouti","Denmark","Dominica","Dominican Republic","Algeria","Ecuador","Estonia","Egypt","Western Sahara","Eritrea","Spain","Ethiopia","Finland","Fiji","Falkland Islands","Micronesia","Faroe Islands","France","Gabon","Great Britain","Grenada","Georgia","French Guyana","Guernsey","Ghana","Gibraltar","Greenland","Gambia","Guinea","Guadeloupe","Equatorial Guinea","Greece","S. Georgia & S. Sandwich Isls.","Guatemala","Guam (USA)","Guinea Bissau","Guyana","Hong Kong","Heard and McDonald Islands","Honduras","Croatia","Haiti","Hungary","Indonesia","Ireland","Israel","Isle of Man","India","British Indian Ocean Territory","Iraq","Iran","Iceland","Italy","Jersey","Jamaica","Jordan","Japan","Kenya","Kyrgyz Republic (Kyrgyzstan)","Cambodia, Kingdom of","Kiribati","Comoros","Saint Kitts & Nevis Anguilla","North Korea","South Korea","Kuwait","Cayman Islands","Kazakhstan","Laos","Lebanon","Saint Lucia","Liechtenstein","Sri Lanka","Liberia","Lesotho","Lithuania","Luxembourg","Latvia","Libya","Morocco","Monaco","Moldavia","Montenegro","Saint Martin (French)","Madagascar","Marshall Islands","Macedonia","Mali","Myanmar","Mongolia","Macau","Northern Mariana Islands","Martinique (French)","Mauritania","Montserrat","Malta","Mauritius","Maldives","Malawi","Mexico","Malaysia","Mozambique","Namibia","New Caledonia (French)","Niger","Norfolk Island","Nigeria","Nicaragua","Netherlands","Norway","Nepal","Nauru","Niue","New Zealand","Oman","Panama","Peru","Polynesia (French)","Papua New Guinea","Philippines","Pakistan","Poland","Saint Pierre and Miquelon","Pitcairn Island","Puerto Rico","Palestinian Territory (Occupied)","Portugal","Palau","Paraguay","Qatar","Reunion (French)","Romania","Serbia","Russian Federation","Rwanda","Saudi Arabia","Solomon Islands","Seychelles","Sudan","Sweden","Singapore","Saint Helena","Slovenia","Svalbard Jan Mayen Islands","Slovak Republic","Sierra Leone","San Marino","Senegal","Somalia","Suriname","Saint Tome and Principe","El Salvador","Syria","Swaziland","Turks and Caicos Islands","Chad","French Southern Territories","Togo","Thailand","Tadjikistan","Tokelau","Timor-Leste","Turkmenistan","Tunisia","Tonga","Turkey","Trinidad and Tobago","Tuvalu","Taiwan","Tanzania","Ukraine","Uganda","United Kingdom","USA Minor Outlying Islands","United States","Uruguay","Uzbekistan","Holy See (Vatican City State)","Saint Vincent & Grenadines","Venezuela","Virgin Islands (British)","Virgin Islands (USA)","Vietnam","Vanuatu","Wallis and Futuna Islands","Samoa","Yemen","Mayotte","South Africa","Zambia","Zimbabwe"]
+      "AllowedValues": [
+        "Andorra",
+        "United Arab Emirates",
+        "Afghanistan",
+        "Antigua and Barbuda",
+        "Anguilla",
+        "Albania",
+        "Armenia",
+        "Netherlands Antilles",
+        "Angola",
+        "Antarctica",
+        "Argentina",
+        "American Samoa",
+        "Austria",
+        "Australia",
+        "Aland Islands",
+        "Aruba",
+        "Azerbaidjan",
+        "Bosnia and Herzegovina",
+        "Barbados",
+        "Bangladesh",
+        "Belgium",
+        "Burkina Faso",
+        "Bulgaria",
+        "Bahrain",
+        "Burundi",
+        "Benin",
+        "Saint Barthelemey",
+        "Bermuda",
+        "Brunei Darussalam",
+        "Bolivia",
+        "Brazil",
+        "Bahamas",
+        "Bhutan",
+        "Bouvet Island",
+        "Botswana",
+        "Belarus",
+        "Belize",
+        "Canada",
+        "Cocos Islands",
+        "Congo, Democratic Rebpulic of the",
+        "Central African Republic",
+        "Congo",
+        "Switzerland",
+        "Ivory Coast",
+        "Cook Islands",
+        "Chile",
+        "Cameroon",
+        "China",
+        "Colombia",
+        "Costa Rica",
+        "Cuba",
+        "Cape Verde",
+        "Christmas Island",
+        "Cyprus",
+        "Czech Republic",
+        "Germany",
+        "Djibouti",
+        "Denmark",
+        "Dominica",
+        "Dominican Republic",
+        "Algeria",
+        "Ecuador",
+        "Estonia",
+        "Egypt",
+        "Western Sahara",
+        "Eritrea",
+        "Spain",
+        "Ethiopia",
+        "Finland",
+        "Fiji",
+        "Falkland Islands",
+        "Micronesia",
+        "Faroe Islands",
+        "France",
+        "Gabon",
+        "Great Britain",
+        "Grenada",
+        "Georgia",
+        "French Guyana",
+        "Guernsey",
+        "Ghana",
+        "Gibraltar",
+        "Greenland",
+        "Gambia",
+        "Guinea",
+        "Guadeloupe",
+        "Equatorial Guinea",
+        "Greece",
+        "S. Georgia & S. Sandwich Isls.",
+        "Guatemala",
+        "Guam (USA)",
+        "Guinea Bissau",
+        "Guyana",
+        "Hong Kong",
+        "Heard and McDonald Islands",
+        "Honduras",
+        "Croatia",
+        "Haiti",
+        "Hungary",
+        "Indonesia",
+        "Ireland",
+        "Israel",
+        "Isle of Man",
+        "India",
+        "British Indian Ocean Territory",
+        "Iraq",
+        "Iran",
+        "Iceland",
+        "Italy",
+        "Jersey",
+        "Jamaica",
+        "Jordan",
+        "Japan",
+        "Kenya",
+        "Kyrgyz Republic (Kyrgyzstan)",
+        "Cambodia, Kingdom of",
+        "Kiribati",
+        "Comoros",
+        "Saint Kitts & Nevis Anguilla",
+        "North Korea",
+        "South Korea",
+        "Kuwait",
+        "Cayman Islands",
+        "Kazakhstan",
+        "Laos",
+        "Lebanon",
+        "Saint Lucia",
+        "Liechtenstein",
+        "Sri Lanka",
+        "Liberia",
+        "Lesotho",
+        "Lithuania",
+        "Luxembourg",
+        "Latvia",
+        "Libya",
+        "Morocco",
+        "Monaco",
+        "Moldavia",
+        "Montenegro",
+        "Saint Martin (French)",
+        "Madagascar",
+        "Marshall Islands",
+        "Macedonia",
+        "Mali",
+        "Myanmar",
+        "Mongolia",
+        "Macau",
+        "Northern Mariana Islands",
+        "Martinique (French)",
+        "Mauritania",
+        "Montserrat",
+        "Malta",
+        "Mauritius",
+        "Maldives",
+        "Malawi",
+        "Mexico",
+        "Malaysia",
+        "Mozambique",
+        "Namibia",
+        "New Caledonia (French)",
+        "Niger",
+        "Norfolk Island",
+        "Nigeria",
+        "Nicaragua",
+        "Netherlands",
+        "Norway",
+        "Nepal",
+        "Nauru",
+        "Niue",
+        "New Zealand",
+        "Oman",
+        "Panama",
+        "Peru",
+        "Polynesia (French)",
+        "Papua New Guinea",
+        "Philippines",
+        "Pakistan",
+        "Poland",
+        "Saint Pierre and Miquelon",
+        "Pitcairn Island",
+        "Puerto Rico",
+        "Palestinian Territory (Occupied)",
+        "Portugal",
+        "Palau",
+        "Paraguay",
+        "Qatar",
+        "Reunion (French)",
+        "Romania",
+        "Serbia",
+        "Russian Federation",
+        "Rwanda",
+        "Saudi Arabia",
+        "Solomon Islands",
+        "Seychelles",
+        "Sudan",
+        "Sweden",
+        "Singapore",
+        "Saint Helena",
+        "Slovenia",
+        "Svalbard Jan Mayen Islands",
+        "Slovak Republic",
+        "Sierra Leone",
+        "San Marino",
+        "Senegal",
+        "Somalia",
+        "Suriname",
+        "Saint Tome and Principe",
+        "El Salvador",
+        "Syria",
+        "Swaziland",
+        "Turks and Caicos Islands",
+        "Chad",
+        "French Southern Territories",
+        "Togo",
+        "Thailand",
+        "Tadjikistan",
+        "Tokelau",
+        "Timor-Leste",
+        "Turkmenistan",
+        "Tunisia",
+        "Tonga",
+        "Turkey",
+        "Trinidad and Tobago",
+        "Tuvalu",
+        "Taiwan",
+        "Tanzania",
+        "Ukraine",
+        "Uganda",
+        "United Kingdom",
+        "USA Minor Outlying Islands",
+        "United States",
+        "Uruguay",
+        "Uzbekistan",
+        "Holy See (Vatican City State)",
+        "Saint Vincent & Grenadines",
+        "Venezuela",
+        "Virgin Islands (British)",
+        "Virgin Islands (USA)",
+        "Vietnam",
+        "Vanuatu",
+        "Wallis and Futuna Islands",
+        "Samoa",
+        "Yemen",
+        "Mayotte",
+        "South Africa",
+        "Zambia",
+        "Zimbabwe"
+      ]
     },
     "awsKeyName": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access.",
@@ -99,68 +350,178 @@
     }
   },
   "Metadata": {
-    "AWS::CloudFormation::Interface" : {
+    "AWS::CloudFormation::Interface": {
       "ParameterGroups": [
         {
-          "Label": {"default": "Instance Configuration"},
-          "Parameters":["awsAMI", "awsLicenseType", "utmControllerInstanceSize", "utmWorkerInstanceSize"]
-        },{
-          "Label":{ "default": "UTM Infrastructure Configuration" },
-          "Parameters":["awsAvailabilityZone1", "awsAvailabilityZone2", "awsVPCID", "awsGatewayID", "awsSubnetIPBlocks", "awsTrustedNetwork", "optionalExistingSecurityGroup", "optionalExistingElasticIP", "optionalExistingS3Bucket", "optionalLicensePool"]
-        },{
-          "Label":{ "default": "Settings for Initial UTM Setup" },
-          "Parameters":["basicHostname", "basicAdminEmail", "basicAdminPassword", "basicOrganization", "basicCity", "basicCountry", "awsKeyName"]
+          "Label": {
+            "default": "Instance Configuration"
+          },
+          "Parameters": [
+            "awsAMI",
+            "awsLicenseType",
+            "utmControllerInstanceSize",
+            "utmWorkerInstanceSize"
+          ]
+        },
+        {
+          "Label": {
+            "default": "UTM Infrastructure Configuration"
+          },
+          "Parameters": [
+            "awsAvailabilityZone1",
+            "awsAvailabilityZone2",
+            "awsVPCID",
+            "awsGatewayID",
+            "awsSubnetIPBlocks",
+            "awsTrustedNetwork",
+            "optionalExistingSecurityGroup",
+            "optionalExistingElasticIP",
+            "optionalExistingS3Bucket",
+            "optionalLicensePool"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Settings for Initial UTM Setup"
+          },
+          "Parameters": [
+            "basicHostname",
+            "basicAdminEmail",
+            "basicAdminPassword",
+            "basicOrganization",
+            "basicCity",
+            "basicCountry",
+            "awsKeyName"
+          ]
         }
       ],
-      "ParameterLabels":{
-        "awsAMI": { "default": "UTM AMI" },
-        "awsLicenseType": { "default": "License Type" },
-        "utmControllerInstanceSize": { "default": "Instance Size of UTM Controller" },
-        "utmWorkerInstanceSize": { "default": "Instance Size of UTM Worker" },
-        "awsAvailabilityZone1": { "default": "Availability Zone 1" },
-        "awsAvailabilityZone2": { "default": "Availability Zone 2" },
-        "awsVPCID": { "default": "VPC ID" },
-        "awsGatewayID": { "default": "Gateway ID" },
-        "awsSubnetIPBlocks": { "default": "Four Subnet CIDR Blocks" },
-        "awsTrustedNetwork": { "default": "Trusted Network CIDR" },
-        "optionalExistingSecurityGroup": { "default": "Existing SecurityGroup (optional)" },
-        "optionalExistingElasticIP":{"default": "Existing Elastic IP (optional)"},
-        "optionalExistingS3Bucket": { "default": "S3 Bucket for UTM Synchronization and Backup (optional)" },
-        "optionalLicensePool": { "default": "S3 Bucket Containing Licenses (optional)" },
-        "basicHostname": { "default": "Hostname" },
-        "basicAdminEmail": { "default": "Admin E-Mail Address" },
-        "basicAdminPassword": { "default": "Admin Password" },
-        "basicOrganization": { "default": "Organization" },
-        "basicCity": { "default": "City" },
-        "basicCountry": { "default": "Country" },
-        "awsKeyName": { "default": "SSH Key" }
+      "ParameterLabels": {
+        "awsAMI": {
+          "default": "UTM AMI"
+        },
+        "awsLicenseType": {
+          "default": "License Type"
+        },
+        "utmControllerInstanceSize": {
+          "default": "Instance Size of UTM Controller"
+        },
+        "utmWorkerInstanceSize": {
+          "default": "Instance Size of UTM Worker"
+        },
+        "awsAvailabilityZone1": {
+          "default": "Availability Zone 1"
+        },
+        "awsAvailabilityZone2": {
+          "default": "Availability Zone 2"
+        },
+        "awsVPCID": {
+          "default": "VPC ID"
+        },
+        "awsGatewayID": {
+          "default": "Gateway ID"
+        },
+        "awsSubnetIPBlocks": {
+          "default": "Four Subnet CIDR Blocks"
+        },
+        "awsTrustedNetwork": {
+          "default": "Trusted Network CIDR"
+        },
+        "optionalExistingSecurityGroup": {
+          "default": "Existing SecurityGroup (optional)"
+        },
+        "optionalExistingElasticIP": {
+          "default": "Existing Elastic IP (optional)"
+        },
+        "optionalExistingS3Bucket": {
+          "default": "S3 Bucket for UTM Synchronization and Backup (optional)"
+        },
+        "optionalLicensePool": {
+          "default": "S3 Bucket Containing Licenses (optional)"
+        },
+        "basicHostname": {
+          "default": "Hostname"
+        },
+        "basicAdminEmail": {
+          "default": "Admin E-Mail Address"
+        },
+        "basicAdminPassword": {
+          "default": "Admin Password"
+        },
+        "basicOrganization": {
+          "default": "Organization"
+        },
+        "basicCity": {
+          "default": "City"
+        },
+        "basicCountry": {
+          "default": "Country"
+        },
+        "awsKeyName": {
+          "default": "SSH Key"
+        }
       }
     }
   },
   "Mappings": {
-    "RegionMap": {}
+    "RegionMap": {
+    }
   },
   "Conditions": {
     "DetectAMI": {
-      "Fn::Equals": [{"Ref":"awsAMI"},"autodetect"]
+      "Fn::Equals": [
+        {
+          "Ref": "awsAMI"
+        },
+        "autodetect"
+      ]
     },
     "DetectWorkerInstanceSize": {
-      "Fn::Equals": [{"Ref": "utmControllerInstanceSize"}, "default"]
-    },
-    "DetectWorkerInstanceSize": {
-      "Fn::Equals": [ {"Ref": "utmWorkerInstanceSize"}, "default" ]
+      "Fn::Equals": [
+        {
+          "Ref": "utmWorkerInstanceSize"
+        },
+        "default"
+      ]
     },
     "CreateS3Bucket": {
-      "Fn::Equals": [{"Ref":"optionalExistingS3Bucket"},""]
+      "Fn::Equals": [
+        {
+          "Ref": "optionalExistingS3Bucket"
+        },
+        ""
+      ]
     },
     "AllocateElasticIP": {
-      "Fn::Equals": [{"Ref":"optionalExistingElasticIP"},""]
+      "Fn::Equals": [
+        {
+          "Ref": "optionalExistingElasticIP"
+        },
+        ""
+      ]
     },
     "EnableLicensePool": {
-      "Fn::Not": [{"Fn::Equals":[{"Ref":"optionalLicensePool"},""]}]
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "optionalLicensePool"
+            },
+            ""
+          ]
+        }
+      ]
     },
     "UseExistingSG": {
-      "Fn::Not": [{"Fn::Equals":[{"Ref":"optionalExistingSecurityGroup"},""]}]
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "optionalExistingSecurityGroup"
+            },
+            ""
+          ]
+        }
+      ]
     }
   },
   "Resources": {
@@ -172,8 +533,14 @@
           "Statement": [
             {
               "Effect": "Allow",
-              "Principal": {"Service":["ec2.amazonaws.com"]},
-              "Action": ["sts:AssumeRole"]
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
             }
           ]
         },
@@ -194,26 +561,113 @@
                 {
                   "Effect": "Allow",
                   "Action": "sns:*",
-                  "Resource": { "Ref":"ConfdSNSTopic" }
+                  "Resource": {
+                    "Ref": "ConfdSNSTopic"
+                  }
                 },
                 {
                   "Resource": [
                     {
                       "Fn::If": [
                         "CreateS3Bucket",
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"}]]},
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"}]]}
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              }
+                            ]
+                          ]
+                        }
                       ]
                     },
                     {
                       "Fn::If": [
                         "CreateS3Bucket",
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"},"/*"]]},
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"},"/*"]]}
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        }
                       ]
                     }
                   ],
-                  "Action": ["s3:List*","s3:Get*"],
+                  "Action": [
+                    "s3:List*",
+                    "s3:Get*"
+                  ],
                   "Effect": "Allow"
                 }
               ]
@@ -226,7 +680,11 @@
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Path": "/",
-        "Roles": [{"Ref":"WorkerRole"}]
+        "Roles": [
+          {
+            "Ref": "WorkerRole"
+          }
+        ]
       }
     },
     "QueenRole": {
@@ -237,8 +695,14 @@
           "Statement": [
             {
               "Effect": "Allow",
-              "Principal": {"Service":["ec2.amazonaws.com"]},
-              "Action": ["sts:AssumeRole"]
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
             }
           ]
         },
@@ -267,7 +731,24 @@
                 {
                   "Action": "iam:AttachRolePolicy",
                   "Resource": [
-                    {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":iam::*:role/actions/EC2ActionsAccess"]]}
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":iam::*:role/actions/EC2ActionsAccess"
+                        ]
+                      ]
+                    }
                   ],
                   "Effect": "Allow"
                 },
@@ -295,7 +776,27 @@
                   "Effect": "Allow",
                   "Action": "elasticloadbalancing:*",
                   "Resource": [
-                    {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":elasticloadbalancing:*:*:loadbalancer/",{"Ref":"ElasticLoadBalancer"}]]}
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":elasticloadbalancing:*:*:loadbalancer/",
+                          {
+                            "Ref": "ElasticLoadBalancer"
+                          }
+                        ]
+                      ]
+                    }
                   ]
                 },
                 {
@@ -306,48 +807,216 @@
                 {
                   "Effect": "Allow",
                   "Action": "sns:*",
-                  "Resource": { "Ref":"ConfdSNSTopic" }
+                  "Resource": {
+                    "Ref": "ConfdSNSTopic"
+                  }
                 },
                 {
                   "Resource": [
                     {
                       "Fn::If": [
                         "CreateS3Bucket",
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"}]]},
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"}]]}
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              }
+                            ]
+                          ]
+                        }
                       ]
                     },
                     {
                       "Fn::If": [
                         "CreateS3Bucket",
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"S3Bucket"},"/*"]]},
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalExistingS3Bucket"},"/*"]]}
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        }
                       ]
                     },
                     {
                       "Fn::If": [
                         "EnableLicensePool",
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalLicensePool"}]]},
-                        {"Ref":"AWS::NoValue"}
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalLicensePool"
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Ref": "AWS::NoValue"
+                        }
                       ]
                     },
                     {
                       "Fn::If": [
                         "EnableLicensePool",
-                        {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::",{"Ref":"optionalLicensePool"},"/*"]]},
-                        {"Ref":"AWS::NoValue"}
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalLicensePool"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        },
+                        {
+                          "Ref": "AWS::NoValue"
+                        }
                       ]
                     }
                   ],
-                  "Action": ["s3:*"],
+                  "Action": [
+                    "s3:*"
+                  ],
                   "Effect": "Allow"
                 },
                 {
                   "Resource": [
-                    {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::sophos-nsg-cf-dev"]]},
-                    {"Fn::Join":["",["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":s3:::sophos-nsg-cf"]]}
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":s3:::sophos-nsg-cf-dev"
+                        ]
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":s3:::sophos-nsg-cf"
+                        ]
+                      ]
+                    }
                   ],
-                  "Action": ["s3:List*","s3:Get*"],
+                  "Action": [
+                    "s3:List*",
+                    "s3:Get*"
+                  ],
                   "Effect": "Allow"
                 },
                 {
@@ -358,7 +1027,26 @@
                     "logs:PutLogEvents",
                     "logs:DescribeLogStreams"
                   ],
-                  "Resource": [ { "Fn::Join": ["", ["arn:", { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] }, ":logs:*:*:*"] ] } ]
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":logs:*:*:*"
+                        ]
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -370,125 +1058,251 @@
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Path": "/",
-        "Roles": [{"Ref":"QueenRole"}]
+        "Roles": [
+          {
+            "Ref": "QueenRole"
+          }
+        ]
       }
     },
     "QueenSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"awsVPCID"},
-        "CidrBlock": {"Fn::Select":["0",{"Ref":"awsSubnetIPBlocks"}]},
-        "AvailabilityZone": {"Ref":"awsAvailabilityZone1"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
+        "CidrBlock": {
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "awsAvailabilityZone1"
+        },
         "Tags": [
-          {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Name","Value":"QueenSubnetAZ1"}
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": "QueenSubnetAZ1"
+          }
         ]
       }
     },
     "QueenSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"awsVPCID"},
-        "CidrBlock": {"Fn::Select":["1",{"Ref":"awsSubnetIPBlocks"}]},
-        "AvailabilityZone": {"Ref":"awsAvailabilityZone2"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
+        "CidrBlock": {
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "awsAvailabilityZone2"
+        },
         "Tags": [
-          {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Name","Value":"QueenSubnetAZ2"}
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": "QueenSubnetAZ2"
+          }
         ]
       }
     },
     "SwarmSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"awsVPCID"},
-        "CidrBlock": {"Fn::Select":["2",{"Ref":"awsSubnetIPBlocks"}]},
-        "AvailabilityZone": {"Ref":"awsAvailabilityZone1"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
+        "CidrBlock": {
+          "Fn::Select": [
+            "2",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "awsAvailabilityZone1"
+        },
         "Tags": [
-          {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Name","Value":"SwarmSubnetAZ1"}
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": "SwarmSubnetAZ1"
+          }
         ]
       }
     },
     "SwarmSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "VpcId": {"Ref":"awsVPCID"},
-        "CidrBlock": {"Fn::Select":["3",{"Ref":"awsSubnetIPBlocks"}]},
-        "AvailabilityZone": {"Ref":"awsAvailabilityZone2"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
+        "CidrBlock": {
+          "Fn::Select": [
+            "3",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "awsAvailabilityZone2"
+        },
         "Tags": [
-          {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Name","Value":"SwarmSubnetAZ2"}
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": "SwarmSubnetAZ2"
+          }
         ]
       }
     },
     "QueenRoute": {
       "Type": "AWS::EC2::Route",
       "Properties": {
-        "RouteTableId": {"Ref":"RouteTable"},
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
         "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {"Ref":"awsGatewayID"}
+        "GatewayId": {
+          "Ref": "awsGatewayID"
+        }
       }
     },
     "RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
-        "VpcId": {"Ref":"awsVPCID"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
         "Tags": [
-          {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Network","Value":"Public"}
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
         ]
       }
     },
     "QueenSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": {"Ref":"QueenSubnet1"},
-        "RouteTableId": {"Ref":"RouteTable"}
+        "SubnetId": {
+          "Ref": "QueenSubnet1"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        }
       }
     },
     "QueenSubnet2RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": {"Ref":"QueenSubnet2"},
-        "RouteTableId": {"Ref":"RouteTable"}
+        "SubnetId": {
+          "Ref": "QueenSubnet2"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        }
       }
     },
     "SwarmRouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
-        "VpcId": {"Ref":"awsVPCID"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
         "Tags": [
-          {"Key":"Application","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Network","Value":"Public"}
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
         ]
       }
     },
     "SwarmRoute": {
       "Type": "AWS::EC2::Route",
       "Properties": {
-        "RouteTableId": {"Ref":"SwarmRouteTable"},
+        "RouteTableId": {
+          "Ref": "SwarmRouteTable"
+        },
         "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {"Ref":"awsGatewayID"}
+        "GatewayId": {
+          "Ref": "awsGatewayID"
+        }
       }
     },
     "SwarmSubnet1RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": {"Ref":"SwarmSubnet1"},
-        "RouteTableId": {"Ref":"SwarmRouteTable"}
+        "SubnetId": {
+          "Ref": "SwarmSubnet1"
+        },
+        "RouteTableId": {
+          "Ref": "SwarmRouteTable"
+        }
       }
     },
     "SwarmSubnet2RouteTableAssociation": {
       "Type": "AWS::EC2::SubnetRouteTableAssociation",
       "Properties": {
-        "SubnetId": {"Ref":"SwarmSubnet2"},
-        "RouteTableId": {"Ref":"SwarmRouteTable"}
+        "SubnetId": {
+          "Ref": "SwarmSubnet2"
+        },
+        "RouteTableId": {
+          "Ref": "SwarmRouteTable"
+        }
       }
     },
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
       "Condition": "AllocateElasticIP",
-      "Properties": {"Domain":"vpc"}
+      "Properties": {
+        "Domain": "vpc"
+      }
     },
     "S3Bucket": {
       "Type": "AWS::S3::Bucket",
@@ -529,24 +1343,32 @@
       },
       "Properties": {
         "GroupDescription": "Identifying security group",
-        "VpcId": {"Ref":"awsVPCID"}
+        "VpcId": {
+          "Ref": "awsVPCID"
+        }
       }
     },
     "LoadBalancerReceiverSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Metadata": {
-        "waf": ["frontend-security-group"]
+        "waf": [
+          "frontend-security-group"
+        ]
       },
       "Properties": {
         "GroupDescription": "Group for the receivers of the ElasticLoadBalancer",
-        "VpcId": {"Ref":"awsVPCID"}
+        "VpcId": {
+          "Ref": "awsVPCID"
+        }
       }
     },
     "QueenSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Identifying security group",
-        "VpcId": {"Ref":"awsVPCID"},
+        "VpcId": {
+          "Ref": "awsVPCID"
+        },
         "SecurityGroupEgress": [
           {
             "IpProtocol": "tcp",
@@ -572,10 +1394,14 @@
             "IpProtocol": "tcp",
             "FromPort": "0",
             "ToPort": "65535",
-            "CidrIp": {"Ref":"awsTrustedNetwork"}
+            "CidrIp": {
+              "Ref": "awsTrustedNetwork"
+            }
           }
         ],
-        "VpcId": {"Ref":"awsVPCID"}
+        "VpcId": {
+          "Ref": "awsVPCID"
+        }
       }
     },
     "UntrustedGroup": {
@@ -608,28 +1434,46 @@
             "CidrIp": "0.0.0.0/0"
           }
         ],
-        "VpcId": {"Ref":"awsVPCID"}
+        "VpcId": {
+          "Ref": "awsVPCID"
+        }
       }
     },
     "LoadBalancerSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Metadata": {
-        "waf": ["elb-security-group"]
+        "waf": [
+          "elb-security-group"
+        ]
       },
       "Properties": {
         "GroupDescription": "Enable HTTP access on port 8080",
-        "VpcId": {"Ref":"awsVPCID"}
+        "VpcId": {
+          "Ref": "awsVPCID"
+        }
       }
     },
     "ElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Metadata": {"waf":["elb"]},
+      "Metadata": {
+        "waf": [
+          "elb"
+        ]
+      },
       "Properties": {
         "CrossZone": "true",
-        "SecurityGroups": [{"Ref":"LoadBalancerSecurityGroup"}],
+        "SecurityGroups": [
+          {
+            "Ref": "LoadBalancerSecurityGroup"
+          }
+        ],
         "Subnets": [
-          {"Ref":"SwarmSubnet1"},
-          {"Ref":"SwarmSubnet2"}
+          {
+            "Ref": "SwarmSubnet1"
+          },
+          {
+            "Ref": "SwarmSubnet2"
+          }
         ],
         "Listeners": [
           {
@@ -665,16 +1509,28 @@
         "DesiredCapacity": "2",
         "MaxSize": "100",
         "MinSize": "2",
-        "TerminationPolicies": ["Default"],
+        "TerminationPolicies": [
+          "Default"
+        ],
         "VPCZoneIdentifier": [
-          {"Ref":"SwarmSubnet1"},
-          {"Ref":"SwarmSubnet2"}
+          {
+            "Ref": "SwarmSubnet1"
+          },
+          {
+            "Ref": "SwarmSubnet2"
+          }
         ],
         "AvailabilityZones": [
-          {"Ref":"awsAvailabilityZone1"},
-          {"Ref":"awsAvailabilityZone2"}
+          {
+            "Ref": "awsAvailabilityZone1"
+          },
+          {
+            "Ref": "awsAvailabilityZone2"
+          }
         ],
-        "LaunchConfigurationName": {"Ref":"SwarmLaunchConfiguration"},
+        "LaunchConfigurationName": {
+          "Ref": "SwarmLaunchConfiguration"
+        },
         "Tags": [
           {
             "Key": "Name",
@@ -682,7 +1538,11 @@
             "PropagateAtLaunch": "true"
           }
         ],
-        "LoadBalancerNames": [{"Ref":"ElasticLoadBalancer"}]
+        "LoadBalancerNames": [
+          {
+            "Ref": "ElasticLoadBalancer"
+          }
+        ]
       }
     },
     "SwarmScaleUpPolicy": {
@@ -717,11 +1577,17 @@
         "Period": "60",
         "EvaluationPeriods": "2",
         "Threshold": "70",
-        "AlarmActions": [{"Ref":"SwarmScaleUpPolicy"}],
+        "AlarmActions": [
+          {
+            "Ref": "SwarmScaleUpPolicy"
+          }
+        ],
         "Dimensions": [
           {
             "Name": "AutoScalingGroupName",
-            "Value": {"Ref":"SwarmScalingGroup"}
+            "Value": {
+              "Ref": "SwarmScalingGroup"
+            }
           }
         ],
         "ComparisonOperator": "GreaterThanThreshold"
@@ -738,12 +1604,16 @@
         "EvaluationPeriods": "1",
         "Threshold": "85",
         "AlarmActions": [
-          {"Ref":"SwarmScaleUpPolicy"}
+          {
+            "Ref": "SwarmScaleUpPolicy"
+          }
         ],
         "Dimensions": [
           {
             "Name": "AutoScalingGroupName",
-            "Value": {"Ref":"SwarmScalingGroup"}
+            "Value": {
+              "Ref": "SwarmScalingGroup"
+            }
           }
         ],
         "ComparisonOperator": "GreaterThanThreshold"
@@ -759,11 +1629,17 @@
         "Period": "60",
         "EvaluationPeriods": "3",
         "Threshold": "40",
-        "AlarmActions": [{"Ref":"SwarmScaleDownPolicy"}],
+        "AlarmActions": [
+          {
+            "Ref": "SwarmScaleDownPolicy"
+          }
+        ],
         "Dimensions": [
           {
             "Name": "AutoScalingGroupName",
-            "Value": {"Ref":"SwarmScalingGroup"}
+            "Value": {
+              "Ref": "SwarmScalingGroup"
+            }
           }
         ],
         "ComparisonOperator": "LessThanThreshold"
@@ -782,31 +1658,57 @@
             {
               "Fn::FindInMap": [
                 "RegionMap",
-                {"Ref":"AWS::Region"},
-                {"Ref":"awsLicenseType"}
+                {
+                  "Ref": "AWS::Region"
+                },
+                {
+                  "Ref": "awsLicenseType"
+                }
               ]
             },
-            {"Ref":"awsAMI"}
+            {
+              "Ref": "awsAMI"
+            }
           ]
         },
         "InstanceType": {
           "Fn::If": [
             "DetectWorkerInstanceSize",
-            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "SwarmInstanceType" ] },
-            { "Ref": "utmWorkerInstanceSize" }
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "SwarmInstanceType"
+              ]
+            },
+            {
+              "Ref": "utmWorkerInstanceSize"
+            }
           ]
         },
-        "KeyName": {"Ref":"awsKeyName"},
+        "KeyName": {
+          "Ref": "awsKeyName"
+        },
         "BlockDeviceMappings": [
           {
             "DeviceName": "/dev/xvda",
-            "Ebs": {"VolumeSize":"100"}
+            "Ebs": {
+              "VolumeSize": "100"
+            }
           }
         ],
         "SecurityGroups": [
-          {"Ref":"SwarmSecurityGroup"},
-          {"Ref":"TrustedNetworkGroup"},
-          {"Ref":"LoadBalancerReceiverSecurityGroup"}
+          {
+            "Ref": "SwarmSecurityGroup"
+          },
+          {
+            "Ref": "TrustedNetworkGroup"
+          },
+          {
+            "Ref": "LoadBalancerReceiverSecurityGroup"
+          }
         ],
         "UserData": {
           "Fn::Base64": {
@@ -823,18 +1725,26 @@
                 "mkdir -p /var/chroot-httpd/etc/sns\n",
                 "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s ",
-                {"Ref":"AWS::StackId"},
+                {
+                  "Ref": "AWS::StackId"
+                },
                 " -r SwarmLaunchConfiguration --region ",
-                {"Ref":"AWS::Region"},
+                {
+                  "Ref": "AWS::Region"
+                },
                 " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n",
                 "/etc/init.d/mdw restart && sleep 10\n",
                 "/etc/init.d/httpd restart\n",
                 "/etc/init.d/worker_config_management start\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
-                {"Ref":"AWS::StackName"},
+                {
+                  "Ref": "AWS::StackName"
+                },
                 " --resource SwarmScalingGroup ",
                 " --region ",
-                {"Ref":"AWS::Region"},
+                {
+                  "Ref": "AWS::Region"
+                },
                 "\n",
                 "exit 0\n"
               ]
@@ -845,7 +1755,10 @@
       "Metadata": {
         "AWS::CloudFormation::Init": {
           "configSets": {
-            "swarm_node": ["swarm_config", "swarm_commands"]
+            "swarm_node": [
+              "swarm_config",
+              "swarm_commands"
+            ]
           },
           "swarm_config": {
             "files": {
@@ -861,21 +1774,45 @@
                       "instance_role: worker\n",
                       "deployment_type: autoscaling\n",
                       "license_pool: ",
-                      {"Ref":"optionalLicensePool"},
+                      {
+                        "Ref": "optionalLicensePool"
+                      },
                       "\n",
                       "s3_bucket: ",
-                      {"Fn::If":["CreateS3Bucket",{"Ref":"S3Bucket"},{"Ref":"optionalExistingS3Bucket"}]},
+                      {
+                        "Fn::If": [
+                          "CreateS3Bucket",
+                          {
+                            "Ref": "S3Bucket"
+                          },
+                          {
+                            "Ref": "optionalExistingS3Bucket"
+                          }
+                        ]
+                      },
                       "\n",
                       "sns_topic: ",
-                      {"Ref":"ConfdSNSTopic"},
+                      {
+                        "Ref": "ConfdSNSTopic"
+                      },
                       "\n",
                       "config_prefix: config_management/\n",
                       "confd_filter: /etc/cloud/confd_filter.ph\n",
                       "region: ",
-                      {"Ref":"AWS::Region"},
+                      {
+                        "Ref": "AWS::Region"
+                      },
                       "\n",
                       "aws_partition: ",
-                      { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] },
+                      {
+                        "Fn::FindInMap": [
+                          "RegionMap",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "ARN"
+                        ]
+                      },
                       "\n"
                     ]
                   ]
@@ -886,7 +1823,16 @@
                 "owner": "root",
                 "group": "root",
                 "content": {
-                  "Fn::Join": ["",["sns_topic: ",{"Ref":"ConfdSNSTopic"},"\n"]]
+                  "Fn::Join": [
+                    "",
+                    [
+                      "sns_topic: ",
+                      {
+                        "Ref": "ConfdSNSTopic"
+                      },
+                      "\n"
+                    ]
+                  ]
                 }
               }
             }
@@ -906,7 +1852,9 @@
     },
     "QueenScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": ["ConfdSNSTopic"],
+      "DependsOn": [
+        "ConfdSNSTopic"
+      ],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
           "MinInstancesInService": "1",
@@ -919,17 +1867,35 @@
         "DesiredCapacity": "1",
         "MaxSize": "2",
         "MinSize": "1",
-        "TerminationPolicies": ["NewestInstance"],
+        "TerminationPolicies": [
+          "NewestInstance"
+        ],
         "VPCZoneIdentifier": [
-          {"Ref":"QueenSubnet1"},
-          {"Ref":"QueenSubnet2"}
+          {
+            "Ref": "QueenSubnet1"
+          },
+          {
+            "Ref": "QueenSubnet2"
+          }
         ],
         "AvailabilityZones": [
-          {"Ref":"awsAvailabilityZone1"},
-          {"Ref":"awsAvailabilityZone2"}
+          {
+            "Ref": "awsAvailabilityZone1"
+          },
+          {
+            "Ref": "awsAvailabilityZone2"
+          }
         ],
-        "LaunchConfigurationName": {"Ref":"QueenLaunchConfiguration"},
-        "Tags": [{"Key":"Name","Value":"Queen UTM","PropagateAtLaunch":"true"}]
+        "LaunchConfigurationName": {
+          "Ref": "QueenLaunchConfiguration"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Queen UTM",
+            "PropagateAtLaunch": "true"
+          }
+        ]
       }
     },
     "QueenLaunchConfiguration": {
@@ -942,73 +1908,151 @@
         "ImageId": {
           "Fn::If": [
             "DetectAMI",
-            {"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},{"Ref":"awsLicenseType"}]},
-            {"Ref":"awsAMI"}
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                {
+                  "Ref": "awsLicenseType"
+                }
+              ]
+            },
+            {
+              "Ref": "awsAMI"
+            }
           ]
         },
         "InstanceType": {
           "Fn::If": [
             "DetectWorkerInstanceSize",
-            { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "QueenInstanceType" ] },
-            { "Ref": "utmControllerInstanceSize" }
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "QueenInstanceType"
+              ]
+            },
+            {
+              "Ref": "utmControllerInstanceSize"
+            }
           ]
         },
-        "KeyName": {"Ref":"awsKeyName"},
+        "KeyName": {
+          "Ref": "awsKeyName"
+        },
         "BlockDeviceMappings": [
           {
             "DeviceName": "/dev/xvda",
-            "Ebs": {"VolumeSize":"100"}
+            "Ebs": {
+              "VolumeSize": "100"
+            }
           }
         ],
         "SecurityGroups": {
           "Fn::If": [
             "UseExistingSG",
             [
-              {"Ref":"optionalExistingSecurityGroup"},
-              {"Fn::GetAtt":["QueenSecurityGroup","GroupId"]},
-              {"Fn::GetAtt":["TrustedNetworkGroup","GroupId"]},
-              {"Fn::GetAtt":["UntrustedGroup","GroupId"]}
+              {
+                "Ref": "optionalExistingSecurityGroup"
+              },
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
             ],
             [
-              {"Fn::GetAtt":["QueenSecurityGroup","GroupId"]},
-              {"Fn::GetAtt":["TrustedNetworkGroup","GroupId"]},
-              {"Fn::GetAtt":["UntrustedGroup","GroupId"]}
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
             ]
           ]
         },
         "UserData": {
-          "Fn::Base64": { "Fn::Join": [
-            "", [
-              "#!/bin/bash\n",
-              "date +'UserData start %c' > /tmp/user_data.log\n",
-              "touch /etc/no-selfmonitor/worker_config_management\n",
-              "touch /etc/no-selfmonitor/queen_config_management\n",
-              "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab.iptables\n",
-              "cc=`/usr/local/bin/confd-client.plx country_name_to_code \"",
-              {"Ref":"basicCountry"},
-              "\"`\n",
-              "echo \"{ hostname => '",
-                {"Ref":"basicHostname"},
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "date +'UserData start %c' > /tmp/user_data.log\n",
+                "touch /etc/no-selfmonitor/worker_config_management\n",
+                "touch /etc/no-selfmonitor/queen_config_management\n",
+                "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab.iptables\n",
+                "cc=`/usr/local/bin/confd-client.plx country_name_to_code \"",
+                {
+                  "Ref": "basicCountry"
+                },
+                "\"`\n",
+                "echo \"{ hostname => '",
+                {
+                  "Ref": "basicHostname"
+                },
                 "', organization => '",
-                {"Ref":"basicOrganization"},
+                {
+                  "Ref": "basicOrganization"
+                },
                 "', city => '",
-                {"Ref":"basicCity"},
+                {
+                  "Ref": "basicCity"
+                },
                 "', country => '$cc', email => '",
-                {"Ref":"basicAdminEmail"},
+                {
+                  "Ref": "basicAdminEmail"
+                },
                 "', password => '",
-                {"Ref":"basicAdminPassword"},
+                {
+                  "Ref": "basicAdminPassword"
+                },
                 "' }\" > /var/confd/var/storage/setup.ph\n",
                 "/etc/init.d/confd restart\n",
                 "sleep 5\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s ",
-                {"Ref":"AWS::StackId"},
+                {
+                  "Ref": "AWS::StackId"
+                },
                 " -r QueenLaunchConfiguration --region ",
-                {"Ref":"AWS::Region"},
+                {
+                  "Ref": "AWS::Region"
+                },
                 " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n",
                 "/usr/local/bin/confd-client.plx -noquote -stdin set \\'ha\\' \\'aws\\' < /tmp/user_data.config >> /tmp/user_data.log\n",
                 "date +'UserData awslogs agent setup start %c' >> /tmp/user_data.log\n",
                 "/usr/local/bin/awslogs-agent-setup.py -n -r ",
-                {"Ref":"AWS::Region"},
+                {
+                  "Ref": "AWS::Region"
+                },
                 "  -c /etc/cloud/awslogs.conf >> /tmp/user_data.log\n",
                 "date +'UserData awslogs agent setup end %c' >> /tmp/user_data.log\n",
                 "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n",
@@ -1020,10 +2064,14 @@
                 "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n",
                 "/usr/local/bin/confd-client.plx trigger ha_aws\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
-                {"Ref":"AWS::StackName"},
+                {
+                  "Ref": "AWS::StackName"
+                },
                 " --resource QueenScalingGroup ",
                 " --region ",
-                {"Ref":"AWS::Region"},
+                {
+                  "Ref": "AWS::Region"
+                },
                 "\n",
                 "/usr/bin/sg-iaas ogw-create-cw-role >> /tmp/user_data.log 2>&1\n",
                 "exit 0\n"
@@ -1034,7 +2082,11 @@
       },
       "Metadata": {
         "AWS::CloudFormation::Init": {
-          "configSets": {"queen_node": ["queen_config"]},
+          "configSets": {
+            "queen_node": [
+              "queen_config"
+            ]
+          },
           "queen_config": {
             "files": {
               "/etc/cloud/user_data.yml": {
@@ -1049,26 +2101,62 @@
                       "instance_role: queen\n",
                       "deployment_type: autoscaling\n",
                       "license_pool: ",
-                      {"Ref":"optionalLicensePool"},
+                      {
+                        "Ref": "optionalLicensePool"
+                      },
                       "\n",
                       "s3_bucket: ",
-                      {"Fn::If":["CreateS3Bucket",{"Ref":"S3Bucket"},{"Ref":"optionalExistingS3Bucket"}]},
+                      {
+                        "Fn::If": [
+                          "CreateS3Bucket",
+                          {
+                            "Ref": "S3Bucket"
+                          },
+                          {
+                            "Ref": "optionalExistingS3Bucket"
+                          }
+                        ]
+                      },
                       "\n",
                       "sns_topic: ",
-                      {"Ref":"ConfdSNSTopic"},
+                      {
+                        "Ref": "ConfdSNSTopic"
+                      },
                       "\n",
                       "config_prefix: config_management/\n",
                       "elastic_ip: ",
-                      {"Fn::If":["AllocateElasticIP",{"Ref":"IPAddress"},{"Ref":"optionalExistingElasticIP"}]},
+                      {
+                        "Fn::If": [
+                          "AllocateElasticIP",
+                          {
+                            "Ref": "IPAddress"
+                          },
+                          {
+                            "Ref": "optionalExistingElasticIP"
+                          }
+                        ]
+                      },
                       "\n",
                       "stack_name: ",
-                      {"Ref":"AWS::StackName"},
+                      {
+                        "Ref": "AWS::StackName"
+                      },
                       "\n",
                       "region: ",
-                      {"Ref":"AWS::Region"},
+                      {
+                        "Ref": "AWS::Region"
+                      },
                       "\n",
                       "aws_partition: ",
-                      { "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "ARN" ] },
+                      {
+                        "Fn::FindInMap": [
+                          "RegionMap",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          "ARN"
+                        ]
+                      },
                       "\n"
                     ]
                   ]
@@ -1083,88 +2171,135 @@
                     "",
                     [
                       "{\n",
-                        "\"cloudwatch\" => { \"status\" => 1 },\n",
-                        "\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },\n",
-                        "\"instance_role\" => \"ha_standalone\",\n",
-                        "\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },\n",
-                        "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n",
-                        "\"s3_bucket\" => \"",
-                        {"Fn::If":["CreateS3Bucket",{"Ref":"S3Bucket"},{"Ref":"optionalExistingS3Bucket"}]},
-                        "\",\n",
-                        "\"stack_name\" => \"",
-                        {"Ref":"AWS::StackName"},
-                        "\",\n",
-                        "\"elastic_ip\" => \"",
-                        {"Fn::If":["AllocateElasticIP",{"Ref":"IPAddress"},{"Ref":"optionalExistingElasticIP"}]},
-                        "\",\n",
-                        "\"trusted_network\" => \"",
-                        {"Ref":"awsTrustedNetwork"},
-                        "\"\n",
-                        "}\n"
-                      ]
+                      "\"cloudwatch\" => { \"status\" => 1 },\n",
+                      "\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },\n",
+                      "\"instance_role\" => \"ha_standalone\",\n",
+                      "\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },\n",
+                      "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n",
+                      "\"s3_bucket\" => \"",
+                      {
+                        "Fn::If": [
+                          "CreateS3Bucket",
+                          {
+                            "Ref": "S3Bucket"
+                          },
+                          {
+                            "Ref": "optionalExistingS3Bucket"
+                          }
+                        ]
+                      },
+                      "\",\n",
+                      "\"stack_name\" => \"",
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "\",\n",
+                      "\"elastic_ip\" => \"",
+                      {
+                        "Fn::If": [
+                          "AllocateElasticIP",
+                          {
+                            "Ref": "IPAddress"
+                          },
+                          {
+                            "Ref": "optionalExistingElasticIP"
+                          }
+                        ]
+                      },
+                      "\",\n",
+                      "\"trusted_network\" => \"",
+                      {
+                        "Ref": "awsTrustedNetwork"
+                      },
+                      "\"\n",
+                      "}\n"
                     ]
-                  }
-                },
-                "/etc/cloud/resource-catalog.yml": {
-                  "mode": "0644",
-                  "owner": "root",
-                  "group": "root",
-                  "content": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "elb: ",
-                        {"Ref":"ElasticLoadBalancer"},
-                        "\n",
-                        "elb_security_group: ",
-                        {"Ref":"LoadBalancerSecurityGroup"},
-                        "\n",
-                        "elb_destination_security_group: ",
-                        {"Ref":"SwarmSecurityGroup"},
-                        "\n",
-                        "frontend_security_group: ",
-                        {"Ref":"LoadBalancerReceiverSecurityGroup"},
-                        "\n",
-                        "backend_security_group: ",
-                        {"Ref":"SwarmSecurityGroup"},
-                        "\n",
-                        "\n",
-                        "infrastructure:\n",
-                        "  security_groups:\n",
-                        "    - ",
-                        {"Ref":"TrustedNetworkGroup"},
-                        "\n",
-                        "    - ",
-                        {"Ref":"UntrustedGroup"},
-                        "\n",
-                        "    - ",
-                        {"Ref":"QueenSecurityGroup"},
-                        "\n",
-                        "    - ",
-                        {"Ref":"SwarmSecurityGroup"},
-                        "\n",
-                        "  elbs:\n"
-                      ]
+                  ]
+                }
+              },
+              "/etc/cloud/resource-catalog.yml": {
+                "mode": "0644",
+                "owner": "root",
+                "group": "root",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "elb: ",
+                      {
+                        "Ref": "ElasticLoadBalancer"
+                      },
+                      "\n",
+                      "elb_security_group: ",
+                      {
+                        "Ref": "LoadBalancerSecurityGroup"
+                      },
+                      "\n",
+                      "elb_destination_security_group: ",
+                      {
+                        "Ref": "SwarmSecurityGroup"
+                      },
+                      "\n",
+                      "frontend_security_group: ",
+                      {
+                        "Ref": "LoadBalancerReceiverSecurityGroup"
+                      },
+                      "\n",
+                      "backend_security_group: ",
+                      {
+                        "Ref": "SwarmSecurityGroup"
+                      },
+                      "\n",
+                      "\n",
+                      "infrastructure:\n",
+                      "  security_groups:\n",
+                      "    - ",
+                      {
+                        "Ref": "TrustedNetworkGroup"
+                      },
+                      "\n",
+                      "    - ",
+                      {
+                        "Ref": "UntrustedGroup"
+                      },
+                      "\n",
+                      "    - ",
+                      {
+                        "Ref": "QueenSecurityGroup"
+                      },
+                      "\n",
+                      "    - ",
+                      {
+                        "Ref": "SwarmSecurityGroup"
+                      },
+                      "\n",
+                      "  elbs:\n"
                     ]
-                  }
-                },
-                "/etc/cloud/inf-resources.yml": {
-                  "mode": "0644",
-                  "owner": "root",
-                  "group": "root",
-                  "content": { "Fn::Join": [
+                  ]
+                }
+              },
+              "/etc/cloud/inf-resources.yml": {
+                "mode": "0644",
+                "owner": "root",
+                "group": "root",
+                "content": {
+                  "Fn::Join": [
                     "",
                     [
                       "security_groups:\n",
                       "  ",
-                      {"Ref":"QueenSecurityGroup"},
+                      {
+                        "Ref": "QueenSecurityGroup"
+                      },
                       ":\n",
                       "    incoming:\n",
                       "      - from_port: 514\n",
                       "        to_port: 514\n",
                       "        protocol: UDP\n",
                       "        source: ",
-                      {"Ref":"SwarmSecurityGroup"},
+                      {
+                        "Ref": "SwarmSecurityGroup"
+                      },
                       "\n",
                       "    outgoing:\n",
                       "      - from_port: 0\n",
@@ -1176,17 +2311,23 @@
                       "        protocol: UDP\n",
                       "        source: 0.0.0.0/0\n",
                       "  ",
-                      {"Ref":"TrustedNetworkGroup"},
+                      {
+                        "Ref": "TrustedNetworkGroup"
+                      },
                       ":\n",
                       "    incoming:\n",
                       "      - from_port: 0\n",
                       "        to_port: 65535\n",
                       "        protocol: TCP\n",
                       "        source: ",
-                      {"Ref":"awsTrustedNetwork"},
+                      {
+                        "Ref": "awsTrustedNetwork"
+                      },
                       "\n",
                       "  ",
-                      {"Ref":"UntrustedGroup"},
+                      {
+                        "Ref": "UntrustedGroup"
+                      },
                       ":\n",
                       "    incoming:\n",
                       "      - from_port: 12\n",
@@ -1206,7 +2347,9 @@
                       "        protocol: UDP\n",
                       "        source: 0.0.0.0/0\n",
                       "  ",
-                      {"Ref":"SwarmSecurityGroup"},
+                      {
+                        "Ref": "SwarmSecurityGroup"
+                      },
                       ":\n",
                       "    incoming:\n",
                       "      - from_port: 6500\n",
@@ -1234,38 +2377,64 @@
       "Value": {
         "Fn::If": [
           "AllocateElasticIP",
-          {"Ref":"IPAddress"},
-          {"Ref":"optionalExistingElasticIP"}
+          {
+            "Ref": "IPAddress"
+          },
+          {
+            "Ref": "optionalExistingElasticIP"
+          }
         ]
       },
       "Description": "Use this IP to connect and to forward traffic to the UTM."
     },
     "QueenScalingGroup": {
-      "Value": {"Ref":"QueenScalingGroup"},
+      "Value": {
+        "Ref": "QueenScalingGroup"
+      },
       "Description": "The HA Scaling group."
     },
     "S3Bucket": {
-      "Value": {"Fn::If":["CreateS3Bucket",{"Ref":"S3Bucket"},{"Ref":"optionalExistingS3Bucket"}]},
+      "Value": {
+        "Fn::If": [
+          "CreateS3Bucket",
+          {
+            "Ref": "S3Bucket"
+          },
+          {
+            "Ref": "optionalExistingS3Bucket"
+          }
+        ]
+      },
       "Description": "The S3 Bucket."
     },
     "ConfigurationSNSTopic": {
       "Description": "The SNS topic for configuration changes.",
-      "Value": {"Ref":"ConfdSNSTopic"}
+      "Value": {
+        "Ref": "ConfdSNSTopic"
+      }
     },
     "SwarmScalingGroup": {
-      "Value": {"Ref":"SwarmScalingGroup"},
+      "Value": {
+        "Ref": "SwarmScalingGroup"
+      },
       "Description": "The Swarm scaling group."
     },
     "VPCID": {
-      "Value": {"Ref":"awsVPCID"},
+      "Value": {
+        "Ref": "awsVPCID"
+      },
       "Description": "The VPC of the Swarm"
     },
     "Region": {
-      "Value": {"Ref":"AWS::Region"},
+      "Value": {
+        "Ref": "AWS::Region"
+      },
       "Description": "Region of the stack"
     },
     "ELB": {
-      "Value": {"Ref":"ElasticLoadBalancer"},
+      "Value": {
+        "Ref": "ElasticLoadBalancer"
+      },
       "Description": "Swarm ELB"
     }
   }
