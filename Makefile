@@ -45,10 +45,11 @@ ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_i
 
 # Misc
 Q=@
-ECHO=$(Q)echo
+ECHO=$(Q)echo -e
 BUILD_JSON=./bin/json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
+AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
 ifeq ($(PUBLIC),1)
 PUBLIC_AMIS=--public
@@ -66,9 +67,13 @@ AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_.*byol$$
 AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_.*mp$$
 endif
 
-# Function to filter the region name from a folder name
+# get_region returns region name from a file path (e.g. tmp/us-east-1/foo.bar -> us-east-1)
 define get_region
 $(lastword $(subst /, ,$(dir $(1))))
+endef
+# get_product returns product name from a ami file path (e.g. tmp/us-east-1/as_mp.ami -> as_mp)
+define get_product
+$(word 1 ,$(subst ., ,$(notdir $(1))))
 endef
 
 ## Targets
@@ -115,29 +120,28 @@ $(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
 # Copy from region specific file, if existing, otherwise use default
 # static/us-east-1/arn.static out/us-east-1/arn.static
 $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
-	$(ECHO) "[STATIC] $@"
 	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
 
 ## Specific AMIs
 %/egw.ami: %/aws.dump
-	$(ECHO) "[AMI] $@"
 	$(Q)jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1].ImageId' $^ > $@
+	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
-	$(ECHO) "[AMI] $@"
 	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_BYOL_REGEX)"))][-1].ImageId' $^ > $@
+	$(AMI_NAME)
 
 %/ha_mp.ami: %/aws.dump
-	$(ECHO) "[AMI] $@"
 	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_MP_REGEX)"))][-1].ImageId' $^ > $@
+	$(AMI_NAME)
 
 %/as_byol.ami: %/aws.dump
-	$(ECHO) "[AMI] $@"
 	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_BYOL_REGEX)"))][-1].ImageId' $^ > $@
+	$(AMI_NAME)
 
 %/as_mp.ami: %/aws.dump
-	$(ECHO) "[AMI] $@"
 	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_MP_REGEX)"))][-1].ImageId' $^ > $@
+	$(AMI_NAME)
 
 ## AWS AMI dump
 %/aws.dump:
