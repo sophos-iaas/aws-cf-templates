@@ -179,7 +179,10 @@ $(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw/egw.json $(TMP_OUT)/eg
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
-# Don't remove intermediate files
+# Don't remove intermediate aws dump files
 .PRECIOUS: %/aws.dump
+
+# Somehow these two intermediate files need to be mentioned explicitly to get deleted
+.INTERMEDIATE: src/autoscaling.json src/conversion/autoscaling.json
 
 .PHONY: clean %/aws.dump
