@@ -70,8 +70,7 @@ else
     # EGW AMIs are owned by us
     $(describe_images) --owner $owner_dev --filters "$public_filter" > ${out}.2
     jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
-    jq ".Images | { Images: sort_by(.CreationDate) }" > $out
-    # rm $out".1" $out".2"
+      jq ".Images | { Images: sort_by(.CreationDate) }" > $out
   else
     echo "AMI dumper: region: $region public: no > $out"
     # All AMIs are owned by us

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Creats valid json output from /region/*.ami folder structure and file contents
+# Creates valid json output from /region/*.ami folder structure and file contents
 
 KEY="$1"
 FILENAME="$2"
