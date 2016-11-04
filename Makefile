@@ -124,23 +124,23 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 
 ## Specific AMIs
 %/egw.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1].ImageId' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_BYOL_REGEX)"))][-1].ImageId' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_BYOL_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 %/ha_mp.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_MP_REGEX)"))][-1].ImageId' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_MP_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 %/as_byol.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_BYOL_REGEX)"))][-1].ImageId' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_BYOL_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 %/as_mp.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_MP_REGEX)"))][-1].ImageId' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_MP_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 ## AWS AMI dump
