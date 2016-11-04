@@ -7,5 +7,5 @@ FILENAME="$2"
 
 for i in tmp/* ; do
   test -d $i || continue
-  echo "{\"${i#*/}\":{\"$KEY\":\"$(cat $i/$FILENAME)\"}}"
+  echo "{\"${i#*/}\":{\"$KEY\":\"$(cut -f1 $i/$FILENAME)\"}}"
 done | jq -s add
