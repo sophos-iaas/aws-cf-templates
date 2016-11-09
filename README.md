@@ -1,26 +1,36 @@
 # Sophos NSG CloudFormation Templates
 
-This repository tracks the content of the Sophos NSG CloudFormation template S3 bucket *s3://sophos-nsg-cf/*
+This repository tracks the templates used within the Sophos NSG CloudFormation template S3 bucket *s3://sophos-nsg-cf/*
 
-You can use any of the templates directory in CloudFormation by referencing its S3 URL. Just prepend
+## Usage
+
+You can use any of the templates with CloudFormation by referencing its S3 URL.
+
+### Usage in all regions except AWS GovCloud (US)
+
+For using the template in all regions except the AWS GovCloud (US) region prepend
 
 ```
 https://s3.amazonaws.com/sophos-nsg-cf/
 ```
 
-to the filename inside the repository. So e.g. for *utm/utm-latest-autoscaling.template* the URL is
+to the template filename from the Sophos NSG template repository.
+
+As an example the URL for *utm/utm-latest-autoscaling.template* is
 
 ```
 https://s3.amazonaws.com/sophos-nsg-cf/utm/utm-latest-autoscaling.template
 ```
 
-For GovCloud you need to use the prefix
+### Usage in AWS GovCloud (US) region
+
+For GovCloud you need to use the following prefix:
 
 ```
 https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf/
 ```
 
-instead. So for *utm/utm-latest-autoscaling.template* the URL is then
+When using *utm/utm-latest-autoscaling.template* the  URL is
 
 ```
 https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf/utm/utm-latest-autoscaling.template
