@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIR="$1" ; shift
+LOCAL_DIR="$1" ; shift
 BUCKET="$1" ; shift
 PROFILE="$1" ; shift
 REGION="$1" ; shift
@@ -34,4 +34,4 @@ case $DRY in
         ;;
 esac
 
-aws s3 sync $DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --delete $MORE_ARGS | awk "$COLORIZE_AWK_COMMAND"
+aws s3 sync $LOCAL_DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --delete $MORE_ARGS | awk "$COLORIZE_AWK_COMMAND"
