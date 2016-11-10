@@ -28,14 +28,4 @@ case $DRY in
         ;;
 esac
 
-aws s3 sync $DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "$DIR/.git*" $MORE_ARGS
-for i in `aws s3api list-objects --bucket $BUCKET --region $REGION --profile $PROFILE | jq -r '.[][].Key'` ; do
-  if [ ! -f $DIR/$i ] ; then
-          if [[ $DRY == "act" ]] ; then
-                  echo "file not found $i. Deleting on S3"
-                  aws s3api delete-object --bucket $BUCKET --region $REGION --profile $PROFILE --key $i
-          else
-                  echo "(dryrun) file not found $i. Deleting on S3"
-          fi
-  fi
-done
+aws s3 sync $DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --delete $MORE_ARGS
