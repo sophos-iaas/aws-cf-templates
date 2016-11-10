@@ -16,6 +16,12 @@ help(){
         echo -e "\tdry:\t\tdry-run (only print what would be done, do not do any changes)"
 }
 
+COLORIZE_AWK_COMMAND='\
+      /upload/ { printf "\033[1;32m" }\
+      /delete/ { printf "\033[1;31m" }\
+      // { print $0 "\033[0m"; }'
+
+
 case $DRY in
         dry)
         MORE_ARGS="--dryrun"
@@ -28,4 +34,4 @@ case $DRY in
         ;;
 esac
 
-aws s3 sync $DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --delete $MORE_ARGS
+aws s3 sync $DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --delete $MORE_ARGS | awk "$COLORIZE_AWK_COMMAND"
