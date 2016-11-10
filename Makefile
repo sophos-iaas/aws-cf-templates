@@ -155,10 +155,12 @@ src/%.json: src/%.yaml
 	$(ECHO) "[YAML2JSON] $< -> $@"
 	$(Q)./bin/yaml2json $< > $@
 
-$(UTM_PATH) $(CONVERSION_PATH) $(EGW_VERSION_DIR):
+$(UTM_PATH):
 	$(Q)mkdir -p $@
-#FIXME: Please remove next line if it does not break
-#	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
+
+$(CONVERSION_PATH) $(EGW_VERSION_DIR):
+	$(Q)mkdir -p $@
+	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
 
 # HA (warm, cold), Standalone
 $(UTM_PATH)/%.template: $(UTM_PATH) src/%.json $(TMP_OUT)/standalone.map
