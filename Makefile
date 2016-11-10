@@ -16,15 +16,16 @@ MAKEFLAGS += --jobs=100 -r
 TMP_OUT := tmp
 # template output folder
 TEMPLATES := templates
-UTM_VERSION_DIR = $(TEMPLATES)/conversion/$(UTM_VERSION)
+UTM_PATH = $(TEMPLATES)/utm
+CONVERSION_PATH = $(TEMPLATES)/utm/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
 # Template paths
-STANDALONE_TEMPLATE := $(TEMPLATES)/standalone.template
-HA_TEMPLATE := $(TEMPLATES)/ha_standalone.template $(TEMPLATES)/ha_warm_standby.template
-HA_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/ha_standalone.template $(UTM_VERSION_DIR)/ha_warm_standby.template
-AUTOSCALING_TEMPLATE := $(TEMPLATES)/autoscaling.template
-AUTOSCALING_CONVERSION_TEMPLATE := $(UTM_VERSION_DIR)/autoscaling.template
+STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
+HA_TEMPLATE := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
+HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
+AUTOSCALING_TEMPLATE := $(UTM_PATH)/autoscaling.template
+AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
 
 # Several lists of intermediate folders/files per region
@@ -154,27 +155,30 @@ src/%.json: src/%.yaml
 	$(ECHO) "[YAML2JSON] $< -> $@"
 	$(Q)./bin/yaml2json $< > $@
 
-$(UTM_VERSION_DIR) $(EGW_VERSION_DIR):
+$(UTM_PATH):
+	$(Q)mkdir -p $@
+
+$(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
 	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
 
 # HA (warm, cold), Standalone
-$(TEMPLATES)/%.template: src/%.json $(TMP_OUT)/standalone.map
+$(UTM_PATH)/%.template: $(UTM_PATH) src/%.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
-	$(Q)$(ADD_REGION_MAP) $^ > $@
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Conversion HA (warm, cold)
-$(UTM_VERSION_DIR)/%.template: $(UTM_VERSION_DIR) src/conversion/%.json $(TMP_OUT)/standalone.map
+$(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Autoscaling
-$(TEMPLATES)/autoscaling.template: src/autoscaling.json $(TMP_OUT)/autoscaling.map
+$(AUTOSCALING_TEMPLATE): $(UTM_PATH) src/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
-	$(Q)$(ADD_REGION_MAP) $^ > $@
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Conversion Autoscaling
-$(UTM_VERSION_DIR)/autoscaling.template: $(UTM_VERSION_DIR) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
+$(AUTOSCALING_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
