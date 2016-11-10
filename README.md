@@ -16,10 +16,10 @@ https://s3.amazonaws.com/sophos-nsg-cf/
 
 to the template filename from the Sophos NSG template repository.
 
-As an example the URL for *utm/utm-latest-autoscaling.template* is
+As an example the URL for *utm/autoscaling.template* is
 
 ```
-https://s3.amazonaws.com/sophos-nsg-cf/utm/utm-latest-autoscaling.template
+https://s3.amazonaws.com/sophos-nsg-cf/utm/autoscaling.template
 ```
 
 ### Usage in AWS GovCloud (US) region
@@ -30,10 +30,10 @@ For GovCloud you need to use the following prefix:
 https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf/
 ```
 
-When using *utm/utm-latest-autoscaling.template* the  URL is
+When using *utm/autoscaling.template* the  URL is
 
 ```
-https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf/utm/utm-latest-autoscaling.template
+https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf/utm/autoscaling.template
 ```
 
 ## IAM Permissions
