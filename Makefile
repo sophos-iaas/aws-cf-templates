@@ -144,6 +144,13 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_MP_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
+## In GovCloud we put byol AMI to mp, because there is no marketplace
+$(TMP_OUT)/us-gov-west-1/as_mp.ami: $(TMP_OUT)/us-gov-west-1/as_byol.ami
+	$(Q)cp $^ $@
+
+$(TMP_OUT)/us-gov-west-1/ha_mp.ami: $(TMP_OUT)/us-gov-west-1/ha_byol.ami
+	$(Q)cp $^ $@
+
 ## AWS AMI dump
 %/aws.dump:
 	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
