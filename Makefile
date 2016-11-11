@@ -125,7 +125,7 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 
 ## Specific AMIs
 %/egw.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | startswith("egw-"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_egw_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
