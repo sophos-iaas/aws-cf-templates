@@ -913,11 +913,15 @@ Resources:
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
         FromPort: '4445'
+        ToPort: '5431'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '5433'
         ToPort: '65535'
         CidrIp: 0.0.0.0/0
       - IpProtocol: udp
-        FromPort: '0'
-        ToPort: '65535'
+        FromPort: '3410'
+        ToPort: '3410'
         CidrIp: 0.0.0.0/0
       VpcId:
         Ref: awsVPCID
@@ -1465,11 +1469,15 @@ Resources:
                   - "        protocol: TCP\n"
                   - "        source: 0.0.0.0/0\n"
                   - "      - from_port: 4445\n"
+                  - "        to_port: 5431\n"
+                  - "        protocol: TCP\n"
+                  - "        source: 0.0.0.0/0\n"
+                  - "      - from_port: 5433\n"
                   - "        to_port: 65535\n"
                   - "        protocol: TCP\n"
                   - "        source: 0.0.0.0/0\n"
-                  - "      - from_port: 0\n"
-                  - "        to_port: 65535\n"
+                  - "      - from_port: 3410\n"
+                  - "        to_port: 3410\n"
                   - "        protocol: UDP\n"
                   - "        source: 0.0.0.0/0\n"
                   - "  "
