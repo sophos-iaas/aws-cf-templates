@@ -1175,7 +1175,7 @@ Resources:
             - " --region "
             - Ref: AWS::Region
             - "\n"
-            - "pip install awscli\n"
+            - "/usr/bin/pip-2.7 install awscli\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
