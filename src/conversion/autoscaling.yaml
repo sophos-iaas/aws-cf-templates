@@ -901,7 +901,7 @@ Resources:
   UntrustedGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Untrusted network restricted from accessing port 22 and 4444.
+      GroupDescription: Untrusted network restricted from accessing port 22 and 8080.
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: '0'
