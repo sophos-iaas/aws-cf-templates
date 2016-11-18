@@ -481,6 +481,56 @@ Resources:
             - s3:List*
             - s3:Get*
             Effect: Allow
+          - Resource:
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/adbs"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/adbs"
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/adbs/*"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/adbs/*"
+            Action:
+            - s3:List*
+            - s3:Get*
+            - s3:Put*
+            Effect: Allow
   WorkerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
