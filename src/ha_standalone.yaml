@@ -587,23 +587,23 @@ Resources:
   UntrustedGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Untrusted network restricted from accessing port 22 and 8080.
+      GroupDescription: Untrusted network restricted from accessing port 22 and 4444.
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '12'
+        FromPort: '0'
         ToPort: '21'
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
         FromPort: '23'
-        ToPort: '8079'
+        ToPort: '4443'
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
-        FromPort: '8081'
+        FromPort: '4445'
         ToPort: '65535'
         CidrIp: 0.0.0.0/0
       - IpProtocol: udp
-        FromPort: '3410'
-        ToPort: '3410'
+        FromPort: '0'
+        ToPort: '65535'
         CidrIp: 0.0.0.0/0
       VpcId:
         Ref: VPC
