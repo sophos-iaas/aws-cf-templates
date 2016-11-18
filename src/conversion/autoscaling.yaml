@@ -553,6 +553,7 @@ Resources:
             - s3:List*
             - s3:Get*
             - s3:Put*
+            - s3:Delete*
             Effect: Allow
   WorkerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -899,6 +900,15 @@ Resources:
           Status: Enabled
         - Prefix: postgres_wal
           ExpirationInDays: '3'
+          Status: Enabled
+        - Prefix: adbs/tmp
+          ExpirationInDays: '3'
+          Status: Enabled
+        - Prefix: adbs/new
+          ExpirationInDays: '6'
+          Status: Enabled
+        - Prefix: adbs/cur
+          ExpirationInDays: '9'
           Status: Enabled
   ConfdSNSTopic:
     Type: AWS::SNS::Topic
