@@ -975,7 +975,7 @@ Resources:
   UntrustedGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Untrusted network restricted from accessing port 22 and 8080.
+      GroupDescription: Untrusted network restricted from accessing port 22 and 4444.
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: '0'
@@ -987,11 +987,15 @@ Resources:
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
         FromPort: '4445'
+        ToPort: '5431'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '5433'
         ToPort: '65535'
         CidrIp: 0.0.0.0/0
       - IpProtocol: udp
-        FromPort: '0'
-        ToPort: '65535'
+        FromPort: '3410'
+        ToPort: '3410'
         CidrIp: 0.0.0.0/0
       VpcId:
         Ref: VPC
@@ -1165,7 +1169,6 @@ Resources:
           - - "#!/bin/bash\n"
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "sed -i 's/^/#/' /etc/crontab.reporting\n"
-            - "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab.iptables\n"
             - "/usr/local/bin/confd-client.plx trigger crontab\n"
             - "touch /etc/no-selfmonitor/queen_config_management\n"
             - "touch /etc/no-selfmonitor/aws_resource_management\n"
@@ -1313,7 +1316,6 @@ Resources:
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "touch /etc/no-selfmonitor/worker_config_management\n"
             - "touch /etc/no-selfmonitor/queen_config_management\n"
-            - "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab.iptables\n"
             - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
             - Ref: basicCountry
             - "\"`\n"
@@ -1516,15 +1518,19 @@ Resources:
                   - Ref: UntrustedGroup
                   - ":\n"
                   - "    incoming:\n"
-                  - "      - from_port: 12\n"
+                  - "      - from_port: 0\n"
                   - "        to_port: 21\n"
                   - "        protocol: TCP\n"
                   - "        source: 0.0.0.0/0\n"
                   - "      - from_port: 23\n"
-                  - "        to_port: 8079\n"
+                  - "        to_port: 4443\n"
                   - "        protocol: TCP\n"
                   - "        source: 0.0.0.0/0\n"
-                  - "      - from_port: 8081\n"
+                  - "      - from_port: 4445\n"
+                  - "        to_port: 5431\n"
+                  - "        protocol: TCP\n"
+                  - "        source: 0.0.0.0/0\n"
+                  - "      - from_port: 5433\n"
                   - "        to_port: 65535\n"
                   - "        protocol: TCP\n"
                   - "        source: 0.0.0.0/0\n"
