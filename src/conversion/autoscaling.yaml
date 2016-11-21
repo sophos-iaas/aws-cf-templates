@@ -504,6 +504,57 @@ Resources:
             - s3:List*
             - s3:Get*
             Effect: Allow
+          - Resource:
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/adbs"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/adbs"
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/adbs/*"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/adbs/*"
+            Action:
+            - s3:List*
+            - s3:Get*
+            - s3:Put*
+            - s3:Delete*
+            Effect: Allow
   WorkerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -850,6 +901,15 @@ Resources:
         - Prefix: postgres_wal
           ExpirationInDays: '3'
           Status: Enabled
+        - Prefix: adbs/tmp
+          ExpirationInDays: '3'
+          Status: Enabled
+        - Prefix: adbs/new
+          ExpirationInDays: '6'
+          Status: Enabled
+        - Prefix: adbs/cur
+          ExpirationInDays: '9'
+          Status: Enabled
   ConfdSNSTopic:
     Type: AWS::SNS::Topic
   SwarmSecurityGroup:
@@ -1109,6 +1169,7 @@ Resources:
             - " --region "
             - Ref: AWS::Region
             - "\n"
+            - "/usr/bin/pip-2.7 install awscli\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
