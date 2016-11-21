@@ -302,7 +302,23 @@
               "Ref": "PublicNetworkCIDR"
             },
             "FromPort": "4445",
+            "ToPort": "5431"
+          },
+          {
+            "IpProtocol": "tcp",
+            "CidrIp": {
+              "Ref": "PublicNetworkCIDR"
+            },
+            "FromPort": "5433",
             "ToPort": "65535"
+          },
+          {
+            "IpProtocol": "udp",
+            "FromPort": "3410",
+            "ToPort": "3410",
+            "CidrIp": {
+              "Ref": "PublicNetworkCIDR"
+            }
           }
         ]
       }
