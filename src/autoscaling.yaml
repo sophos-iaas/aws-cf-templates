@@ -1109,7 +1109,6 @@ Resources:
           - - "#!/bin/bash\n"
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "sed -i 's/^/#/' /etc/crontab.reporting\n"
-            - "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab.iptables\n"
             - "/usr/local/bin/confd-client.plx trigger crontab\n"
             - "touch /etc/no-selfmonitor/queen_config_management\n"
             - "touch /etc/no-selfmonitor/aws_resource_management\n"
@@ -1256,7 +1255,6 @@ Resources:
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "touch /etc/no-selfmonitor/worker_config_management\n"
             - "touch /etc/no-selfmonitor/queen_config_management\n"
-            - "echo '* * * * * root iptables -L AUTO_INPUT >> /var/log/sshd.log' >> /etc/crontab.iptables\n"
             - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
             - Ref: basicCountry
             - "\"`\n"
