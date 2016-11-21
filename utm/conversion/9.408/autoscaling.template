@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Scalable UTM CloudFormation template",
+  "Description": "Scalable UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.",
   "Parameters": {
     "awsAMI": {
       "Description": "With autodetect latest AMI is used based on the license type.",
@@ -34,14 +34,26 @@
       "Type": "AWS::EC2::AvailabilityZone::Name",
       "Description": "Please provide another (different) Availability Zone."
     },
-    "awsNetworkPrefix": {
-      "Description": "Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example for the network 10.6.0.0/16 you should provide 10.6",
-      "Type": "String",
-      "Default": "10.15"
+    "awsVPCID": {
+      "Description": "ID of an existing VPC to launch the deployment in.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "awsGatewayID": {
+      "Description": "The Internet Gateway ID of the VPC.",
+      "Type": "String"
+    },
+    "awsSubnetIPBlocks": {
+      "Description": "Please provide a comma-separated list of four CIDR blocks within the VPC. The four subnets will be created automatically.",
+      "Type": "CommaDelimitedList"
     },
     "awsTrustedNetwork": {
       "Description": "Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
       "Type": "String"
+    },
+    "optionalExistingSecurityGroup": {
+      "Description": "A security group to assign to the new stack.",
+      "Type": "String",
+      "Default": ""
     },
     "optionalExistingElasticIP": {
       "Description": "Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
@@ -358,8 +370,11 @@
           "Parameters": [
             "awsAvailabilityZone1",
             "awsAvailabilityZone2",
-            "awsNetworkPrefix",
+            "awsVPCID",
+            "awsGatewayID",
+            "awsSubnetIPBlocks",
             "awsTrustedNetwork",
+            "optionalExistingSecurityGroup",
             "optionalExistingElasticIP",
             "optionalExistingS3Bucket",
             "optionalLicensePool"
@@ -399,11 +414,20 @@
         "awsAvailabilityZone2": {
           "default": "Availability Zone 2"
         },
-        "awsNetworkPrefix": {
-          "default": "Prefix for VPC CIDR Block"
+        "awsVPCID": {
+          "default": "VPC ID"
+        },
+        "awsGatewayID": {
+          "default": "Gateway ID"
+        },
+        "awsSubnetIPBlocks": {
+          "default": "Four Subnet CIDR Blocks"
         },
         "awsTrustedNetwork": {
           "default": "Trusted Network CIDR"
+        },
+        "optionalExistingSecurityGroup": {
+          "default": "Existing SecurityGroup (optional)"
         },
         "optionalExistingElasticIP": {
           "default": "Existing Elastic IP (optional)"
@@ -572,6 +596,18 @@
           "Fn::Equals": [
             {
               "Ref": "optionalLicensePool"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "UseExistingSG": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "optionalExistingSecurityGroup"
             },
             ""
           ]
@@ -1120,47 +1156,18 @@
         ]
       }
     },
-    "VPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true",
-        "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "0.0/16"
-            ]
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          }
-        ]
-      }
-    },
     "QueenSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "1.0/24"
-            ]
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1184,17 +1191,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "2.0/24"
-            ]
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1218,17 +1222,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "4.0/24"
-            ]
+          "Fn::Select": [
+            "2",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1252,17 +1253,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "5.0/24"
-            ]
+          "Fn::Select": [
+            "3",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1282,44 +1280,15 @@
         ]
       }
     },
-    "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
-          }
-        ]
-      }
-    },
-    "AttachGateway": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "InternetGateway"
-        }
-      }
-    },
     "QueenRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "AttachGateway",
       "Properties": {
         "RouteTableId": {
           "Ref": "RouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "awsGatewayID"
         }
       }
     },
@@ -1327,7 +1296,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1369,7 +1338,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1387,14 +1356,13 @@
     },
     "SwarmRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "AttachGateway",
       "Properties": {
         "RouteTableId": {
           "Ref": "SwarmRouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "awsGatewayID"
         }
       }
     },
@@ -1422,7 +1390,6 @@
     },
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
-      "DependsOn": "AttachGateway",
       "Condition": "AllocateElasticIP",
       "Properties": {
         "Domain": "vpc"
@@ -1468,7 +1435,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1482,7 +1449,7 @@
       "Properties": {
         "GroupDescription": "Group for the receivers of the ElasticLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1491,7 +1458,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "SecurityGroupEgress": [
           {
@@ -1524,7 +1491,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1565,7 +1532,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1579,7 +1546,7 @@
       "Properties": {
         "GroupDescription": "Enable HTTP access on port 8080",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1619,15 +1586,13 @@
           "Interval": "5",
           "Timeout": "2"
         }
-      },
-      "DependsOn": "AttachGateway"
+      }
     },
     "SwarmScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": [
         "ConfdSNSTopic",
-        "QueenScalingGroup",
-        "AttachGateway"
+        "QueenScalingGroup"
       ],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
@@ -1984,8 +1949,7 @@
     "QueenScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": [
-        "ConfdSNSTopic",
-        "AttachGateway"
+        "ConfdSNSTopic"
       ],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
@@ -2084,17 +2048,54 @@
             }
           }
         ],
-        "SecurityGroups": [
-          {
-            "Ref": "QueenSecurityGroup"
-          },
-          {
-            "Ref": "TrustedNetworkGroup"
-          },
-          {
-            "Ref": "UntrustedGroup"
-          }
-        ],
+        "SecurityGroups": {
+          "Fn::If": [
+            "UseExistingSG",
+            [
+              {
+                "Ref": "optionalExistingSecurityGroup"
+              },
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ],
+            [
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ]
+          ]
+        },
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -2519,7 +2520,7 @@
     },
     "VPCID": {
       "Value": {
-        "Ref": "VPC"
+        "Ref": "awsVPCID"
       },
       "Description": "The VPC of the Swarm"
     },

@@ -440,96 +440,89 @@
   },
   "Mappings": {
     "RegionMap": {
-      "ap-northeast-1": {
-        "Hourly": "ami-73fa5212",
-        "BYOL": "ami-c8f850a9",
-        "ARN": "aws",
+	  "us-gov-west-1": {
+		"BYOL": "ami-807fc6e1",
+        "SwarmInstanceType": "m3.medium",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
-      },
-      "ap-northeast-2": {
-        "Hourly": "ami-0265b16c",
-        "BYOL": "ami-1f67b371",
-        "ARN": "aws",
-        "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "ARN": "aws-us-gov",
+        "Hourly": "ami-807fc6e1"
       },
       "ap-south-1": {
-        "Hourly": "ami-44f1852b",
-        "BYOL": "ami-bef387d1",
-        "ARN": "aws",
+        "BYOL": "ami-ea2b5f85",
+        "Hourly": "ami-082d5967",
+        "SwarmInstanceType": "c4.large",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
-      },
-      "ap-southeast-1": {
-        "Hourly": "ami-cfa90aac",
-        "BYOL": "ami-8daf0cee",
-        "ARN": "aws",
-        "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
-      },
-      "ap-southeast-2": {
-        "Hourly": "ami-f1fec192",
-        "BYOL": "ami-eaffc089",
-        "ARN": "aws",
-        "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
-      },
-      "eu-central-1": {
-        "Hourly": "ami-2807fd47",
-        "BYOL": "ami-be07fdd1",
-        "ARN": "aws",
-        "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
+        "ARN": "aws"
       },
       "eu-west-1": {
-        "Hourly": "ami-886130fb",
-        "BYOL": "ami-b67d2cc5",
-        "ARN": "aws",
+        "BYOL": "ami-f6c08085",
+        "Hourly": "ami-5cbcfc2f",
+        "SwarmInstanceType": "m3.medium",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
+        "ARN": "aws"
+      },
+      "ap-northeast-2": {
+        "BYOL": "ami-28b76346",
+        "Hourly": "ami-d6bc68b8",
+        "SwarmInstanceType": "c4.large",
+        "QueenInstanceType": "m4.large",
+        "ARN": "aws"
+      },
+      "ap-northeast-1": {
+        "BYOL": "ami-b9d70fd8",
+        "Hourly": "ami-56cb1337",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large",
+        "ARN": "aws"
       },
       "sa-east-1": {
-        "Hourly": "ami-3dad3251",
-        "BYOL": "ami-92b32cfe",
-        "ARN": "aws",
+        "BYOL": "ami-0c6efc60",
+        "Hourly": "ami-b26efcde",
+        "SwarmInstanceType": "m3.medium",
         "QueenInstanceType": "m3.large",
-        "SwarmInstanceType": "m3.medium"
+        "ARN": "aws"
+      },
+      "ap-southeast-1": {
+        "BYOL": "ami-1bca6d78",
+        "Hourly": "ami-05c96e66",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large",
+        "ARN": "aws"
+      },
+      "ap-southeast-2": {
+        "BYOL": "ami-9895a6fb",
+        "Hourly": "ami-a994a7ca",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large",
+        "ARN": "aws"
+      },
+      "eu-central-1": {
+        "BYOL": "ami-a201fecd",
+        "Hourly": "ami-687e8107",
+        "SwarmInstanceType": "m3.medium",
+        "QueenInstanceType": "m4.large",
+        "ARN": "aws"
       },
       "us-east-1": {
-        "Hourly": "ami-864e6191",
-        "BYOL": "ami-0d4e611a",
-        "ARN": "aws",
+        "BYOL": "ami-31286726",
+        "Hourly": "ami-c52c63d2",
+        "SwarmInstanceType": "m3.medium",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
-      },
-      "us-east-2": {
-        "Hourly": "ami-64421801",
-        "BYOL": "ami-767a2013",
-        "ARN": "aws",
-        "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
-      },
-      "us-gov-west-1": {
-        "Hourly": "ami-46348c27",
-        "BYOL": "ami-46348c27",
-        "ARN": "aws-us-gov",
-        "QueenInstanceType": "m3.large",
-        "SwarmInstanceType": "m3.medium"
+        "ARN": "aws"
       },
       "us-west-1": {
-        "Hourly": "ami-372a7f57",
-        "BYOL": "ami-965702f6",
-        "ARN": "aws",
+        "BYOL": "ami-4b95dc2b",
+        "Hourly": "ami-3a90d95a",
+        "SwarmInstanceType": "m3.medium",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
+        "ARN": "aws"
       },
       "us-west-2": {
-        "Hourly": "ami-3c1dbe5c",
-        "BYOL": "ami-481ab928",
-        "ARN": "aws",
+        "BYOL": "ami-8cfe26ec",
+        "Hourly": "ami-daff27ba",
+        "SwarmInstanceType": "m3.medium",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
+        "ARN": "aws"
       }
     }
   },
@@ -785,26 +778,7 @@
                 },
                 {
                   "Action": "iam:AttachRolePolicy",
-                  "Resource": [
-                    {
-                      "Fn::Join": [
-                        "",
-                        [
-                          "arn:",
-                          {
-                            "Fn::FindInMap": [
-                              "RegionMap",
-                              {
-                                "Ref": "AWS::Region"
-                              },
-                              "ARN"
-                            ]
-                          },
-                          ":iam::*:role/actions/EC2ActionsAccess"
-                        ]
-                      ]
-                    }
-                  ],
+                  "Resource": "arn:aws:iam::*:role/actions/EC2ActionsAccess",
                   "Effect": "Allow"
                 },
                 {
@@ -1531,7 +1505,7 @@
     "UntrustedGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "Untrusted network restricted from accessing port 22 and 4444.",
+        "GroupDescription": "Untrusted network restricted from accessing port 22 and 8080.",
         "SecurityGroupIngress": [
           {
             "IpProtocol": "tcp",
@@ -1548,19 +1522,13 @@
           {
             "IpProtocol": "tcp",
             "FromPort": "4445",
-            "ToPort": "5431",
-            "CidrIp": "0.0.0.0/0"
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "5433",
             "ToPort": "65535",
             "CidrIp": "0.0.0.0/0"
           },
           {
             "IpProtocol": "udp",
-            "FromPort": "3410",
-            "ToPort": "3410",
+            "FromPort": "0",
+            "ToPort": "65535",
             "CidrIp": "0.0.0.0/0"
           }
         ],
@@ -1933,17 +1901,6 @@
                       {
                         "Ref": "AWS::Region"
                       },
-                      "\n",
-                      "aws_partition: ",
-                      {
-                        "Fn::FindInMap": [
-                          "RegionMap",
-                          {
-                            "Ref": "AWS::Region"
-                          },
-                          "ARN"
-                        ]
-                      },
                       "\n"
                     ]
                   ]
@@ -2151,11 +2108,9 @@
                 "date +'UserData awslogs agent setup end %c' >> /tmp/user_data.log\n",
                 "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n",
                 "/etc/init.d/ha_aws start\n",
-                "rm /etc/no-selfmonitor/queen_config_management\n",
-                "/etc/init.d/queen_config_management start\n",
                 "/etc/init.d/aws_resource_management start\n",
                 "date +'UserData aws deamons end %c' >> /tmp/user_data.log\n",
-                "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n",
+                "/usr/local/bin/aws_set_sd_check disable\n",
                 "/usr/local/bin/confd-client.plx trigger ha_aws\n",
                 "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
                 {
@@ -2239,17 +2194,6 @@
                       "region: ",
                       {
                         "Ref": "AWS::Region"
-                      },
-                      "\n",
-                      "aws_partition: ",
-                      {
-                        "Fn::FindInMap": [
-                          "RegionMap",
-                          {
-                            "Ref": "AWS::Region"
-                          },
-                          "ARN"
-                        ]
                       },
                       "\n"
                     ]
@@ -2424,19 +2368,15 @@
                       },
                       ":\n",
                       "    incoming:\n",
-                      "      - from_port: 0\n",
+                      "      - from_port: 12\n",
                       "        to_port: 21\n",
                       "        protocol: TCP\n",
                       "        source: 0.0.0.0/0\n",
                       "      - from_port: 23\n",
-                      "        to_port: 4443\n",
+                      "        to_port: 8079\n",
                       "        protocol: TCP\n",
                       "        source: 0.0.0.0/0\n",
-                      "      - from_port: 4445\n",
-                      "        to_port: 5431\n",
-                      "        protocol: TCP\n",
-                      "        source: 0.0.0.0/0\n",
-                      "      - from_port: 5433\n",
+                      "      - from_port: 8081\n",
                       "        to_port: 65535\n",
                       "        protocol: TCP\n",
                       "        source: 0.0.0.0/0\n",
