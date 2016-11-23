@@ -45,6 +45,7 @@ ALL_DEFAULT_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/defaul
 ALL_LARGE_ITYPE := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/larger_instance_type.static)
 
 # Misc
+SHELL := /bin/bash
 Q=@
 ECHO=$(Q)echo -e
 BUILD_JSON=./bin/json_builder.sh
