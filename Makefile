@@ -12,6 +12,7 @@ PUBLIC ?= 0
 MAKEFLAGS += --jobs=100 -r
 
 ## Variables
+SHELL := /bin/bash
 # tmp dir for region maps, aws ami dump, other intermediate files
 TMP_OUT := tmp
 # template output folder
