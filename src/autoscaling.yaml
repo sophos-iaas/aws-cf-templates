@@ -1181,7 +1181,7 @@ Resources:
             - "touch /etc/no-selfmonitor/aws_resource_management\n"
             - "mkdir -p /var/chroot-httpd/etc/sns\n"
             - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
-            - "/usr/bin/debugmode "
+            - "/usr/local/bin/debugmode "
             - Ref: debugLogs
             - "\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s "
@@ -1342,7 +1342,7 @@ Resources:
             - "' }\" > /var/confd/var/storage/setup.ph\n"
             - "/etc/init.d/confd restart\n"
             - "sleep 5\n"
-            - "/usr/bin/debugmode "
+            - "/usr/local/bin/debugmode "
             - Ref: debugLogs
             - "\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s "
