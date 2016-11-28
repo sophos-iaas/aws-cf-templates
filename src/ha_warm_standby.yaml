@@ -313,12 +313,10 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     Default: ''
   debugLogs:
-    Description: Enable debug logging on the UTM instances (0 to disable; 1 to enable)
+    Description: Enable debug logging on the UTM instances ("off" to disable; "on" to enable)
     Type: String
-    MinLength: "1"
-    MaxLength: "1"
-    AllowedPattern: "^[0-1]$"
-    Default: "0"
+    AllowedPattern: "^(on|off)$"
+    Default: "off"
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
