@@ -627,6 +627,9 @@ Resources:
                 - ":elasticloadbalancing:*:*:loadbalancer/"
                 - Ref: ElasticLoadBalancer
           - Effect: Allow
+            Action: elasticloadbalancing:DescribeLoadBalancerPolicies
+            Resource: "*"
+          - Effect: Allow
             Action: elasticloadbalancing:DescribeLoadBalancers
             Resource: "*"
           - Effect: Allow
@@ -1016,6 +1019,12 @@ Resources:
         UnhealthyThreshold: '5'
         Interval: '5'
         Timeout: '2'
+      Policies:
+        - PolicyName: EnableProxyProtocol
+          PolicyType: ProxyProtocolPolicyType
+          Attributes:
+            - Name: ProxyProtocol
+              Value: 'true'
   SwarmScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn:
