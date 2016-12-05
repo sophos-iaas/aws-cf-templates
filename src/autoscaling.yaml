@@ -316,10 +316,12 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access.
     Type: AWS::EC2::KeyPair::KeyName
     Default: ''
-  debugLogs:
+  debugMode:
     Description: Enable debug logging on the UTM instances ("off" to disable; "on" to enable)
     Type: String
-    AllowedPattern: "^(on|off)$"
+    AllowedValues:
+    - "on"
+    - "off"
     Default: "off"
 Metadata:
   AWS::CloudFormation::Interface:
@@ -351,6 +353,10 @@ Metadata:
       - basicCity
       - basicCountry
       - awsKeyName
+    - Label:
+        default: Debug Settings
+      Parameters:
+      - debugMode
     ParameterLabels:
       awsAMI:
         default: UTM AMI
@@ -1179,9 +1185,6 @@ Resources:
             - "touch /etc/no-selfmonitor/aws_resource_management\n"
             - "mkdir -p /var/chroot-httpd/etc/sns\n"
             - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
-            - "/usr/local/bin/debugmode "
-            - Ref: debugLogs
-            - "\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s "
             - Ref: AWS::StackId
             - " -r SwarmLaunchConfiguration --region "
@@ -1341,7 +1344,7 @@ Resources:
             - "/etc/init.d/confd restart\n"
             - "sleep 5\n"
             - "/usr/local/bin/debugmode "
-            - Ref: debugLogs
+            - Ref: debugMode
             - "\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s "
             - Ref: AWS::StackId
@@ -1418,8 +1421,8 @@ Resources:
                     - Ref: AWS::Region
                     - ARN
                   - "\n"
-                  - "debugLogs: "
-                  - Ref: debugLogs
+                  - "debugMode: "
+                  - Ref: debugMode
                   - "\n"
             "/tmp/user_data.config":
               mode: '0644'

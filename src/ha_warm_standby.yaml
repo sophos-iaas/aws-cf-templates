@@ -312,10 +312,12 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access.
     Type: AWS::EC2::KeyPair::KeyName
     Default: ''
-  debugLogs:
+  debugMode:
     Description: Enable debug logging on the UTM instances ("off" to disable; "on" to enable)
     Type: String
-    AllowedPattern: "^(on|off)$"
+    AllowedValues:
+    - "on"
+    - "off"
     Default: "off"
 Metadata:
   AWS::CloudFormation::Interface:
@@ -346,6 +348,10 @@ Metadata:
       - City
       - Country
       - KeyName
+    - Label:
+        default: Debug Settings
+      Parameters:
+      - debugMode
     ParameterLabels:
       AMI:
         default: UTM AMI
@@ -757,7 +763,7 @@ Resources:
             - "date +'UserData confd config end %c' >> /tmp/user_data.log\n"
             - "date +'UserData ha aws start %c' >> /tmp/user_data.log\n"
             - "/usr/local/bin/debugmode "
-            - Ref: debugLogs
+            - Ref: debugMode
             - "\n"
             - "/etc/init.d/ha_aws start\n"
             - "date +'UserData awslogs agent setup start %c' >> /tmp/user_data.log\n"
