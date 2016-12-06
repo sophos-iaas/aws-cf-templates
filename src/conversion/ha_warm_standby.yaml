@@ -405,6 +405,8 @@ Metadata:
         default: Country
       KeyName:
         default: SSH Key
+      debugMode:
+        default: Debug Settings
 Mappings:
   RegionMap: {}
 Conditions:

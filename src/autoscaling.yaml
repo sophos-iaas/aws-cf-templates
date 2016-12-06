@@ -394,6 +394,8 @@ Metadata:
         default: Country
       awsKeyName:
         default: SSH Key
+      debugMode:
+        default: Debug Settings
 Mappings:
   RegionMap: {}
 Conditions:
