@@ -315,7 +315,9 @@ Parameters:
   debugMode:
     Description: Enable debug logging on the UTM instances ("off" to disable; "on" to enable)
     Type: String
-    AllowedPattern: "^(on|off)$"
+    AllowedValues:
+    - "on"
+    - "off"
     Default: "off"
 Metadata:
   AWS::CloudFormation::Interface:
@@ -386,7 +388,7 @@ Metadata:
       KeyName:
         default: SSH Key
       debugMode:
-        default: Debug Settings
+        default: Debug Mode
 Mappings:
   RegionMap: {}
 Conditions:

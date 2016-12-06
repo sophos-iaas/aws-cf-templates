@@ -395,7 +395,7 @@ Metadata:
       awsKeyName:
         default: SSH Key
       debugMode:
-        default: Debug Settings
+        default: Debug Mode
 Mappings:
   RegionMap: {}
 Conditions:
