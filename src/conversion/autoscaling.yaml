@@ -325,6 +325,13 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access.
     Type: AWS::EC2::KeyPair::KeyName
     Default: ''
+  debugMode:
+    Description: Enable debug logging on the UTM instances ("off" to disable; "on" to enable)
+    Type: String
+    AllowedValues:
+    - "on"
+    - "off"
+    Default: "off"
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -358,6 +365,10 @@ Metadata:
       - basicCity
       - basicCountry
       - awsKeyName
+    - Label:
+        default: Debug Settings
+      Parameters:
+      - debugMode
     ParameterLabels:
       awsAMI:
         default: UTM AMI
@@ -401,6 +412,8 @@ Metadata:
         default: Country
       awsKeyName:
         default: SSH Key
+      debugMode:
+        default: Debug Mode
 Mappings:
   RegionMap: {}
 Conditions:
@@ -1342,6 +1355,9 @@ Resources:
             - "' }\" > /var/confd/var/storage/setup.ph\n"
             - "/etc/init.d/confd restart\n"
             - "sleep 5\n"
+            - "/usr/local/bin/debugmode "
+            - Ref: debugMode
+            - "\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s "
             - Ref: AWS::StackId
             - " -r QueenLaunchConfiguration --region "
