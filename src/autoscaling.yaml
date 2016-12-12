@@ -1383,8 +1383,6 @@ Resources:
             - Ref: AWS::Region
             - "\n"
             - "/usr/bin/sg-iaas ogw-create-cw-role >> /tmp/user_data.log 2>&1\n"
-            - "echo Enabling ProxyProtocol for this deployment\n"
-            - "touch /etc/ProxyProtocol\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
