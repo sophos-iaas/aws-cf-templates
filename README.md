@@ -2,7 +2,26 @@
 
 This repository tracks the templates used within the Sophos NSG CloudFormation template S3 bucket *s3://sophos-nsg-cf/*
 
-## Usage
+## Instant Deployment
+
+With the templates we provide, you can instantly deploy our UTM solutions on AWS using any of the Amazon 1-Click launch options below.
+
+### Sophos UTM (High Availability, Cold Standby) ###
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=sophos-utm&templateURL=https://s3.amazonaws.com/sophos-nsg-cf/utm/ha_standalone.template">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a>
+
+### Sophos UTM (High Availability, Warm Standby) ###
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=sophos-utm&templateURL=https://s3.amazonaws.com/sophos-nsg-cf/utm/ha_warm_standby.template">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a>
+
+### Sophos UTM (Autoscaling) ###
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=sophos-utm&templateURL=https://s3.amazonaws.com/sophos-nsg-cf/utm/autoscaling.template">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a>
+
+## Manual Setup using the CloudFormation templates
 
 You can use any of the templates with CloudFormation by referencing its S3 URL.
 
