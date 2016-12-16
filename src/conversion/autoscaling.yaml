@@ -728,7 +728,7 @@ Resources:
                   - RegionMap
                   - Ref: AWS::Region
                   - ARN
-                - ":s3:::sophos-nsg-cf-dev"
+                - ":s3:::sophos-nsg-cf-dev/*"
             - Fn::Join:
               - ''
               - - 'arn:'
@@ -736,7 +736,7 @@ Resources:
                   - RegionMap
                   - Ref: AWS::Region
                   - ARN
-                - ":s3:::sophos-nsg-cf"
+                - ":s3:::sophos-nsg-cf/*"
             Action:
             - s3:List*
             - s3:Get*
