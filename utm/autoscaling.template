@@ -1045,7 +1045,7 @@
                               "ARN"
                             ]
                           },
-                          ":s3:::sophos-nsg-cf-dev"
+                          ":s3:::sophos-nsg-cf-dev/*"
                         ]
                       ]
                     },
@@ -1063,7 +1063,7 @@
                               "ARN"
                             ]
                           },
-                          ":s3:::sophos-nsg-cf"
+                          ":s3:::sophos-nsg-cf/*"
                         ]
                       ]
                     }
