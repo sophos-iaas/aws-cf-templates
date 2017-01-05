@@ -475,6 +475,13 @@
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "m3.medium"
       },
+      "ca-central-1": {
+        "Hourly": "ami-de8537ba",
+        "BYOL": "ami-b48c3ed0",
+        "ARN": "aws",
+        "QueenInstanceType": "m4.large",
+        "SwarmInstanceType": "c4.large"
+      },
       "eu-central-1": {
         "Hourly": "ami-2807fd47",
         "BYOL": "ami-be07fdd1",
@@ -487,7 +494,14 @@
         "BYOL": "ami-b67d2cc5",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "m3.medium"
+        "SwarmInstanceType": "c4.large"
+      },
+      "eu-west-2": {
+        "Hourly": "ami-33272d57",
+        "BYOL": "ami-3c272d58",
+        "ARN": "aws",
+        "QueenInstanceType": "m4.large",
+        "SwarmInstanceType": "c4.large"
       },
       "sa-east-1": {
         "Hourly": "ami-3dad3251",
