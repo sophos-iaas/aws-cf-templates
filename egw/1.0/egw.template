@@ -19,7 +19,7 @@
       "Default": "autodetect"
     },
     "InstanceSize": {
-      "Description": "Size of the Gateway instance. Default selects m3.medium or c4.large depending on the region.",
+      "Description": "Default selects c4.large if available in your region, m3.large otherwise.",
       "Type": "String",
       "Default": "default"
     },
@@ -138,65 +138,80 @@
   },
   "Mappings": {
     "RegionMap": {
-      "ap-south-1": {
-        "EGW": "ami-36e79259",
-        "EGWInstanceType": "c4.large",
-        "ARN": "aws"
-      },
-      "eu-west-1": {
-        "EGW": "ami-4592eb36",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
-      },
-      "ap-southeast-1": {
-        "EGW": "ami-b321fbd0",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
-      },
-      "ap-southeast-2": {
-        "EGW": "ami-9599a8f6",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
-      },
-      "eu-central-1": {
-        "EGW": "ami-0755a768",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
+      "ap-northeast-1": {
+        "EGW": "ami-c6a273a7",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       },
       "ap-northeast-2": {
         "EGW": "ami-1d23f673",
-        "EGWInstanceType": "c4.large",
-        "ARN": "aws"
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       },
-      "ap-northeast-1": {
-        "EGW": "ami-c6a273a7",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
+      "ap-south-1": {
+        "EGW": "ami-36e79259",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       },
-      "us-east-1": {
-        "EGW": "ami-67057870",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
+      "ap-southeast-1": {
+        "EGW": "ami-b321fbd0",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
+      },
+      "ap-southeast-2": {
+        "EGW": "ami-9599a8f6",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
+      },
+      "ca-central-1": {
+        "EGW": "ami-140bb970",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
+      },
+      "eu-central-1": {
+        "EGW": "ami-0755a768",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
+      },
+      "eu-west-1": {
+        "EGW": "ami-4592eb36",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
+      },
+      "eu-west-2": {
+        "EGW": "ami-e0898384",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       },
       "sa-east-1": {
         "EGW": "ami-e82aba84",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
+        "ARN": "aws",
+        "EGWInstanceType": "m3.large"
       },
-      "us-west-1": {
-        "EGW": "ami-3e58175e",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
+      "us-east-1": {
+        "EGW": "ami-67057870",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       },
-      "us-west-2": {
-        "EGW": "ami-4139eb21",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws"
+      "us-east-2": {
+        "EGW": "ami-636d4806",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       },
       "us-gov-west-1": {
         "EGW": "ami-1468d175",
-        "EGWInstanceType": "m3.medium",
-        "ARN": "aws-us-gov"
+        "ARN": "aws-us-gov",
+        "EGWInstanceType": "c4.large"
+      },
+      "us-west-1": {
+        "EGW": "ami-3e58175e",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
+      },
+      "us-west-2": {
+        "EGW": "ami-4139eb21",
+        "ARN": "aws",
+        "EGWInstanceType": "c4.large"
       }
     }
   },
