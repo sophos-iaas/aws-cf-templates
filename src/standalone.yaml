@@ -39,7 +39,7 @@ Parameters:
     Type: String
     Default: ''
   InstanceSize:
-    Description: Default selects m3.medium or c4.large depending on the region.
+    Description: Default selects c4.large if available in your region, m3.large otherwise.
     Type: String
     Default: default
   KeyName:

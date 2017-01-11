@@ -53,20 +53,16 @@ MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
+# PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
+STANDALONE_BYOL_REGEX=^sophos_utm_standalone_.*byol.*$$
+STANDALONE_MP_REGEX=^sophos_utm_standalone_.*mp.*$$
+AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_.*byol.*$$
+AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_.*mp.*$$
+
 ifeq ($(PUBLIC),1)
 PUBLIC_AMIS=--public
-STANDALONE_REGEX=asg
-AUTOSCALING_REGEX=axg9400_aws-asg
-STANDALONE_BYOL_REGEX=^asg-.*byol.*$$
-STANDALONE_MP_REGEX=^asg-.*mp.*$$
-AUTOSCALING_BYOL_REGEX=^axg9400_aws-asg-.*byol.*$$
-AUTOSCALING_MP_REGEX=^axg9400_aws-asg-.*mp.*$$
 else
 PUBLIC_AMIS=
-STANDALONE_BYOL_REGEX=^sophos_utm_standalone_.*byol$$
-STANDALONE_MP_REGEX=^sophos_utm_standalone_.*mp$$
-AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_.*byol$$
-AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_.*mp$$
 endif
 
 # get_region returns region name from a file path (e.g. tmp/us-east-1/foo.bar -> us-east-1)
