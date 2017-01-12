@@ -172,13 +172,13 @@ $(UTM_PATH):
 
 $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
-	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
+	-$(Q)ln -sf $(notdir $@) $(dir $@)current
 
 # HA (warm, cold), Standalone
 $(UTM_PATH)/%.template: $(UTM_VERSION_PATH) src/%.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
-	$(Q)ln -sf ../$(shell basename $@) $(UTM_VERSION_PATH)/$(shell basename $@)
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 # Conversion HA (warm, cold)
 $(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OUT)/standalone.map
@@ -189,7 +189,7 @@ $(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OU
 $(AUTOSCALING_TEMPLATE): $(UTM_VERSION_PATH) src/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
-	$(Q)ln -sf ../$(shell basename $@) $(UTM_VERSION_PATH)/$(shell basename $@)
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 # Conversion Autoscaling
 $(AUTOSCALING_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
