@@ -18,6 +18,7 @@ TMP_OUT := tmp
 # template output folder
 TEMPLATES := templates
 UTM_PATH = $(TEMPLATES)/utm
+UTM_VERSION_PATH = $(UTM_PATH)/$(UTM_VERSION)
 CONVERSION_PATH = $(TEMPLATES)/utm/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
@@ -159,17 +160,21 @@ src/%.json: src/%.yaml
 	$(ECHO) "[YAML2JSON] $< -> $@"
 	$(Q)./bin/yaml2json $< > $@
 
+$(UTM_VERSION_PATH): $(UTM_PATH)
+	$(Q)mkdir -p $@
+
 $(UTM_PATH):
 	$(Q)mkdir -p $@
 
 $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
-	-$(Q)ln -sf $(shell basename $@) $(dir $@)current
+	-$(Q)ln -sf $(notdir $@) $(dir $@)current
 
 # HA (warm, cold), Standalone
-$(UTM_PATH)/%.template: $(UTM_PATH) src/%.json $(TMP_OUT)/standalone.map
+$(UTM_PATH)/%.template: $(UTM_VERSION_PATH) src/%.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 # Conversion HA (warm, cold)
 $(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OUT)/standalone.map
@@ -177,9 +182,10 @@ $(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OU
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 # Autoscaling
-$(AUTOSCALING_TEMPLATE): $(UTM_PATH) src/autoscaling.json $(TMP_OUT)/autoscaling.map
+$(AUTOSCALING_TEMPLATE): $(UTM_VERSION_PATH) src/autoscaling.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 # Conversion Autoscaling
 $(AUTOSCALING_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/autoscaling.json $(TMP_OUT)/autoscaling.map
