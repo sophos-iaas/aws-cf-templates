@@ -3,6 +3,7 @@
 # The default here is only for convenience, and usually is passed with the
 # jenkins build job or during execution
 UTM_VERSION ?= 9.408
+NEXT_VERSION = $(shell echo $(UTM_VERSION) | awk -F '.' '{ $$2++; print $$1"."$$2; }')
 # EGW_VERSION = version of interface paramters (if they change in an
 # incompatible way, the version updates also)
 EGW_VERSION ?= 1.0
@@ -162,6 +163,7 @@ src/%.json: src/%.yaml
 
 $(UTM_VERSION_PATH): $(UTM_PATH)
 	$(Q)mkdir -p $@
+	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(NEXT_VERSION)
 
 $(UTM_PATH):
 	$(Q)mkdir -p $@
