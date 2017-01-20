@@ -625,7 +625,7 @@ Resources:
       MaxSize: '2'
       MinSize: '1'
       TerminationPolicies:
-      - NewestInstance
+      - Default
       VPCZoneIdentifier:
       - Ref: Subnet1
       - Ref: Subnet2

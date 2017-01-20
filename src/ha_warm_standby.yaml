@@ -636,7 +636,7 @@ Resources:
       MaxSize: '2'
       MinSize: '1'
       TerminationPolicies:
-      - NewestInstance
+      - Default
       VPCZoneIdentifier:
       - Ref: Subnet1
       - Ref: Subnet2
@@ -839,4 +839,4 @@ Outputs:
   VPCID:
     Value:
       Ref: VPC
-    Description: The VPC of the deployment
+    Description: The VPC of the deployment.
