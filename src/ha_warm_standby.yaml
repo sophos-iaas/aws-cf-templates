@@ -14,7 +14,7 @@ Parameters:
     - BYOL
     Default: Hourly
   InstanceSize:
-    Description: Default selects m4.large if available in your region, m3.large otherwise.
+    Description: The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.
     Type: String
     Default: default
   AvailabilityZone1:
