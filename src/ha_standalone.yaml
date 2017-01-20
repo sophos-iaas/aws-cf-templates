@@ -749,16 +749,16 @@ Resources:
               - Ref: S3Bucket
               - Ref: ExistingS3Bucket
             - "\",' >> /tmp/user_data.config\n"
-            - echo '"stack_name" => "
+            - "echo '\"stack_name\" => \""
             - Ref: AWS::StackName
             - "\",' >> /tmp/user_data.config\n"
-            - echo '"elastic_ip" => "
+            - "echo '\"elastic_ip\" => \""
             - Fn::If:
               - AllocateElasticIP
               - Ref: IPAddress
               - Ref: ExistingElasticIP
             - "\",' >> /tmp/user_data.config\n"
-            - echo '"trusted_network" => "
+            - "echo '\"trusted_network\" => \""
             - Ref: TrustedNetwork
             - "\"' >> /tmp/user_data.config\n"
             - "echo '}' >> /tmp/user_data.config\n"
@@ -840,4 +840,4 @@ Outputs:
   VPCID:
     Value:
       Ref: VPC
-    Description: The VPC of the deployment
+    Description: The VPC of the deployment.
