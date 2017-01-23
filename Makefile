@@ -25,8 +25,8 @@ EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
 # Template paths
 STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
-HA_TEMPLATE := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
-HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
+HA_TEMPLATE := $(UTM_PATH)/ha.template
+HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha.template
 AUTOSCALING_TEMPLATE := $(UTM_PATH)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template

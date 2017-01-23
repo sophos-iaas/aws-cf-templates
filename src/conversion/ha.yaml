@@ -2,6 +2,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: High Availability (HA) UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.
 Parameters:
+  HAMode:
+    Description: Cold has one active instance and a shutdown passive instance. Warm has two running instances, one acting as active.
+    Type: String
+    AllowedValues:
+    - "Cold"
+    - "Warm"
+    Default: "Warm"
   AMI:
     Description: With autodetect latest AMI is used based on the license type.
     Type: String
@@ -332,6 +339,10 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
+        default: Deployment Configuration
+      Parameters:
+      - HAMode
+    - Label:
         default: Instance Configuration
       Parameters:
       - AMI
@@ -365,6 +376,8 @@ Metadata:
       Parameters:
       - debugMode
     ParameterLabels:
+      HAMode:
+        default: High Availability Standby Mode
       AMI:
         default: UTM AMI
       LicenseType:
@@ -409,6 +422,17 @@ Metadata:
         default: Debug Mode
 Mappings:
   RegionMap: {}
+  HAModes:
+    Cold:
+      MinSize: '0'
+      DesiredCapacity: '1'
+      DeploymentType: 'ha_standalone'
+      InstanceRole: 'ha'
+    Warm:
+      MinSize: '1'
+      DesiredCapacity: '2'
+      DeploymentType: 'ha_warm_standby'
+      InstanceRole: 'ha_standalone'
 Conditions:
   DetectAMI:
     Fn::Equals:
@@ -621,9 +645,17 @@ Resources:
         MaxBatchSize: '1'
         PauseTime: PT5M
     Properties:
-      DesiredCapacity: '2'
+      DesiredCapacity:
+        Fn::FindInMap:
+        - HAModes
+        - Ref: HAMode
+        - DesiredCapacity
       MaxSize: '2'
-      MinSize: '1'
+      MinSize:
+        Fn::FindInMap:
+        - HAModes
+        - Ref: HAMode
+        - MinSize
       TerminationPolicies:
       - Default
       VPCZoneIdentifier:
@@ -703,8 +735,18 @@ Resources:
           - - "#!/bin/bash\n"
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "echo 'version: \"0.1.0\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'instance_role: \"ha_standalone\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'deployment_type: \"ha_warm_standby\"' >> /etc/cloud/user_data.yml\n"
+            - "echo 'instance_role: \""
+            - Fn::FindInMap:
+              - HAModes
+              - Ref: HAMode
+              - InstanceRole
+            - "\"' >> /etc/cloud/user_data.yml\n"
+            - "echo 'deployment_type: \""
+            - Fn::FindInMap:
+              - HAModes
+              - Ref: HAMode
+              - DeploymentType
+            - "\"' >> /etc/cloud/user_data.yml\n"
             - "echo 'license_pool: \""
             - Ref: LicensePool
             - "\"' >> /etc/cloud/user_data.yml\n"
@@ -749,7 +791,6 @@ Resources:
             - "echo '{' > /tmp/user_data.config\n"
             - "echo '\"cloudwatch\" => { \"status\" => 1 },' >> /tmp/user_data.config\n"
             - "echo '\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },' >> /tmp/user_data.config\n"
-            - "echo '\"instance_role\" => \"ha_standalone\",' >> /tmp/user_data.config\n"
             - "echo '\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },' >> /tmp/user_data.config\n"
             - "echo '\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },' >> /tmp/user_data.config\n"
             - "echo '\"s3_bucket\" => \""
