@@ -22,6 +22,7 @@ UTM_PATH = $(TEMPLATES)/utm
 UTM_VERSION_PATH = $(UTM_PATH)/$(UTM_VERSION)
 CONVERSION_PATH = $(TEMPLATES)/utm/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
+SUM_PATH = $(TEMPLATES)/sum
 
 # Template paths
 STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
@@ -30,6 +31,7 @@ HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION
 AUTOSCALING_TEMPLATE := $(UTM_PATH)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
+SUM_TEMPLATE := $(SUM_PATH)/standalone.template
 
 # Several lists of intermediate folders/files per region
 ALL_REGIONS := $(shell ./bin/aws_regions.sh)
@@ -40,6 +42,7 @@ ALL_HA_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_mp.ami)
 ALL_AS_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_byol.ami)
 ALL_AS_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_mp.ami)
 ALL_EGW := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/egw.ami)
+ALL_SUM_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/sum_byol.ami)
 
 ALL_ARN := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/arn.static)
 # default instance type for EGW, UTM
@@ -79,6 +82,7 @@ endef
 ## Targets
 # build all templates
 all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
+sum: $(SUM_TEMPLATE)
 
 # always clean before building new templates!
 clean:
@@ -116,6 +120,14 @@ $(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
 		$(BUILD_JSON) EGWInstanceType default_instance_type.static \
 	) | $(MERGE_JSON) > $@
 
+$(TMP_OUT)/sum.map: $(ALL_SUM_BYOL) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
+	$(ECHO) "[REGIONMAP] standalone"
+	$(Q)(\
+		$(BUILD_JSON) BYOL sum_byol.ami ;\
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) HAInstanceType default_instance_type.static \
+	) | $(MERGE_JSON) > $@
+
 ## Region Map enrichment
 # Copy from region specific file, if existing, otherwise use default
 # static/us-east-1/arn.static out/us-east-1/arn.static
@@ -123,6 +135,10 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
 
 ## Specific AMIs
+%/sum_byol.ami: %/aws.dump
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("acc-4"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(AMI_NAME)
+
 %/egw.ami: %/aws.dump
 	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_egw_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
@@ -165,12 +181,16 @@ $(UTM_VERSION_PATH): $(UTM_PATH)
 	$(Q)mkdir -p $@
 	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(NEXT_VERSION)
 
-$(UTM_PATH):
+$(UTM_PATH) $(SUM_PATH):
 	$(Q)mkdir -p $@
 
 $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
 	-$(Q)ln -sf $(notdir $@) $(dir $@)current
+
+$(SUM_TEMPLATE): $(SUM_PATH) src/standalone.json $(TMP_OUT)/sum.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
 $(UTM_PATH)/ha_standalone.template: $(UTM_PATH)/ha.template
 	$(ECHO) "[TEMPLATE] $@"
