@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: High Availability (HA) UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.
 Parameters:
   HAMode:
-    Description: Cold has one active instance and a shutdown passive instance. Warm has two running instances, one acting as active.
+    Description: Cold has one active instance which will recover in case of a failure. Warm has two running instances, one acting as active.
     Type: String
     AllowedValues:
     - "Cold"
