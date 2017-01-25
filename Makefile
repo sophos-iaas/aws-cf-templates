@@ -25,8 +25,8 @@ EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
 
 # Template paths
 STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
-HA_TEMPLATE := $(UTM_PATH)/ha.template
-HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha.template
+HA_TEMPLATE := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
+HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
 AUTOSCALING_TEMPLATE := $(UTM_PATH)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
 EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
@@ -171,6 +171,26 @@ $(UTM_PATH):
 $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
 	-$(Q)ln -sf $(notdir $@) $(dir $@)current
+
+$(UTM_PATH)/ha_standalone.template: $(UTM_PATH)/ha.template
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)sed -i s/'"Default": "Warm"'/'"Default": "Cold"'/ $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+$(UTM_PATH)/ha_warm_standby.template: $(UTM_PATH)/ha.template
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+$(CONVERSION_PATH)/ha_standalone.template: $(CONVERSION_PATH)/ha.template
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)sed -i s/'"Default": "Warm"'/'"Default": "Cold"'/ $@
+
+$(CONVERSION_PATH)/ha_warm_standby.template: $(CONVERSION_PATH)/ha.template
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
 
 # HA (warm, cold), Standalone
 $(UTM_PATH)/%.template: $(UTM_VERSION_PATH) src/%.json $(TMP_OUT)/standalone.map
