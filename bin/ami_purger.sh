@@ -3,7 +3,7 @@
 # pip install aws-amicleaner
 
 ALL_REGIONS=$(./bin/aws_regions.sh default)
-NUMBER_OF_AMIS_TO_KEEP=10
+NUMBER_OF_AMIS_TO_KEEP=25
 
 YESNO="n"
 
