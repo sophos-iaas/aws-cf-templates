@@ -1,17 +1,19 @@
 #!/bin/bash
+# Requirements:
+# pip install aws-amicleaner
 
 ALL_REGIONS=$(./bin/aws_regions.sh default)
 NUMBER_OF_AMIS_TO_KEEP=10
-DRYRUN=${1-dry}
 
-case "$DRYRUN" in
+YESNO="n"
+
+case "${1-dry}" in
   "act")
-  echo "ACT"
-  DRYRUN="y"
+  YESNO="y"
+  echo "Running act-run --- Will purge AMIs"
   ;;
   *)
-  echo "DRY"
-  DRYRUN="n"
+  echo "Running dry-run --- Only report which AMIs to purge"
   ;;
 esac
 
@@ -24,5 +26,5 @@ for REGION in $ALL_REGIONS ; do
   fi
   echo -e "\n[PURGE AMI]\tregion: $REGION"
   export AWS_DEFAULT_REGION="$REGION"
-  yes $DRYRUN | amicleaner --keep-previous $NUMBER_OF_AMIS_TO_KEEP --mapping-key name --mapping-values byol mp
+  yes $YESNO | amicleaner --keep-previous $NUMBER_OF_AMIS_TO_KEEP --mapping-key name --mapping-values byol mp
 done
