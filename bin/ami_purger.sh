@@ -26,5 +26,5 @@ for REGION in $ALL_REGIONS ; do
   fi
   echo -e "\n[PURGE AMI]\tregion: $REGION"
   export AWS_DEFAULT_REGION="$REGION"
-  yes $YESNO | amicleaner --keep-previous $NUMBER_OF_AMIS_TO_KEEP --mapping-key name --mapping-values byol mp
+  yes $YESNO 2>/dev/null | amicleaner --keep-previous $NUMBER_OF_AMIS_TO_KEEP --mapping-key name --mapping-values byol mp
 done
