@@ -17,8 +17,6 @@ case "${1-dry}" in
   ;;
 esac
 
-export AWS_PROFILE="copyimage"
-
 for REGION in $ALL_REGIONS ; do
   if [[ $REGION == "us-east-1" ]] ; then
     echo -e "\n[PURGE AMI]\tregion: $REGION\tSKIPPING"
