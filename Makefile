@@ -56,6 +56,7 @@ ECHO=$(Q)echo -e
 BUILD_JSON=./bin/json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
+TRANSFORM_JSON=./bin/transform_json.sh
 AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
@@ -191,11 +192,13 @@ $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 $(SUM_TEMPLATE): $(SUM_PATH) src/standalone.json $(TMP_OUT)/sum.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(Q)$(TRANSFORM_JSON) '.Description |= "Sophos UTM Manager 4"' $@
+
 
 $(UTM_PATH)/ha_standalone.template: $(UTM_PATH)/ha.template
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)cp $< $@
-	$(Q)sed -i s/'"Default": "Warm"'/'"Default": "Cold"'/ $@
+	$(Q)$(TRANSFORM_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
 	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 $(UTM_PATH)/ha_warm_standby.template: $(UTM_PATH)/ha.template
@@ -206,7 +209,7 @@ $(UTM_PATH)/ha_warm_standby.template: $(UTM_PATH)/ha.template
 $(CONVERSION_PATH)/ha_standalone.template: $(CONVERSION_PATH)/ha.template
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)cp $< $@
-	$(Q)sed -i s/'"Default": "Warm"'/'"Default": "Cold"'/ $@
+	$(Q)$(TRANSFORM_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
 
 $(CONVERSION_PATH)/ha_warm_standby.template: $(CONVERSION_PATH)/ha.template
 	$(ECHO) "[TEMPLATE] $@"
