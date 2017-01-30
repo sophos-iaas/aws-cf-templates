@@ -58,7 +58,7 @@ Metadata:
       - LicenseType
       - InstanceSize
     - Label:
-        default: UTM Infrastructure Configuration
+        default: Infrastructure Configuration
       Parameters:
       - VpcId
       - PrivateSubnetId
