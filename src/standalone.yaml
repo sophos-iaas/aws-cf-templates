@@ -25,14 +25,14 @@ Parameters:
     Description: Allow all traffic from this CIDR on the private network interface.
     Type: String
     Default: 0.0.0.0/0
-    AllowedPattern: "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}"
-    ConstraintDescription: 'Please specify a valid source IP range. E.g.: 192.168.2.0/24'
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
   PublicNetworkCIDR:
     Description: Allow all TCP traffic (except port 22 and 4444) from this CIDR on the public network interface.
     Type: String
     Default: 0.0.0.0/0
-    AllowedPattern: "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}"
-    ConstraintDescription: 'Please specify a valid source IP range. Eg: 192.168.2.0/24'
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
   OptTrustedNetworkCIDR:
     Description: Allow all traffic (including! TCP port 22 and 4444) from this CIDR on the public network interface.
     Type: String

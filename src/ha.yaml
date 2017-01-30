@@ -36,6 +36,8 @@ Parameters:
   TrustedNetwork:
     Description: Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0
     Type: String
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
   ExistingElasticIP:
     Description: Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.
     Type: String
