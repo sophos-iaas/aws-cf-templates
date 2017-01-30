@@ -334,7 +334,7 @@ Metadata:
       - utmControllerInstanceSize
       - utmWorkerInstanceSize
     - Label:
-        default: UTM Infrastructure Configuration
+        default: Infrastructure Configuration
       Parameters:
       - awsAvailabilityZone1
       - awsAvailabilityZone2
