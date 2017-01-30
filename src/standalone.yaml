@@ -3,11 +3,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Sophos UTM 9
 Parameters:
   AMI:
-    Description: With autodetect latest AMI is used based on the license type.
+    Description: Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.
     Type: String
     Default: autodetect
   LicenseType:
-    Description: Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.
+    Description: Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.
     Type: String
     AllowedValues:
     - Hourly
@@ -15,7 +15,7 @@ Parameters:
     Default: Hourly
   VpcId:
     Type: AWS::EC2::VPC::Id
-    Description: Existing VPC into which the UTM should be deployed.
+    Description: ID of an existing VPC to launch the deployment in.
   PrivateSubnetId:
     Description: Subnet ID for private network interface.
     Type: AWS::EC2::Subnet::Id
@@ -73,25 +73,25 @@ Metadata:
       - OptTrustedNetworkCIDR
     ParameterLabels:
       AMI:
-        default: AMI of the UTM
+        default: AMI ID (required)
       LicenseType:
-        default: License Type
+        default: Pricing Option (required)
       InstanceSize:
-        default: UTM instance size
+        default: Instance Type (required)
       VpcId:
-        default: VPC ID
+        default: VPC ID (required)
       PrivateSubnetId:
-        default: Private Subnet ID
+        default: Private Subnet ID (required)
       PublicSubnetId:
-        default: Public Subnet ID
+        default: Public Subnet ID (required)
       PrivateNetworkCIDR:
-        default: Private Network CIDR
+        default: Private Network CIDR (required)
       PublicNetworkCIDR:
-        default: Public Network CIDR
+        default: Public Network CIDR (required)
       OptExistingElasticIpId:
         default: Existing Elastic IP ID (optional)
       KeyName:
-        default: SSH Key
+        default: SSH Key (required)
       OptTrustedNetworkCIDR:
         default: Trusted Network CIDR (optional)
 Mappings:

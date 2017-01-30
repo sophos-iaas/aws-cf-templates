@@ -10,11 +10,11 @@ Parameters:
     - "Warm"
     Default: "Warm"
   AMI:
-    Description: With autodetect latest AMI is used based on the license type.
+    Description: Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.
     Type: String
     Default: autodetect
   LicenseType:
-    Description: Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.
+    Description: Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.
     Type: String
     AllowedValues:
     - Hourly
@@ -37,7 +37,7 @@ Parameters:
     Description: The Internet Gateway ID of the VPC.
     Type: String
   SubnetIPBlocks:
-    Description: Please provide a comma-separated list of two CIDR blocks within the VPC. The two subnets will be created automatically.
+    Description: 'Please provide a comma-separated list of two CIDR blocks within your VPC. The template will create two subnets automatically, e.g.: 10.6.1.0/24,10.6.2.0/24.'
     Type: CommaDelimitedList
   TrustedNetwork:
     Description: Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0
@@ -55,7 +55,7 @@ Parameters:
     Type: String
     Default: ''
   LicensePool:
-    Description: In case of a BYOL scenario the license is automatically selected from this S3 Bucket (works only if there is at least one running UTM instance already using this license). If left empty the license can be installed using webadmin.
+    Description: With BYOL the license is automatically fetched from the S3 bucket (one license per deployment). If you leave this field empty, you can install the license using WebAdmin.
     Type: String
     Default: ''
   Hostname:
@@ -65,6 +65,7 @@ Parameters:
     AllowedPattern: "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$"
     ConstraintDescription: Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).
   Email:
+    Description: The email address is only used for UTM administrative purposes.
     Default: ''
     Type: String
   AdminPassword:
@@ -377,27 +378,27 @@ Metadata:
       - debugMode
     ParameterLabels:
       HAMode:
-        default: High Availability Standby Mode
+        default: High Availability Standby Mode (required)
       AMI:
-        default: UTM AMI
+        default: AMI ID (required)
       LicenseType:
-        default: License Type
+        default: Pricing Option (required)
       InstanceSize:
-        default: Instance Size
+        default: Instance Type (required)
       AvailabilityZone1:
-        default: Availability Zone 1
+        default: Availability Zone 1 (required)
       AvailabilityZone2:
-        default: Availability Zone 2
+        default: Availability Zone 2 (required)
       VPCID:
-        default: VPC ID
+        default: VPC ID (required)
       GatewayID:
-        default: Gateway ID
+        default: Internet Gateway ID (required)
       SubnetIPBlocks:
-        default: Two Subnet CIDR Blocks
+        default: Two Subnet CIDR Blocks (required)
       TrustedNetwork:
-        default: Trusted Network CIDR
+        default: Trusted Network CIDR (required)
       ExistingSecurityGroup:
-        default: Existing SecurityGroup (optional)
+        default: Existing Security Group (optional)
       ExistingElasticIP:
         default: Existing Elastic IP (optional)
       ExistingS3Bucket:
@@ -405,19 +406,19 @@ Metadata:
       LicensePool:
         default: S3 Bucket Containing Licenses (optional)
       Hostname:
-        default: Hostname
+        default: Hostname (required)
       Email:
-        default: Admin E-Mail Address
+        default: Admin E-Mail Address (required)
       AdminPassword:
-        default: Admin Password
+        default: Admin Password (required)
       Organization:
-        default: Organization
+        default: Organization (required)
       City:
-        default: City
+        default: City (required)
       Country:
-        default: Country
+        default: 	Country (required)
       KeyName:
-        default: SSH Key
+        default: SSH Key (required)
       debugMode:
         default: Debug Mode
 Mappings:
