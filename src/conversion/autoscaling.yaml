@@ -12,7 +12,6 @@ Parameters:
     AllowedValues:
     - Hourly
     - BYOL
-    Default: Hourly
   utmControllerInstanceSize:
     Description: The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.
     Type: String

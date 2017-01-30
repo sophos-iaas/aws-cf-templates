@@ -12,7 +12,6 @@ Parameters:
     AllowedValues:
     - Hourly
     - BYOL
-    Default: Hourly
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: ID of an existing VPC to launch the deployment in.
