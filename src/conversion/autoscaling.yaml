@@ -3,16 +3,15 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Scalable UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.
 Parameters:
   awsAMI:
-    Description: With autodetect latest AMI is used based on the license type.
+    Description: Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.
     Type: String
     Default: autodetect
   awsLicenseType:
-    Description: Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.
+    Description: Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.
     Type: String
     AllowedValues:
     - Hourly
     - BYOL
-    Default: Hourly
   utmControllerInstanceSize:
     Description: The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.
     Type: String
@@ -34,7 +33,7 @@ Parameters:
     Description: The Internet Gateway ID of the VPC.
     Type: String
   awsSubnetIPBlocks:
-    Description: Please provide a comma-separated list of four CIDR blocks within the VPC. The four subnets will be created automatically.
+    Description: 'Please provide a comma-separated list of four CIDR blocks within your VPC. The template will create four subnets automatically, e.g.: 10.6.1.0/24,10.6.2.0/24,10.6.3.0/24,10.6.4.0/24.'
     Type: CommaDelimitedList
   awsTrustedNetwork:
     Description: Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0
@@ -52,7 +51,7 @@ Parameters:
     Type: String
     Default: ''
   optionalLicensePool:
-    Description: In case of a BYOL scenario the license is automatically selected from this S3 Bucket (works only if there is at least one running UTM instance already using this license). If left empty the license can be installed using webadmin.
+    Description: With BYOL the license is automatically fetched from the S3 bucket (one license per deployment). If you leave this field empty, you can install the license using WebAdmin.
     Type: String
     Default: ''
   basicHostname:
@@ -62,6 +61,7 @@ Parameters:
     AllowedPattern: "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$"
     ConstraintDescription: Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).
   basicAdminEmail:
+    Description: The email address is only used for UTM administrative purposes.
     Default: ''
     Type: String
   basicAdminPassword:
@@ -371,27 +371,27 @@ Metadata:
       - debugMode
     ParameterLabels:
       awsAMI:
-        default: UTM AMI
+        default: AMI ID (required)
       awsLicenseType:
-        default: License Type
+        default: Pricing Option (required)
       utmControllerInstanceSize:
-        default: Instance Size of UTM Controller
+        default: Instance Type of UTM Controller (required)
       utmWorkerInstanceSize:
-        default: Instance Size of UTM Worker
+        default: Instance Type of UTM Worker (required)
       awsAvailabilityZone1:
-        default: Availability Zone 1
+        default: Availability Zone 1 (required)
       awsAvailabilityZone2:
-        default: Availability Zone 2
+        default: Availability Zone 2 (required)
       awsVPCID:
-        default: VPC ID
+        default: VPC ID (required)
       awsGatewayID:
-        default: Gateway ID
+        default: Internet Gateway ID (required)
       awsSubnetIPBlocks:
-        default: Four Subnet CIDR Blocks
+        default: Four Subnet CIDR Blocks (required)
       awsTrustedNetwork:
-        default: Trusted Network CIDR
+        default: Trusted Network CIDR (required)
       optionalExistingSecurityGroup:
-        default: Existing SecurityGroup (optional)
+        default: Existing Security Group (optional)
       optionalExistingElasticIP:
         default: Existing Elastic IP (optional)
       optionalExistingS3Bucket:
@@ -399,19 +399,19 @@ Metadata:
       optionalLicensePool:
         default: S3 Bucket Containing Licenses (optional)
       basicHostname:
-        default: Hostname
+        default: Hostname (required)
       basicAdminEmail:
-        default: Admin E-Mail Address
+        default: Admin E-Mail Address (required)
       basicAdminPassword:
-        default: Admin Password
+        default: Admin Password (required)
       basicOrganization:
-        default: Organization
+        default: Organization (required)
       basicCity:
-        default: City
+        default: City (required)
       basicCountry:
-        default: Country
+        default: Country (required)
       awsKeyName:
-        default: SSH Key
+        default: SSH Key (required)
       debugMode:
         default: Debug Mode
 Mappings:

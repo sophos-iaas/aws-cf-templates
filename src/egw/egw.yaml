@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   VpcID:
-    Description: Existing VPC into which the Gateway should be deployed.
+    Description: ID of an existing VPC to launch the deployment in.
     Type: AWS::EC2::VPC::Id
   LoadBalancerSubnetID:
     Description: Subnet ID for Gateway.
@@ -11,7 +11,7 @@ Parameters:
     Description: Name of an existing EC2 KeyPair to enable SSH access.
     Type: AWS::EC2::KeyPair::KeyName
   ImageID:
-    Description: AMI to use for the Gateway instance.
+    Description: Autodetect uses the latest AMI. Otherwise, specify an AMI ID.
     Type: String
     Default: autodetect
   InstanceSize:
@@ -40,12 +40,12 @@ Parameters:
     MinValue: 240
     MaxValue: 254
   InternetGateway:
-    Description: IGW of the VPC the Gateway will be deployed into (used for cfn-signal).
+    Description: The Internet Gateway ID of the VPC.
     Type: String
   ClientCIDR:
     Description: CIDR containing all clients. If in doubt, use CIDR of the whole VPC.
     Type: String
-    AllowedPattern: "^([0-9]{1,3}[.]){3}[0-9]{1,3}[/]([0-9]{1,2})$"
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$"
     ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
 Metadata:
   AWS::CloudFormation::Interface:
@@ -73,29 +73,29 @@ Metadata:
       - KeyID
     ParameterLabels:
       VpcID:
-        default: Existing VPC
+        default: VPC ID (required)
       LoadBalancerSubnetID:
-        default: Subnet ID of the Gateway
+        default: Subnet ID of the Gateway (required)
       ImageID:
-        default: AMI of the Gateway
+        default: AMI ID (required)
       InstanceSize:
-        default: Gateway instance size
+        default: Instance Type (required)
       AuthToken:
-        default: Authorization token
+        default: Authorization token (required)
       LoadBalancerUID:
-        default: Unique ID of the Gateway
+        default: Unique ID of the Gateway (required)
       LoadBalancerTunnelPrefix:
-        default: IP address prefix (class A network) to be used for Gateway Tunnels
+        default: IP address prefix (class A network) to be used for Gateway Tunnels (required)
       InternetGateway:
-        default: Internet Gateway (IGW)
+        default: Internet Gateway ID (required)
       ClientCIDR:
-        default: CIDR of the Clients/VDIs
+        default: CIDR of the Clients/VDIs (required)
       ControllerSecurityGroup:
-        default: Security Group of the Controller node
+        default: Security Group of the Controller node (required)
       UTMWorkerSecurityGroup:
-        default: Security Group of the Worker nodes
+        default: Security Group of the Worker nodes (required)
       KeyID:
-        default: SSH Key to access the Gateway
+        default: SSH Key (required)
 Mappings:
   RegionMap: {}
 Conditions:
