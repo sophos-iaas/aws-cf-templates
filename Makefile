@@ -137,7 +137,7 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 
 ## Specific AMIs
 %/sum_byol.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | startswith("acc-4"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_sum_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
 
 %/egw.ami: %/aws.dump
