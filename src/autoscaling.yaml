@@ -393,7 +393,7 @@ Metadata:
       basicCity:
         default: City (required)
       basicCountry:
-        default: 	Country (required)
+        default: Country (required)
       awsKeyName:
         default: SSH Key (required)
       debugMode:

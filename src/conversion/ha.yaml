@@ -415,7 +415,7 @@ Metadata:
       City:
         default: City (required)
       Country:
-        default: 	Country (required)
+        default: Country (required)
       KeyName:
         default: SSH Key (required)
       debugMode:
