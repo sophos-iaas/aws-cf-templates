@@ -3,7 +3,7 @@
 # Optional arguments: AWS profile list, default: default govcloud
 # Returns all regions accessible by the provided AWS profiles
 
-aws_profiles="default govcloud"
+aws_profiles=""
 
 aws_regions() {
   regions=$(aws ec2 describe-regions --profile $1)
