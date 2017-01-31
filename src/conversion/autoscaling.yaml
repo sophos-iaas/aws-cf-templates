@@ -1192,8 +1192,6 @@ Resources:
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "sed -i 's/^/#/' /etc/crontab.reporting\n"
             - "/usr/local/bin/confd-client.plx trigger crontab\n"
-            - "touch /etc/no-selfmonitor/queen_config_management\n"
-            - "touch /etc/no-selfmonitor/aws_resource_management\n"
             - "mkdir -p /var/chroot-httpd/etc/sns\n"
             - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s "
@@ -1353,8 +1351,6 @@ Resources:
           - ''
           - - "#!/bin/bash\n"
             - "date +'UserData start %c' > /tmp/user_data.log\n"
-            - "touch /etc/no-selfmonitor/worker_config_management\n"
-            - "touch /etc/no-selfmonitor/queen_config_management\n"
             - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
             - Ref: basicCountry
             - "\"`\n"
@@ -1387,7 +1383,6 @@ Resources:
             - "date +'UserData awslogs agent setup end %c' >> /tmp/user_data.log\n"
             - "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n"
             - "/etc/init.d/ha_aws start\n"
-            - "rm /etc/no-selfmonitor/queen_config_management\n"
             - "/etc/init.d/queen_config_management start\n"
             - "/etc/init.d/aws_resource_management start\n"
             - "date +'UserData aws deamons end %c' >> /tmp/user_data.log\n"
