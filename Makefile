@@ -27,14 +27,14 @@ SUM_PATH = $(TEMPLATES)/sum
 # Template paths
 STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
 
-HA_UNIFIED_TEMPLATE							:= $(UTM_PATH)/ha.template
-HA_TEMPLATE											:= $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
-HA_UNIFIED_CONVERSION_TEMPLATE	:= $(CONVERSION_PATH)/ha.template
-HA_CONVERSION_TEMPLATE 					:= $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
-AUTOSCALING_TEMPLATE 						:= $(UTM_PATH)/autoscaling.template
+HA_UNIFIED_TEMPLATE             := $(UTM_PATH)/ha.template
+HA_TEMPLATE                     := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
+HA_UNIFIED_CONVERSION_TEMPLATE  := $(CONVERSION_PATH)/ha.template
+HA_CONVERSION_TEMPLATE          := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
+AUTOSCALING_TEMPLATE            := $(UTM_PATH)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
-EGW_TEMPLATE 										:= $(EGW_VERSION_DIR)/egw.template
-SUM_TEMPLATE 										:= $(SUM_PATH)/standalone.template
+EGW_TEMPLATE                    := $(EGW_VERSION_DIR)/egw.template
+SUM_TEMPLATE                    := $(SUM_PATH)/standalone.template
 
 # Several lists of intermediate folders/files per region
 ALL_REGIONS := $(shell ./bin/aws_regions.sh)
