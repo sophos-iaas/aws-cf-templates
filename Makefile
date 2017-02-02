@@ -26,12 +26,15 @@ SUM_PATH = $(TEMPLATES)/sum
 
 # Template paths
 STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
-HA_TEMPLATE := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
-HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
-AUTOSCALING_TEMPLATE := $(UTM_PATH)/autoscaling.template
+
+HA_UNIFIED_TEMPLATE							:= $(UTM_PATH)/ha.template
+HA_TEMPLATE											:= $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
+HA_UNIFIED_CONVERSION_TEMPLATE	:= $(CONVERSION_PATH)/ha.template
+HA_CONVERSION_TEMPLATE 					:= $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
+AUTOSCALING_TEMPLATE 						:= $(UTM_PATH)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
-EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
-SUM_TEMPLATE := $(SUM_PATH)/standalone.template
+EGW_TEMPLATE 										:= $(EGW_VERSION_DIR)/egw.template
+SUM_TEMPLATE 										:= $(SUM_PATH)/standalone.template
 
 # Several lists of intermediate folders/files per region
 ALL_REGIONS := $(shell ./bin/aws_regions.sh)
@@ -121,7 +124,7 @@ $(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
 	) | $(MERGE_JSON) > $@
 
 $(TMP_OUT)/sum.map: $(ALL_SUM_BYOL) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
-	$(ECHO) "[REGIONMAP] standalone"
+	$(ECHO) "[REGIONMAP] sum"
 	$(Q)(\
 		$(BUILD_JSON) BYOL sum_byol.ami ;\
 		$(BUILD_JSON) ARN arn.static ;\
@@ -188,40 +191,27 @@ $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
 	-$(Q)ln -sf $(notdir $@) $(dir $@)current
 
+################################################################################
+# SUM
 $(SUM_TEMPLATE): $(SUM_PATH) src/standalone.json $(TMP_OUT)/sum.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 	$(Q)$(MODIFY_JSON) '.Description |= "Sophos UTM Manager 4"' $@
 
-
-$(UTM_PATH)/ha_standalone.template: $(UTM_PATH)/ha.template
-	$(ECHO) "[TEMPLATE] $@"
-	$(Q)cp $< $@
-	$(Q)$(MODIFY_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
-	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
-
-$(UTM_PATH)/ha_warm_standby.template: $(UTM_PATH)/ha.template
-	$(ECHO) "[TEMPLATE] $@"
-	$(Q)cp $< $@
-	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
-
-$(CONVERSION_PATH)/ha_standalone.template: $(CONVERSION_PATH)/ha.template
-	$(ECHO) "[TEMPLATE] $@"
-	$(Q)cp $< $@
-	$(Q)$(MODIFY_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
-
-$(CONVERSION_PATH)/ha_warm_standby.template: $(CONVERSION_PATH)/ha.template
-	$(ECHO) "[TEMPLATE] $@"
-	$(Q)cp $< $@
-
-# HA (warm, cold), Standalone
-$(UTM_PATH)/%.template: $(UTM_VERSION_PATH) src/%.json $(TMP_OUT)/standalone.map
+# Standalone
+$(STANDALONE_TEMPLATE): $(UTM_VERSION_PATH) src/standalone.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
-# Conversion HA (warm, cold)
-$(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OUT)/standalone.map
+# Unified HA
+$(HA_UNIFIED_TEMPLATE): $(UTM_VERSION_PATH) src/ha.json $(TMP_OUT)/standalone.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+# Conversion Unified HA
+$(HA_UNIFIED_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/ha.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
@@ -240,6 +230,29 @@ $(AUTOSCALING_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/autoscalin
 $(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw/egw.json $(TMP_OUT)/egw.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+
+################################################################################
+# Create the legacy ha templates from unified ha template
+$(UTM_PATH)/ha_standalone.template: $(HA_UNIFIED_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)$(MODIFY_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+$(UTM_PATH)/ha_warm_standby.template: $(HA_UNIFIED_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+$(CONVERSION_PATH)/ha_standalone.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)$(MODIFY_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
+
+$(CONVERSION_PATH)/ha_warm_standby.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+
 
 # Don't remove intermediate aws dump files
 .PRECIOUS: %/aws.dump
