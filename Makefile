@@ -111,6 +111,7 @@ $(TMP_OUT)/autoscaling.map: $(ALL_AS_BYOL) $(ALL_AS_MP) $(ALL_ARN) $(ALL_DEFAULT
 		$(BUILD_JSON) Hourly as_mp.ami ;\
 		$(BUILD_JSON) BYOL as_byol.ami ;\
 		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) HAInstanceType default_instance_type.static ;\
 		$(BUILD_JSON) QueenInstanceType larger_instance_type.static ;\
 		$(BUILD_JSON) SwarmInstanceType default_instance_type.static \
 	) | $(MERGE_JSON) > $@
@@ -205,13 +206,13 @@ $(STANDALONE_TEMPLATE): $(UTM_VERSION_PATH) src/standalone.json $(TMP_OUT)/stand
 	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 # Unified HA
-$(HA_UNIFIED_TEMPLATE): $(UTM_VERSION_PATH) src/ha.json $(TMP_OUT)/standalone.map
+$(HA_UNIFIED_TEMPLATE): $(UTM_VERSION_PATH) src/ha.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
 # Conversion Unified HA
-$(HA_UNIFIED_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/ha.json $(TMP_OUT)/standalone.map
+$(HA_UNIFIED_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/ha.json $(TMP_OUT)/autoscaling.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
