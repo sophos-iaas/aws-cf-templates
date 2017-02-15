@@ -3,19 +3,18 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Sophos UTM 9
 Parameters:
   AMI:
-    Description: With autodetect latest AMI is used based on the license type.
+    Description: Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.
     Type: String
     Default: autodetect
   LicenseType:
-    Description: Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.
+    Description: Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.
     Type: String
     AllowedValues:
     - Hourly
     - BYOL
-    Default: Hourly
   VpcId:
     Type: AWS::EC2::VPC::Id
-    Description: Existing VPC into which the UTM should be deployed.
+    Description: ID of an existing VPC to launch the deployment in.
   PrivateSubnetId:
     Description: Subnet ID for private network interface.
     Type: AWS::EC2::Subnet::Id
@@ -26,20 +25,20 @@ Parameters:
     Description: Allow all traffic from this CIDR on the private network interface.
     Type: String
     Default: 0.0.0.0/0
-    AllowedPattern: "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}"
-    ConstraintDescription: 'Please specify a valid source IP range. E.g.: 192.168.2.0/24'
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
   PublicNetworkCIDR:
     Description: Allow all TCP traffic (except port 22 and 4444) from this CIDR on the public network interface.
     Type: String
     Default: 0.0.0.0/0
-    AllowedPattern: "[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}"
-    ConstraintDescription: 'Please specify a valid source IP range. Eg: 192.168.2.0/24'
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
   OptTrustedNetworkCIDR:
     Description: Allow all traffic (including! TCP port 22 and 4444) from this CIDR on the public network interface.
     Type: String
     Default: ''
   InstanceSize:
-    Description: Default selects c4.large if available in your region, m3.large otherwise.
+    Description: The default EC2 instance type is c4.large. If c4.large is not available in your region, a similar EC2 instance type will be used.
     Type: String
     Default: default
   KeyName:
@@ -58,7 +57,7 @@ Metadata:
       - LicenseType
       - InstanceSize
     - Label:
-        default: UTM Infrastructure Configuration
+        default: Infrastructure Configuration
       Parameters:
       - VpcId
       - PrivateSubnetId
@@ -73,25 +72,25 @@ Metadata:
       - OptTrustedNetworkCIDR
     ParameterLabels:
       AMI:
-        default: AMI of the UTM
+        default: AMI ID (required)
       LicenseType:
-        default: License Type
+        default: Pricing Option (required)
       InstanceSize:
-        default: UTM instance size
+        default: Instance Type (required)
       VpcId:
-        default: VPC ID
+        default: VPC ID (required)
       PrivateSubnetId:
-        default: Private Subnet ID
+        default: Private Subnet ID (required)
       PublicSubnetId:
-        default: Public Subnet ID
+        default: Public Subnet ID (required)
       PrivateNetworkCIDR:
-        default: Private Network CIDR
+        default: Private Network CIDR (required)
       PublicNetworkCIDR:
-        default: Public Network CIDR
+        default: Public Network CIDR (required)
       OptExistingElasticIpId:
         default: Existing Elastic IP ID (optional)
       KeyName:
-        default: SSH Key
+        default: SSH Key (required)
       OptTrustedNetworkCIDR:
         default: Trusted Network CIDR (optional)
 Mappings:

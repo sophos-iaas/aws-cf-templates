@@ -1,20 +1,26 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: High Availability (HA) UTM CloudFormation template
+Description: High Availability (HA) UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.
 Parameters:
+  HAMode:
+    Description: Cold has one active instance which will recover in case of a failure. Warm has two running instances, one acting as active.
+    Type: String
+    AllowedValues:
+    - "Cold"
+    - "Warm"
+    Default: "Warm"
   AMI:
-    Description: With autodetect latest AMI is used based on the license type.
+    Description: Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.
     Type: String
     Default: autodetect
   LicenseType:
-    Description: Bring Your Own License (BYOL) or hourly billing licensing type. This parameter has no effect if the AMI parameter is set to an AMI ID.
+    Description: Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.
     Type: String
     AllowedValues:
     - Hourly
     - BYOL
-    Default: Hourly
   InstanceSize:
-    Description: Default selects m4.large if available in your region, m3.large otherwise.
+    Description: The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.
     Type: String
     Default: default
   AvailabilityZone1:
@@ -23,13 +29,22 @@ Parameters:
   AvailabilityZone2:
     Type: AWS::EC2::AvailabilityZone::Name
     Description: Please provide another (different) Availability Zone.
-  NetworkPrefix:
-    Description: Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example for the network 10.6.0.0/16 you should provide 10.6
+  VPCID:
+    Description: ID of an existing VPC to launch the deployment in.
+    Type: AWS::EC2::VPC::Id
+  GatewayID:
+    Description: The Internet Gateway ID of the VPC.
     Type: String
-    Default: '10.15'
+  SubnetIPBlocks:
+    Description: 'Please provide a comma-separated list of two CIDR blocks within your VPC. The template will create two subnets automatically, e.g.: 10.6.1.0/24,10.6.2.0/24.'
+    Type: CommaDelimitedList
   TrustedNetwork:
     Description: Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0
     Type: String
+  ExistingSecurityGroup:
+    Description: A security group to assign to the new stack.
+    Type: String
+    Default: ''
   ExistingElasticIP:
     Description: Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.
     Type: String
@@ -39,7 +54,7 @@ Parameters:
     Type: String
     Default: ''
   LicensePool:
-    Description: In case of a BYOL scenario the license is automatically selected from this S3 Bucket (works only if there is at least one running UTM instance already using this license). If left empty the license can be installed using webadmin.
+    Description: With BYOL the license is automatically fetched from the S3 bucket (one license per deployment). If you leave this field empty, you can install the license using WebAdmin.
     Type: String
     Default: ''
   Hostname:
@@ -49,6 +64,7 @@ Parameters:
     AllowedPattern: "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$"
     ConstraintDescription: Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).
   Email:
+    Description: The email address is only used for UTM administrative purposes.
     Default: ''
     Type: String
   AdminPassword:
@@ -323,18 +339,25 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
+        default: Deployment Configuration
+      Parameters:
+      - HAMode
+    - Label:
         default: Instance Configuration
       Parameters:
       - AMI
       - LicenseType
       - InstanceSize
     - Label:
-        default: UTM Infrastructure Configuration
+        default: Infrastructure Configuration
       Parameters:
       - AvailabilityZone1
       - AvailabilityZone2
-      - NetworkPrefix
+      - VPCID
+      - GatewayID
+      - SubnetIPBlocks
       - TrustedNetwork
+      - ExistingSecurityGroup
       - ExistingElasticIP
       - ExistingS3Bucket
       - LicensePool
@@ -353,20 +376,28 @@ Metadata:
       Parameters:
       - debugMode
     ParameterLabels:
+      HAMode:
+        default: High Availability Standby Mode (required)
       AMI:
-        default: UTM AMI
+        default: AMI ID (required)
       LicenseType:
-        default: License Type
+        default: Pricing Option (required)
       InstanceSize:
-        default: Instance Size
+        default: Instance Type (required)
       AvailabilityZone1:
-        default: Availability Zone 1
+        default: Availability Zone 1 (required)
       AvailabilityZone2:
-        default: Availability Zone 2
-      NetworkPrefix:
-        default: Prefix for VPC CIDR Block
+        default: Availability Zone 2 (required)
+      VPCID:
+        default: VPC ID (required)
+      GatewayID:
+        default: Internet Gateway ID (required)
+      SubnetIPBlocks:
+        default: Two Subnet CIDR Blocks (required)
       TrustedNetwork:
-        default: Trusted Network CIDR
+        default: Trusted Network CIDR (required)
+      ExistingSecurityGroup:
+        default: Existing Security Group (optional)
       ExistingElasticIP:
         default: Existing Elastic IP (optional)
       ExistingS3Bucket:
@@ -374,23 +405,34 @@ Metadata:
       LicensePool:
         default: S3 Bucket Containing Licenses (optional)
       Hostname:
-        default: Hostname
+        default: Hostname (required)
       Email:
-        default: Admin E-Mail Address
+        default: Admin E-Mail Address (required)
       AdminPassword:
-        default: Admin Password
+        default: Admin Password (required)
       Organization:
-        default: Organization
+        default: Organization (required)
       City:
-        default: City
+        default: City (required)
       Country:
-        default: Country
+        default: Country (required)
       KeyName:
-        default: SSH Key
+        default: SSH Key (required)
       debugMode:
         default: Debug Mode
 Mappings:
   RegionMap: {}
+  HAModes:
+    Cold:
+      MinSize: '0'
+      DesiredCapacity: '1'
+      DeploymentType: 'ha_standalone'
+      InstanceRole: 'ha'
+    Warm:
+      MinSize: '1'
+      DesiredCapacity: '2'
+      DeploymentType: 'ha_warm_standby'
+      InstanceRole: 'ha_standalone'
 Conditions:
   DetectAMI:
     Fn::Equals:
@@ -408,31 +450,21 @@ Conditions:
     Fn::Equals:
     - Ref: ExistingElasticIP
     - ''
+  UseExistingSG:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: ExistingSecurityGroup
+      - ''
 Resources:
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      EnableDnsSupport: 'true'
-      EnableDnsHostnames: 'true'
-      CidrBlock:
-        Fn::Join:
-        - "."
-        - - Ref: NetworkPrefix
-          - 0.0/16
-      Tags:
-      - Key: Application
-        Value:
-          Ref: AWS::StackId
   Subnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC
+        Ref: VPCID
       CidrBlock:
-        Fn::Join:
-        - "."
-        - - Ref: NetworkPrefix
-          - 1.0/24
+        Fn::Select:
+        - '0'
+        - Ref: SubnetIPBlocks
       AvailabilityZone:
         Ref: AvailabilityZone1
       Tags:
@@ -445,12 +477,11 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
-        Ref: VPC
+        Ref: VPCID
       CidrBlock:
-        Fn::Join:
-        - "."
-        - - Ref: NetworkPrefix
-          - 2.0/24
+        Fn::Select:
+        - '1'
+        - Ref: SubnetIPBlocks
       AvailabilityZone:
         Ref: AvailabilityZone2
       Tags:
@@ -459,27 +490,11 @@ Resources:
           Ref: AWS::StackId
       - Key: Name
         Value: HA_UTM
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-      - Key: Application
-        Value:
-          Ref: AWS::StackId
-      - Key: Network
-        Value: Public
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId:
-        Ref: VPC
-      InternetGatewayId:
-        Ref: InternetGateway
   RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
-        Ref: VPC
+        Ref: VPCID
       Tags:
       - Key: Application
         Value:
@@ -488,13 +503,12 @@ Resources:
         Value: Public
   Route:
     Type: AWS::EC2::Route
-    DependsOn: AttachGateway
     Properties:
       RouteTableId:
         Ref: RouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
-        Ref: InternetGateway
+        Ref: GatewayID
   Subnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -511,7 +525,6 @@ Resources:
         Ref: RouteTable
   IPAddress:
     Type: AWS::EC2::EIP
-    DependsOn: AttachGateway
     Condition: AllocateElasticIP
     Properties:
       Domain: vpc
@@ -584,7 +597,7 @@ Resources:
     Properties:
       GroupDescription: Identifying security group
       VpcId:
-        Ref: VPC
+        Ref: VPCID
   TrustedNetworkGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -596,7 +609,7 @@ Resources:
         CidrIp:
           Ref: TrustedNetwork
       VpcId:
-        Ref: VPC
+        Ref: VPCID
   UntrustedGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -623,7 +636,7 @@ Resources:
         ToPort: '3410'
         CidrIp: 0.0.0.0/0
       VpcId:
-        Ref: VPC
+        Ref: VPCID
   UTMScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     UpdatePolicy:
@@ -632,11 +645,19 @@ Resources:
         MaxBatchSize: '1'
         PauseTime: PT5M
     Properties:
-      DesiredCapacity: '2'
+      DesiredCapacity:
+        Fn::FindInMap:
+        - HAModes
+        - Ref: HAMode
+        - DesiredCapacity
       MaxSize: '2'
-      MinSize: '1'
+      MinSize:
+        Fn::FindInMap:
+        - HAModes
+        - Ref: HAMode
+        - MinSize
       TerminationPolicies:
-      - NewestInstance
+      - Default
       VPCZoneIdentifier:
       - Ref: Subnet1
       - Ref: Subnet2
@@ -686,9 +707,27 @@ Resources:
         Ebs:
           VolumeSize: '100'
       SecurityGroups:
-      - Ref: UTMSecurityGroup
-      - Ref: TrustedNetworkGroup
-      - Ref: UntrustedGroup
+        Fn::If:
+        - UseExistingSG
+        - - Ref: ExistingSecurityGroup
+          - Fn::GetAtt:
+            - UTMSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - TrustedNetworkGroup
+            - GroupId
+          - Fn::GetAtt:
+            - UntrustedGroup
+            - GroupId
+        - - Fn::GetAtt:
+            - UTMSecurityGroup
+            - GroupId
+          - Fn::GetAtt:
+            - TrustedNetworkGroup
+            - GroupId
+          - Fn::GetAtt:
+            - UntrustedGroup
+            - GroupId
       UserData:
         Fn::Base64:
           Fn::Join:
@@ -696,8 +735,18 @@ Resources:
           - - "#!/bin/bash\n"
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "echo 'version: \"0.1.0\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'instance_role: \"ha_standalone\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'deployment_type: \"ha_warm_standby\"' >> /etc/cloud/user_data.yml\n"
+            - "echo 'instance_role: \""
+            - Fn::FindInMap:
+              - HAModes
+              - Ref: HAMode
+              - InstanceRole
+            - "\"' >> /etc/cloud/user_data.yml\n"
+            - "echo 'deployment_type: \""
+            - Fn::FindInMap:
+              - HAModes
+              - Ref: HAMode
+              - DeploymentType
+            - "\"' >> /etc/cloud/user_data.yml\n"
             - "echo 'license_pool: \""
             - Ref: LicensePool
             - "\"' >> /etc/cloud/user_data.yml\n"
@@ -720,6 +769,9 @@ Resources:
             - "' }\" > /var/confd/var/storage/setup.ph\n"
             - "/etc/init.d/confd restart\n"
             - "sleep 5\n"
+            - "/usr/local/bin/debugmode "
+            - Ref: debugMode
+            - "\n"
             - "echo 'elastic_ip: \""
             - Fn::If:
               - AllocateElasticIP
@@ -738,7 +790,6 @@ Resources:
             - "date +'UserData confd config start %c' >> /tmp/user_data.log\n"
             - "echo '{' > /tmp/user_data.config\n"
             - "echo '\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },' >> /tmp/user_data.config\n"
-            - "echo '\"instance_role\" => \"ha_standalone\",' >> /tmp/user_data.config\n"
             - "echo '\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },' >> /tmp/user_data.config\n"
             - "echo '\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },' >> /tmp/user_data.config\n"
             - "echo '\"s3_bucket\" => \""
@@ -763,9 +814,6 @@ Resources:
             - "/usr/local/bin/confd-client.plx -noquote -stdin set \\'ha\\' \\'aws\\' < /tmp/user_data.config >> /tmp/user_data.log\n"
             - "date +'UserData confd config end %c' >> /tmp/user_data.log\n"
             - "date +'UserData ha aws start %c' >> /tmp/user_data.log\n"
-            - "/usr/local/bin/debugmode "
-            - Ref: debugMode
-            - "\n"
             - "/etc/init.d/ha_aws start\n"
             - "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n"
             - "/usr/local/bin/confd-client.plx trigger ha_aws\n"
@@ -832,5 +880,5 @@ Outputs:
     Description: The S3 Bucket.
   VPCID:
     Value:
-      Ref: VPC
-    Description: The VPC of the deployment
+      Ref: VPCID
+    Description: The VPC of the deployment.

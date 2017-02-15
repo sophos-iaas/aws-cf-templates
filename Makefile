@@ -4,6 +4,8 @@
 # jenkins build job or during execution
 UTM_VERSION ?= 9.408
 NEXT_VERSION = $(shell echo $(UTM_VERSION) | awk -F '.' '{ $$2++; print $$1"."$$2; }')
+PREVIOUS_VERSION = $(shell echo $(UTM_VERSION) | awk -F '.' '{ $$2--; print $$1"."$$2; }')
+
 # EGW_VERSION = version of interface paramters (if they change in an
 # incompatible way, the version updates also)
 EGW_VERSION ?= 1.0
@@ -22,14 +24,19 @@ UTM_PATH = $(TEMPLATES)/utm
 UTM_VERSION_PATH = $(UTM_PATH)/$(UTM_VERSION)
 CONVERSION_PATH = $(TEMPLATES)/utm/conversion/$(UTM_VERSION)
 EGW_VERSION_DIR = $(TEMPLATES)/egw/$(EGW_VERSION)
+SUM_PATH = $(TEMPLATES)/sum
 
 # Template paths
 STANDALONE_TEMPLATE := $(UTM_PATH)/standalone.template
-HA_TEMPLATE := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
-HA_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
-AUTOSCALING_TEMPLATE := $(UTM_PATH)/autoscaling.template
+
+HA_UNIFIED_TEMPLATE             := $(UTM_PATH)/ha.template
+HA_TEMPLATE                     := $(UTM_PATH)/ha_standalone.template $(UTM_PATH)/ha_warm_standby.template
+HA_UNIFIED_CONVERSION_TEMPLATE  := $(CONVERSION_PATH)/ha.template
+HA_CONVERSION_TEMPLATE          := $(CONVERSION_PATH)/ha_standalone.template $(CONVERSION_PATH)/ha_warm_standby.template
+AUTOSCALING_TEMPLATE            := $(UTM_PATH)/autoscaling.template
 AUTOSCALING_CONVERSION_TEMPLATE := $(CONVERSION_PATH)/autoscaling.template
-EGW_TEMPLATE := $(EGW_VERSION_DIR)/egw.template
+EGW_TEMPLATE                    := $(EGW_VERSION_DIR)/egw.template
+SUM_TEMPLATE                    := $(SUM_PATH)/standalone.template
 
 # Several lists of intermediate folders/files per region
 ALL_REGIONS := $(shell ./bin/aws_regions.sh)
@@ -40,6 +47,7 @@ ALL_HA_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/ha_mp.ami)
 ALL_AS_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_byol.ami)
 ALL_AS_MP := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/as_mp.ami)
 ALL_EGW := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/egw.ami)
+ALL_SUM_BYOL := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/sum_byol.ami)
 
 ALL_ARN := $(foreach region,$(ALL_REGIONS),$(TMP_OUT)/$(region)/arn.static)
 # default instance type for EGW, UTM
@@ -53,6 +61,7 @@ ECHO=$(Q)echo -e
 BUILD_JSON=./bin/json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
+MODIFY_JSON=./bin/modify_json.sh
 AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
@@ -78,7 +87,7 @@ endef
 
 ## Targets
 # build all templates
-all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE)
+all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE) $(SUM_TEMPLATE)
 
 # always clean before building new templates!
 clean:
@@ -116,6 +125,14 @@ $(TMP_OUT)/egw.map: $(ALL_EGW) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
 		$(BUILD_JSON) EGWInstanceType default_instance_type.static \
 	) | $(MERGE_JSON) > $@
 
+$(TMP_OUT)/sum.map: $(ALL_SUM_BYOL) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
+	$(ECHO) "[REGIONMAP] sum"
+	$(Q)(\
+		$(BUILD_JSON) BYOL sum_byol.ami ;\
+		$(BUILD_JSON) ARN arn.static ;\
+		$(BUILD_JSON) HAInstanceType default_instance_type.static \
+	) | $(MERGE_JSON) > $@
+
 ## Region Map enrichment
 # Copy from region specific file, if existing, otherwise use default
 # static/us-east-1/arn.static out/us-east-1/arn.static
@@ -123,6 +140,10 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
 
 ## Specific AMIs
+%/sum_byol.ami: %/aws.dump
+	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_sum_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(AMI_NAME)
+
 %/egw.ami: %/aws.dump
 	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_egw_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
 	$(AMI_NAME)
@@ -164,22 +185,38 @@ src/%.json: src/%.yaml
 $(UTM_VERSION_PATH): $(UTM_PATH)
 	$(Q)mkdir -p $@
 	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(NEXT_VERSION)
+	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(PREVIOUS_VERSION)
 
-$(UTM_PATH):
+$(UTM_PATH) $(SUM_PATH):
 	$(Q)mkdir -p $@
 
 $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	$(Q)mkdir -p $@
 	-$(Q)ln -sf $(notdir $@) $(dir $@)current
+	-$(Q)ln -sf $(notdir $@) $(dir $@)$(NEXT_VERSION)
+	-$(Q)ln -sf $(notdir $@) $(dir $@)$(PREVIOUS_VERSION)
 
-# HA (warm, cold), Standalone
-$(UTM_PATH)/%.template: $(UTM_VERSION_PATH) src/%.json $(TMP_OUT)/standalone.map
+################################################################################
+# SUM
+$(SUM_TEMPLATE): $(SUM_PATH) src/standalone.json $(TMP_OUT)/sum.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(Q)$(MODIFY_JSON) '.Description |= "Sophos UTM Manager 4"' $@
+
+# Standalone
+$(STANDALONE_TEMPLATE): $(UTM_VERSION_PATH) src/standalone.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
 
-# Conversion HA (warm, cold)
-$(CONVERSION_PATH)/%.template: $(CONVERSION_PATH) src/conversion/%.json $(TMP_OUT)/standalone.map
+# Unified HA
+$(HA_UNIFIED_TEMPLATE): $(UTM_VERSION_PATH) src/ha.json $(TMP_OUT)/standalone.map
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+# Conversion Unified HA
+$(HA_UNIFIED_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/ha.json $(TMP_OUT)/standalone.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
 
@@ -198,6 +235,29 @@ $(AUTOSCALING_CONVERSION_TEMPLATE): $(CONVERSION_PATH) src/conversion/autoscalin
 $(EGW_VERSION_DIR)/%.template: $(EGW_VERSION_DIR) src/egw/egw.json $(TMP_OUT)/egw.map
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)$(ADD_REGION_MAP) $(filter-out $<,$^) > $@
+
+################################################################################
+# Create the legacy ha templates from unified ha template
+$(UTM_PATH)/ha_standalone.template: $(HA_UNIFIED_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)$(MODIFY_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+$(UTM_PATH)/ha_warm_standby.template: $(HA_UNIFIED_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)ln -sf ../$(notdir $@) $(UTM_VERSION_PATH)/$(notdir $@)
+
+$(CONVERSION_PATH)/ha_standalone.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+	$(Q)$(MODIFY_JSON) '.Parameters.HAMode.Default |= "Cold"' $@
+
+$(CONVERSION_PATH)/ha_warm_standby.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
+	$(ECHO) "[TEMPLATE] $@"
+	$(Q)cp $< $@
+
 
 # Don't remove intermediate aws dump files
 .PRECIOUS: %/aws.dump
