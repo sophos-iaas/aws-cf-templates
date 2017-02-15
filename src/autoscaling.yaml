@@ -1453,9 +1453,7 @@ Resources:
                 Fn::Join:
                 - ''
                 - - "{\n"
-                  - "\"cloudwatch\" => { \"status\" => 1 },\n"
                   - "\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },\n"
-                  - "\"instance_role\" => \"ha_standalone\",\n"
                   - "\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },\n"
                   - "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n"
                   - "\"s3_bucket\" => \""

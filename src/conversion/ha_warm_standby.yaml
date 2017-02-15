@@ -747,7 +747,6 @@ Resources:
             - "\"' >> /etc/cloud/user_data.yml\n"
             - "date +'UserData confd config start %c' >> /tmp/user_data.log\n"
             - "echo '{' > /tmp/user_data.config\n"
-            - "echo '\"cloudwatch\" => { \"status\" => 1 },' >> /tmp/user_data.config\n"
             - "echo '\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },' >> /tmp/user_data.config\n"
             - "echo '\"instance_role\" => \"ha_standalone\",' >> /tmp/user_data.config\n"
             - "echo '\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },' >> /tmp/user_data.config\n"
