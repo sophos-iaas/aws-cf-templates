@@ -65,7 +65,7 @@ else
   if [[ $public == "yes" ]]; then
     echo "AMI dumper: region: $region public: $public > $out"
     # HA/AS AMIs from MarketPlace
-    $(describe_images) --owner $owner_aws --filters "$public_filter" "sophos_*" > ${out}.1
+    $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=sophos_*" > ${out}.1
     # EGW AMIs are owned by us
     $(describe_images) --owner $owner_dev --filters "$public_filter" > ${out}.2
     jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
