@@ -32,10 +32,10 @@ The following templates were changed in this release:
 
 |Feature|Template|Template Changes|
 |-------|--------|----------------|
-|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/ha_standalone.template)|[Diff of ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...Release_9.411)|
-|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/ha_warm_standby.template)|[Diff of ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...Release_9.411/)| |
-|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/standalone.template)|[Diff of standalone.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...Release_9.411)|
-|Autoscaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/autoscaling.template)|[Diff of autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...Release_9.411)|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/ha_standalone.template)|[Diff of ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/ha_warm_standby.template)|[Diff of ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)| |
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/standalone.template)|[Diff of standalone.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
+|Autoscaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/autoscaling.template)|[Diff of autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
 
 #### Mandatory Changes
 
