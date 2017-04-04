@@ -11,6 +11,9 @@ PREVIOUS_VERSION = $(shell echo $(UTM_VERSION) | awk -F '.' '{ $$2--; print $$1"
 EGW_VERSION ?= 1.0
 # Build templates using public AMIs (default: no)
 PUBLIC ?= 0
+VERSION ?= .*
+NOTAG ?= 0
+RELEASE ?= 0
 # Execute make in parallel and disable internal rules
 MAKEFLAGS += --jobs=100 -r
 
@@ -65,15 +68,31 @@ MODIFY_JSON=./bin/modify_json.sh
 AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
-STANDALONE_BYOL_REGEX=^sophos_utm_standalone_.*byol.*$$
-STANDALONE_MP_REGEX=^sophos_utm_standalone_.*mp.*$$
-AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_.*byol.*$$
-AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_.*mp.*$$
+UBUNTU_REGEX=^ubuntu/images/ubuntu-.*$$
+# TODO change SUM and EGW to new regex on new release
+SUM_REGEX=^acc-.*$$
+EGW_REGEX=^egw-.*$$
+STANDALONE_BYOL_REGEX=^sophos_utm_standalone_$(VERSION).*_byol.*$$
+STANDALONE_MP_REGEX=^sophos_utm_standalone_$(VERSION).*_mp.*$$
+AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_$(VERSION).*_byol.*$$
+AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_$(VERSION).*_mp.*$$
 
 ifeq ($(PUBLIC),1)
 PUBLIC_AMIS=--public
 else
 PUBLIC_AMIS=
+endif
+
+ifeq ($(SMOKETEST),1)
+SMOKETEST_FILTER=--smoketest
+else
+SMOKETEST_FILTER=
+endif
+
+ifeq ($(RELEASE),1)
+RELEASE_FILTER=--release
+else
+RELEASE_FILTER=
 endif
 
 # get_region returns region name from a file path (e.g. tmp/us-east-1/foo.bar -> us-east-1)
@@ -93,9 +112,6 @@ all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALI
 clean:
 	rm -rf $(TMP_OUT) $(TEMPLATES)
 	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
-
--include clean
-
 
 ## Region Maps
 $(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
@@ -140,28 +156,32 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 	$(Q)cp static/$(call get_region,$@)/$(notdir $@) $@ 2> /dev/null || cp static/default/$(notdir $@) $@
 
 ## Specific AMIs
+%/ubuntu.ami: %/aws.dump
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(UBUNTU_REGEX) > $@
+	$(AMI_NAME)
+
 %/sum_byol.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_sum_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(SUM_REGEX) > $@
 	$(AMI_NAME)
 
 %/egw.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | startswith("sophos_egw_"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(EGW_REGEX) > $@
 	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_BYOL_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(STANDALONE_BYOL_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/ha_mp.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(STANDALONE_MP_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(STANDALONE_MP_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/as_byol.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_BYOL_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(AUTOSCALING_BYOL_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/as_mp.ami: %/aws.dump
-	$(Q)jq -r '[.Images[] | select(.Name | match("$(AUTOSCALING_MP_REGEX)"))][-1] | [.ImageId, .Name] | @tsv' $^ > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(AUTOSCALING_MP_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 ## In GovCloud we put byol AMI to mp, because there is no marketplace
@@ -172,7 +192,7 @@ $(TMP_OUT)/us-gov-west-1/ha_mp.ami: $(TMP_OUT)/us-gov-west-1/ha_byol.ami
 	$(Q)cp $^ $@
 
 ## AWS AMI dump
-%/aws.dump:
+%/aws.dump: force
 	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
 	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) --out $@
 
@@ -258,6 +278,17 @@ $(CONVERSION_PATH)/ha_warm_standby.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)cp $< $@
 
+###########
+# Force target
+force:
+
+help:
+	$(ECHO) "VERSION: $(VERSION)"
+	$(ECHO) "PUBLIC: $(PUBLIC)"
+	$(ECHO) "NOTAG: $(NOTAG)"
+	$(ECHO) "RELEASE: $(RELEASE)"
+	$(ECHO) "EGW_VERSION: $(EGW_VERSION)"
+	$(ECHO) "UTM_VERSION: $(UTM_VERSION)"
 
 # Don't remove intermediate aws dump files
 .PRECIOUS: %/aws.dump

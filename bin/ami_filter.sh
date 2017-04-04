@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+# This script filters AMIs according to specified regexes and flags
+
+help() {
+	echo "This tool filters AMIs from a JSON file according to the specified"
+	echo "filters and flags."
+	echo ""
+	echo "  -i|--input <JSON file> (mandatory)"
+	echo "  -n|--name-regex <REGEX> (mandatory)"
+	echo "  --smoketest (only select AMIs with smoketest: passed tag)"
+	echo "  --release (only select AMIs whose version matches release versioning)"
+}
+
+smoketest_filter="no"
+
+while [[ $# -ge 1 ]] ; do
+	key="$1"
+	case $key in
+		-i|--input)
+			input="$2"
+			shift
+		;;
+		-n|--name-regex)
+			regex="$2"
+			shift
+		;;
+		--smoketest)
+			smoketest_filter="yes"
+		;;
+		--release)
+			release_filter="yes"
+		;;
+		*)
+			help
+			exit 1
+		;;
+	esac
+	shift
+done
+
+if [[ -z $input || -z $regex ]] ; then
+        help
+	exit 1
+fi
+
+if [[ $release_filter == "yes" ]]; then
+	RC_FILTER="\\\d+\\\.\\\d{3}-\\\d{1,3}\\\.\\\d{1,3}"
+else
+	RC_FILTER=".*"
+fi
+
+jq -r "[.Images[]
+	| select(.Name | match(\"$regex\"))
+	| if \"$smoketest_filter\" == \"yes\" then
+		select(.Tags != null)
+		| select(.Tags
+			| contains([{\"Key\":\"smoketest\",\"Value\":\"passed\"}])
+		)
+	  else
+		.
+	  end
+	| select(.Name | match(\"$RC_FILTER\"))
+	][-1] 
+	| [.ImageId, .Name] 
+	| @tsv" $input

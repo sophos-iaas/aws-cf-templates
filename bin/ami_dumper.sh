@@ -6,6 +6,8 @@
 owner_dev=159737981378 # team verdi build account
 owner_aws=679593333241 # AWS MarketPlace account
 owner_gov=219379113529 # all images in GovCloud (private and public)
+owner_ubuntu=099720109477 # Ubuntu images
+owner_ubuntu_gov=513442679011 # Ubuntu images in GovCloud
 
 help() {
   echo "This tool dumps all relevant AMIs (and more..) from AWS as an input"
@@ -56,9 +58,11 @@ fi
 
 if [[ $region =~ \-gov\- ]] ; then
   profile="govcloud"
-    echo "AMI dumper: region: $region public: ${public-no} > $out"
+    echo "AMI dumper: region: $region public: ${public-no} > ${out}"
     # All AMIs are owned by us as there is no MarketPlace available
-    $(describe_images) --owner $owner_gov --filters "$public_filter" | \
+    $(describe_images) --owner $owner_gov --filters "$public_filter" > ${out}.1
+    $(describe_images) --owner $owner_ubuntu_gov --filters "Name=name,Values=ubuntu/images/ubuntu-*" > ${out}.2
+    jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
       jq ".Images | { Images: sort_by(.CreationDate) }" > $out
 else
   profile="default"
@@ -68,12 +72,15 @@ else
     $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=sophos_*" > ${out}.1
     # EGW AMIs are owned by us
     $(describe_images) --owner $owner_dev --filters "$public_filter" > ${out}.2
-    jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
+    $(describe_images) --owner $owner_ubuntu --filters "Name=name,Values=ubuntu/images/ubuntu-*" > ${out}.3
+    jq -s '{ Images: (.[0].Images + .[1].Images + .[2].Images) }' ${out}.1 ${out}.2 ${out}.3 | \
       jq ".Images | { Images: sort_by(.CreationDate) }" > $out
   else
     echo "AMI dumper: region: $region public: no > $out"
     # All AMIs are owned by us
-    $(describe_images) --owner $owner_dev --filters "$public_filter" | \
+    $(describe_images) --owner $owner_dev --filters "$public_filter" > ${out}.1
+    $(describe_images) --owner $owner_ubuntu --filters "Name=name,Values=ubuntu/images/ubuntu-*" > ${out}.2
+    jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
       jq ".Images | { Images: sort_by(.CreationDate) }" > $out
   fi
 fi
