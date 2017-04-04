@@ -13,6 +13,7 @@ EGW_VERSION ?= 1.0
 PUBLIC ?= 0
 VERSION ?= .*
 NOTAG ?= 0
+RELEASE ?= 0
 # Execute make in parallel and disable internal rules
 MAKEFLAGS += --jobs=100 -r
 
@@ -68,6 +69,7 @@ AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $
 
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
 UBUNTU_REGEX=^ubuntu/images/ubuntu-.*$$
+# TODO change SUM and EGW to new regex on new release
 SUM_REGEX=^acc-.*$$
 EGW_REGEX=^egw-.*$$
 STANDALONE_BYOL_REGEX=^sophos_utm_standalone_$(VERSION).*_byol.*$$
@@ -279,6 +281,14 @@ $(CONVERSION_PATH)/ha_warm_standby.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
 ###########
 # Force target
 force:
+
+help:
+	$(ECHO) "VERSION: $(VERSION)"
+	$(ECHO) "PUBLIC: $(PUBLIC)"
+	$(ECHO) "NOTAG: $(NOTAG)"
+	$(ECHO) "RELEASE: $(RELEASE)"
+	$(ECHO) "EGW_VERSION: $(EGW_VERSION)"
+	$(ECHO) "UTM_VERSION: $(UTM_VERSION)"
 
 # Don't remove intermediate aws dump files
 .PRECIOUS: %/aws.dump
