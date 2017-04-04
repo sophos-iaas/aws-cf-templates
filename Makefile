@@ -111,9 +111,6 @@ clean:
 	rm -rf $(TMP_OUT) $(TEMPLATES)
 	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
 
--include clean
-
-
 ## Region Maps
 $(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
 	$(ECHO) "[REGIONMAP] standalone"
@@ -193,7 +190,7 @@ $(TMP_OUT)/us-gov-west-1/ha_mp.ami: $(TMP_OUT)/us-gov-west-1/ha_byol.ami
 	$(Q)cp $^ $@
 
 ## AWS AMI dump
-%/aws.dump:
+%/aws.dump: force
 	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
 	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) --out $@
 
@@ -279,6 +276,9 @@ $(CONVERSION_PATH)/ha_warm_standby.template: $(HA_UNIFIED_CONVERSION_TEMPLATE)
 	$(ECHO) "[TEMPLATE] $@"
 	$(Q)cp $< $@
 
+###########
+# Force target
+force:
 
 # Don't remove intermediate aws dump files
 .PRECIOUS: %/aws.dump
