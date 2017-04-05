@@ -68,7 +68,7 @@ MODIFY_JSON=./bin/modify_json.sh
 AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
-UBUNTU_REGEX=^ubuntu/images/ubuntu-.*$$
+UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-.*$$
 # TODO change SUM and EGW to new regex on new release
 SUM_REGEX=^acc-.*$$
 EGW_REGEX=^egw-.*$$
