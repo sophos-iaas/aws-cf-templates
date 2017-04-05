@@ -106,12 +106,13 @@ endef
 
 ## Targets
 # build all templates
-all: $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE) $(SUM_TEMPLATE)
+all: $(ALL_REGION_DIRS) $(STANDALONE_TEMPLATE) $(HA_TEMPLATE) $(HA_CONVERSION_TEMPLATE) $(AUTOSCALING_TEMPLATE) $(AUTOSCALING_CONVERSION_TEMPLATE) $(EGW_TEMPLATE) $(SUM_TEMPLATE)
 
-# always clean before building new templates!
+$(ALL_REGION_DIRS):
+	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
+
 clean:
 	rm -rf $(TMP_OUT) $(TEMPLATES)
-	$(Q)mkdir -p $(ALL_REGION_DIRS) $(TEMPLATES)
 
 ## Region Maps
 $(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
@@ -192,7 +193,7 @@ $(TMP_OUT)/us-gov-west-1/ha_mp.ami: $(TMP_OUT)/us-gov-west-1/ha_byol.ami
 	$(Q)cp $^ $@
 
 ## AWS AMI dump
-%/aws.dump: force
+%/aws.dump: force $(ALL_REGION_DIRS)
 	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
 	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) --out $@
 
