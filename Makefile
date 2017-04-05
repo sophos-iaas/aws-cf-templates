@@ -67,6 +67,9 @@ ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 MODIFY_JSON=./bin/modify_json.sh
 AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
 
+# The version regex must be adapted so "9.4" will not capture 9.470 (beta of 9.5)
+VERSION := $(shell ./bin/version_parser.sh $(VERSION))
+
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
 UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-.*$$
 # TODO change SUM and EGW to new regex on new release
@@ -158,31 +161,31 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 
 ## Specific AMIs
 %/ubuntu.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(UBUNTU_REGEX) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(UBUNTU_REGEX)" > $@
 	$(AMI_NAME)
 
 %/sum_byol.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(SUM_REGEX) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(SUM_REGEX)" > $@
 	$(AMI_NAME)
 
 %/egw.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(EGW_REGEX) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(EGW_REGEX)" > $@
 	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(STANDALONE_BYOL_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
+	./bin/ami_filter.sh --input $^ --name-regex "$(STANDALONE_BYOL_REGEX)" $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/ha_mp.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(STANDALONE_MP_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(STANDALONE_MP_REGEX)" $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/as_byol.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(AUTOSCALING_BYOL_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(AUTOSCALING_BYOL_REGEX)" $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/as_mp.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex $(AUTOSCALING_MP_REGEX) $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(AUTOSCALING_MP_REGEX)" $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 ## In GovCloud we put byol AMI to mp, because there is no marketplace
