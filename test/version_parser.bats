@@ -8,6 +8,8 @@ export BATS_FIXTURE="$BATS_TMPDIR/$BATS_TEST_NAME.fixture"
 	[[ "9.370" =~ $matcher ]]
 	[[ "9.400" =~ $matcher ]]
 	[[ "9.413" =~ $matcher ]]
+	[[ ! "9.501" =~ $matcher ]]
+	[[ ! "9.354" =~ $matcher ]]
 }
 
 @test "Specific minor versions are not modified" {
