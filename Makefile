@@ -206,10 +206,16 @@ src/%.json: src/%.yaml
 	$(ECHO) "[YAML2JSON] $< -> $@"
 	$(Q)./bin/yaml2json $< > $@
 
+#FIXME: We need a generic approach for this ...
+VRSN_95_FRST=9.500
+VRSN_95_SCND=9.501
+
 $(UTM_VERSION_PATH): $(UTM_PATH)
 	$(Q)mkdir -p $@
 	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(NEXT_VERSION)
 	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(PREVIOUS_VERSION)
+	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(VRSN_95_FRST)
+	$(Q)ln -sf $(notdir $@) $(UTM_PATH)/$(VRSN_95_SCND)
 
 $(UTM_PATH) $(SUM_PATH):
 	$(Q)mkdir -p $@
@@ -219,6 +225,8 @@ $(CONVERSION_PATH) $(EGW_VERSION_DIR):
 	-$(Q)ln -sf $(notdir $@) $(dir $@)current
 	-$(Q)ln -sf $(notdir $@) $(dir $@)$(NEXT_VERSION)
 	-$(Q)ln -sf $(notdir $@) $(dir $@)$(PREVIOUS_VERSION)
+	-$(Q)ln -sf $(notdir $@) $(dir $@)$(VRSN_95_FRST)
+	-$(Q)ln -sf $(notdir $@) $(dir $@)$(VRSN_95_SCND)
 
 ################################################################################
 # SUM
