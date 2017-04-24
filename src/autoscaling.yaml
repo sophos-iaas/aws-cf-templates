@@ -1199,8 +1199,6 @@ Resources:
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "sed -i 's/^/#/' /etc/crontab.reporting\n"
             - "/usr/local/bin/confd-client.plx trigger crontab\n"
-            - "touch /etc/no-selfmonitor/queen_config_management\n"
-            - "touch /etc/no-selfmonitor/aws_resource_management\n"
             - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s "
             - Ref: AWS::StackId
