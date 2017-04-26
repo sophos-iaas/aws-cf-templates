@@ -1494,7 +1494,7 @@ Resources:
                   - Ref: LoadBalancerSecurityGroup
                   - "\n"
                   - "elb_destination_security_group: "
-                  - Ref: SwarmSecurityGroup
+                  - Ref: LoadBalancerReceiverSecurityGroup
                   - "\n"
                   - "frontend_security_group: "
                   - Ref: LoadBalancerReceiverSecurityGroup
