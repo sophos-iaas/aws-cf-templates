@@ -47,7 +47,8 @@ fi
 if [[ $release_filter == "yes" ]]; then
 	RC_FILTER="\\\d+\\\.\\\d{3}-\\\d{1,3}\\\.\\\d{1,3}"
 else
-	RC_FILTER=".*"
+	# 9.413-20170424.1
+	RC_FILTER="\\\d+\\\.\\\d{3}-\\\d{8}\\\.\\\d{1,3}"
 fi
 
 jq -r "[.Images[]
