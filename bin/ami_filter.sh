@@ -13,6 +13,7 @@ help() {
 }
 
 smoketest_filter="no"
+regex_filter="development"
 
 while [[ $# -ge 1 ]] ; do
 	key="$1"
@@ -29,7 +30,13 @@ while [[ $# -ge 1 ]] ; do
 			smoketest_filter="yes"
 		;;
 		--release)
-			release_filter="yes"
+			regex_filter="release"
+		;;
+		--development)
+			regex_filter="development"
+		;;
+		--wildcard)
+			regex_filter="wildcard"
 		;;
 		*)
 			help
@@ -44,12 +51,18 @@ if [[ -z $input || -z $regex ]] ; then
 	exit 1
 fi
 
-if [[ $release_filter == "yes" ]]; then
+case $regex_filter in
+	release)
 	RC_FILTER="\\\d+\\\.\\\d{3}-\\\d{1,3}\\\.\\\d{1,3}"
-else
+	;;
+	development)
 	# 9.413-20170424.1
 	RC_FILTER="\\\d+\\\.\\\d{3}-\\\d{8}\\\.\\\d{1,3}"
-fi
+	;;
+	wildcard)
+	RC_FILTER=".*"
+	;;
+esac
 
 jq -r "[.Images[]
 	| select(.Name | match(\"$regex\"))
@@ -62,6 +75,6 @@ jq -r "[.Images[]
 		.
 	  end
 	| select(.Name | match(\"$RC_FILTER\"))
-	][-1] 
-	| [.ImageId, .Name] 
+	][-1]
+	| [.ImageId, .Name]
 	| @tsv" $input

@@ -161,15 +161,15 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 
 ## Specific AMIs
 %/ubuntu.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(UBUNTU_REGEX)" > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(UBUNTU_REGEX)" --wildcard > $@
 	$(AMI_NAME)
 
 %/sum_byol.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(SUM_REGEX)" > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(SUM_REGEX)" --wildcard > $@
 	$(AMI_NAME)
 
 %/egw.ami: %/aws.dump
-	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(EGW_REGEX)" > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(EGW_REGEX)" --wildcard > $@
 	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
