@@ -466,10 +466,6 @@ Resources:
             - ec2:Describe*
             Effect: Allow
             Resource: "*"
-          - Effect: Allow
-            Action: sns:*
-            Resource:
-              Ref: ConfdSNSTopic
           - Resource:
             - Fn::If:
               - CreateS3Bucket
@@ -645,10 +641,6 @@ Resources:
           - Effect: Allow
             Action: elasticloadbalancing:DescribeLoadBalancers
             Resource: "*"
-          - Effect: Allow
-            Action: sns:*
-            Resource:
-              Ref: ConfdSNSTopic
           - Resource:
             - Fn::If:
               - CreateS3Bucket
@@ -942,8 +934,6 @@ Resources:
         - Prefix: adbs/cur
           ExpirationInDays: '9'
           Status: Enabled
-  ConfdSNSTopic:
-    Type: AWS::SNS::Topic
   SwarmSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Metadata:
@@ -1057,7 +1047,6 @@ Resources:
   SwarmScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn:
-    - ConfdSNSTopic
     - QueenScalingGroup
     UpdatePolicy:
       AutoScalingRollingUpdate:
@@ -1192,7 +1181,6 @@ Resources:
             - "date +'UserData start %c' > /tmp/user_data.log\n"
             - "sed -i 's/^/#/' /etc/crontab.reporting\n"
             - "/usr/local/bin/confd-client.plx trigger crontab\n"
-            - "mkdir -p /var/chroot-httpd/etc/sns\n"
             - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s "
             - Ref: AWS::StackId
@@ -1215,7 +1203,6 @@ Resources:
         configSets:
           swarm_node:
           - swarm_config
-          - swarm_commands
         swarm_config:
           files:
             "/etc/cloud/user_data.yml":
@@ -1237,9 +1224,6 @@ Resources:
                     - Ref: S3Bucket
                     - Ref: optionalExistingS3Bucket
                   - "\n"
-                  - "sns_topic: "
-                  - Ref: ConfdSNSTopic
-                  - "\n"
                   - "config_prefix: config_management/\n"
                   - "confd_filter: /etc/cloud/confd_filter.ph\n"
                   - "region: "
@@ -1251,26 +1235,8 @@ Resources:
                     - Ref: AWS::Region
                     - ARN
                   - "\n"
-            "/var/chroot-httpd/etc/sns/sns.conf":
-              mode: '0744'
-              owner: root
-              group: root
-              content:
-                Fn::Join:
-                - ''
-                - - "sns_topic: "
-                  - Ref: ConfdSNSTopic
-                  - "\n"
-        swarm_commands:
-          commands:
-            userdata_secret:
-              command: 'echo "sns_secret: $shared_secret" >> /etc/cloud/user_data.yml'
-            mod_rewrite_secret:
-              command: sed -rie "s/@SHARED_SECRET@/$shared_secret/" /var/chroot-httpd/etc/httpd/vhost/httpd-sns.conf
   QueenScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn:
-    - ConfdSNSTopic
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: '1'
@@ -1421,9 +1387,6 @@ Resources:
                     - CreateS3Bucket
                     - Ref: S3Bucket
                     - Ref: optionalExistingS3Bucket
-                  - "\n"
-                  - "sns_topic: "
-                  - Ref: ConfdSNSTopic
                   - "\n"
                   - "config_prefix: config_management/\n"
                   - "elastic_ip: "
@@ -1578,11 +1541,6 @@ Resources:
                   - "  "
                   - Ref: SwarmSecurityGroup
                   - ":\n"
-                  - "    incoming:\n"
-                  - "      - from_port: 6500\n"
-                  - "        to_port: 6500\n"
-                  - "        protocol: TCP\n"
-                  - "        source: 0.0.0.0/0\n"
                   - "    outgoing:\n"
                   - "      - from_port: 0\n"
                   - "        to_port: 65535\n"
@@ -1608,10 +1566,6 @@ Outputs:
       - Ref: S3Bucket
       - Ref: optionalExistingS3Bucket
     Description: The S3 Bucket.
-  ConfigurationSNSTopic:
-    Description: The SNS topic for configuration changes.
-    Value:
-      Ref: ConfdSNSTopic
   SwarmScalingGroup:
     Value:
       Ref: SwarmScalingGroup
