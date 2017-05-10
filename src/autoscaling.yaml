@@ -1214,7 +1214,6 @@ Resources:
             - " --region "
             - Ref: AWS::Region
             - "\n"
-            - "/usr/bin/pip-2.7 install awscli\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
@@ -1344,11 +1343,6 @@ Resources:
             - Ref: AWS::Region
             - " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n"
             - "/usr/local/bin/confd-client.plx -noquote -stdin set \\'ha\\' \\'aws\\' < /tmp/user_data.config >> /tmp/user_data.log\n"
-            - "date +'UserData awslogs agent setup start %c' >> /tmp/user_data.log\n"
-            - "/usr/local/bin/awslogs-agent-setup.py -n -r "
-            - Ref: AWS::Region
-            - "  -c /etc/cloud/awslogs.conf >> /tmp/user_data.log\n"
-            - "date +'UserData awslogs agent setup end %c' >> /tmp/user_data.log\n"
             - "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n"
             - "/etc/init.d/ha_aws start\n"
             - "/etc/init.d/queen_config_management start\n"
@@ -1420,9 +1414,7 @@ Resources:
                 Fn::Join:
                 - ''
                 - - "{\n"
-                  - "\"cloudwatch\" => { \"status\" => 1 },\n"
                   - "\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },\n"
-                  - "\"instance_role\" => \"ha_standalone\",\n"
                   - "\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },\n"
                   - "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n"
                   - "\"s3_bucket\" => \""
