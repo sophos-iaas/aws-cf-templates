@@ -806,7 +806,7 @@ Resources:
             - Ref: TrustedNetwork
             - "\"' >> /tmp/user_data.config\n"
             - "echo '}' >> /tmp/user_data.config\n"
-            - "/usr/local/bin/confd-client.plx -noquote -stdin set \\'ha\\' \\'aws\\' < /tmp/user_data.config >> /tmp/user_data.log\n"
+            - "/lib/exec/cloud/confd_apply.sh /tmp/user_data.config >> /tmp/user_data.log\n"
             - "date +'UserData confd config end %c' >> /tmp/user_data.log\n"
             - "date +'UserData ha aws start %c' >> /tmp/user_data.log\n"
             - "/etc/init.d/ha_aws start\n"
