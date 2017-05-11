@@ -1499,9 +1499,6 @@ Resources:
                   - "frontend_security_group: "
                   - Ref: LoadBalancerReceiverSecurityGroup
                   - "\n"
-                  - "backend_security_group: "
-                  - Ref: SwarmSecurityGroup
-                  - "\n"
                   - "\n"
                   - "infrastructure:\n"
                   - "  security_groups:\n"
