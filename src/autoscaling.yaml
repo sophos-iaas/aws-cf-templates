@@ -1342,7 +1342,7 @@ Resources:
             - " -r QueenLaunchConfiguration --region "
             - Ref: AWS::Region
             - " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n"
-            - "/lib/exec/cloud/confd_apply.sh /tmp/user_data.config >> /tmp/user_data.log\n"
+            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config >> /tmp/user_data.log\n"
             - "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n"
             - "/etc/init.d/ha_aws start\n"
             - "/etc/init.d/queen_config_management start\n"
