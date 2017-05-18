@@ -34,4 +34,4 @@ case $DRY in
         ;;
 esac
 
-aws s3 sync $LOCAL_DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --acl public-read --delete $MORE_ARGS | awk "$COLORIZE_AWK_COMMAND"
+aws s3 sync $LOCAL_DIR s3://$BUCKET --region $REGION --profile $PROFILE --exclude "*.git*" --acl public-read $MORE_ARGS | awk "$COLORIZE_AWK_COMMAND"
