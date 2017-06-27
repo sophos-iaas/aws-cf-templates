@@ -1224,7 +1224,6 @@ Resources:
                     - Ref: optionalExistingS3Bucket
                   - "\n"
                   - "config_prefix: config_management/\n"
-                  - "confd_filter: /etc/cloud/confd_filter.ph\n"
                   - "region: "
                   - Ref: AWS::Region
                   - "\n"
