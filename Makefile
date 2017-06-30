@@ -73,7 +73,7 @@ VERSION := $(shell ./bin/version_parser.sh $(VERSION))
 UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-.*$$
 # TODO change SUM and EGW to new regex on new release
 SUM_REGEX=^acc-.*$$
-EGW_REGEX=^egw-.*$$
+EGW_REGEX=^sophos_egw_.*$$
 STANDALONE_BYOL_REGEX=^sophos_utm_standalone_$(VERSION).*_byol.*$$
 STANDALONE_MP_REGEX=^sophos_utm_standalone_$(VERSION).*_mp.*$$
 AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_$(VERSION).*_byol.*$$
