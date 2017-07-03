@@ -650,6 +650,7 @@ Resources:
         - HAModes
         - Ref: HAMode
         - DesiredCapacity
+      HealthCheckGracePeriod: '20'
       MaxSize: '2'
       MinSize:
         Fn::FindInMap:
