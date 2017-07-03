@@ -1196,7 +1196,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "date +'UserData start %c' > /tmp/user_data.log\n"
+            - "date +'UserData start %c'\n"
             - "sed -i 's/^/#/' /etc/crontab.reporting\n"
             - "/usr/local/bin/confd-client.plx trigger crontab\n"
             - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
@@ -1204,7 +1204,7 @@ Resources:
             - Ref: AWS::StackId
             - " -r SwarmLaunchConfiguration --region "
             - Ref: AWS::Region
-            - " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n"
+            - "\n"
             - "/etc/init.d/mdw restart && sleep 10\n"
             - "/etc/init.d/httpd restart\n"
             - "/etc/init.d/worker_config_management start\n"
@@ -1316,7 +1316,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "date +'UserData start %c' > /tmp/user_data.log\n"
+            - "date +'UserData start %c'\n"
             - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
             - Ref: basicCountry
             - "\"`\n"
@@ -1340,14 +1340,14 @@ Resources:
             - Ref: AWS::StackId
             - " -r QueenLaunchConfiguration --region "
             - Ref: AWS::Region
-            - " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n"
-            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config >> /tmp/user_data.log\n"
-            - "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n"
+            - "\n"
+            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config\n"
+            - "date +'UserData aws deamons start %c'\n"
             - "/etc/init.d/ha_aws start\n"
             - "/etc/init.d/queen_config_management start\n"
             - "/etc/init.d/aws_resource_management start\n"
-            - "date +'UserData aws deamons end %c' >> /tmp/user_data.log\n"
-            - "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n"
+            - "date +'UserData aws deamons end %c'\n"
+            - "/usr/local/bin/aws_set_sd_check disable\n"
             - "/usr/local/bin/confd-client.plx trigger ha_aws\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack "
             - Ref: AWS::StackName
@@ -1355,7 +1355,7 @@ Resources:
             - " --region "
             - Ref: AWS::Region
             - "\n"
-            - "/usr/bin/sg-iaas ogw-create-cw-role >> /tmp/user_data.log 2>&1\n"
+            - "/usr/bin/sg-iaas ogw-create-cw-role\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
