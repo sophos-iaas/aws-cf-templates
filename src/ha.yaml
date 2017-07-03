@@ -656,13 +656,14 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: '1'
         MaxBatchSize: '1'
-        PauseTime: PT5M
+        PauseTime: PT30M
     Properties:
       DesiredCapacity:
         Fn::FindInMap:
         - HAModes
         - Ref: HAMode
         - DesiredCapacity
+      HealthCheckGracePeriod: '1200'
       MaxSize: '2'
       MinSize:
         Fn::FindInMap:
