@@ -115,6 +115,7 @@ $(ALL_REGION_DIRS):
 
 clean:
 	rm -rf $(TMP_OUT) $(TEMPLATES)
+	find src -name "*.json" -delete
 
 ## Region Maps
 $(TMP_OUT)/standalone.map: $(ALL_HA_BYOL) $(ALL_HA_MP) $(ALL_ARN) $(ALL_DEFAULT_ITYPE)
