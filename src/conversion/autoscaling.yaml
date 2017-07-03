@@ -1056,7 +1056,7 @@ Resources:
         PauseTime: PT15M
     Properties:
       DesiredCapacity: '2'
-      HealthCheckGracePeriod: '20'
+      HealthCheckGracePeriod: '1200'
       MaxSize: '100'
       MinSize: '2'
       TerminationPolicies:
@@ -1244,7 +1244,7 @@ Resources:
         PauseTime: PT15M
     Properties:
       DesiredCapacity: '1'
-      HealthCheckGracePeriod: '20'
+      HealthCheckGracePeriod: '1200'
       MaxSize: '2'
       MinSize: '1'
       TerminationPolicies:
