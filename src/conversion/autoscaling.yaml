@@ -1053,7 +1053,7 @@ Resources:
         MinInstancesInService: '2'
         MaxBatchSize: '1'
         WaitOnResourceSignals: 'true'
-        PauseTime: PT15M
+        PauseTime: PT30M
     Properties:
       DesiredCapacity: '2'
       HealthCheckGracePeriod: '1200'
@@ -1241,7 +1241,7 @@ Resources:
         MinInstancesInService: '1'
         MaxBatchSize: '1'
         WaitOnResourceSignals: 'true'
-        PauseTime: PT15M
+        PauseTime: PT30M
     Properties:
       DesiredCapacity: '1'
       HealthCheckGracePeriod: '1200'
