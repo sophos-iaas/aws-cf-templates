@@ -643,7 +643,7 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: '1'
         MaxBatchSize: '1'
-        PauseTime: PT30M
+        PauseTime: PT5M
     Properties:
       DesiredCapacity:
         Fn::FindInMap:
