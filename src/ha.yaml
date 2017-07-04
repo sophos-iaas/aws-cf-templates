@@ -729,7 +729,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "date +'UserData start %c' > /tmp/user_data.log\n"
+            - "date +'UserData start %c'\n"
             - "echo 'version: \"0.1.0\"' >> /etc/cloud/user_data.yml\n"
             - "echo 'instance_role: \""
             - Fn::FindInMap:
@@ -783,7 +783,7 @@ Resources:
             - "echo 'stack_name: \""
             - Ref: AWS::StackName
             - "\"' >> /etc/cloud/user_data.yml\n"
-            - "date +'UserData confd config start %c' >> /tmp/user_data.log\n"
+            - "date +'UserData confd config start %c'\n"
             - "echo '{' > /tmp/user_data.config\n"
             - "echo '\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },' >> /tmp/user_data.config\n"
             - "echo '\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },' >> /tmp/user_data.config\n"
@@ -807,11 +807,11 @@ Resources:
             - Ref: TrustedNetwork
             - "\"' >> /tmp/user_data.config\n"
             - "echo '}' >> /tmp/user_data.config\n"
-            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config >> /tmp/user_data.log\n"
-            - "date +'UserData confd config end %c' >> /tmp/user_data.log\n"
-            - "date +'UserData ha aws start %c' >> /tmp/user_data.log\n"
+            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config\n"
+            - "date +'UserData confd config end %c'\n"
+            - "date +'UserData ha aws start %c'\n"
             - "/etc/init.d/ha_aws start\n"
-            - "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n"
+            - "/usr/local/bin/aws_set_sd_check disable\n"
             - "/usr/local/bin/confd-client.plx trigger ha_aws\n"
             - "exit 0\n"
   IngressTrafficMinimal:
