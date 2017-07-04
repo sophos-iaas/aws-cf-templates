@@ -1188,6 +1188,7 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: '100'
+          DeleteOnTermination: 'false'
       SecurityGroups:
       - Ref: SwarmSecurityGroup
       - Ref: TrustedNetworkGroup
@@ -1309,6 +1310,7 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: '100'
+          DeleteOnTermination: 'false'
       SecurityGroups:
       - Ref: QueenSecurityGroup
       - Ref: TrustedNetworkGroup
