@@ -425,6 +425,10 @@ Conditions:
     Fn::Equals:
     - Ref: utmWorkerInstanceSize
     - default
+  DetectControllerInstanceSize:
+    Fn::Equals:
+    - Ref: utmControllerInstanceSize
+    - default
   CreateS3Bucket:
     Fn::Equals:
     - Ref: optionalExistingS3Bucket
@@ -1278,7 +1282,7 @@ Resources:
         - Ref: awsAMI
       InstanceType:
         Fn::If:
-        - DetectWorkerInstanceSize
+        - DetectControllerInstanceSize
         - Fn::FindInMap:
           - RegionMap
           - Ref: AWS::Region
