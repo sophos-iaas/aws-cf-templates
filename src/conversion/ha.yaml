@@ -707,6 +707,7 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: '100'
+          VolumeType: 'gp2'
       SecurityGroups:
         Fn::If:
         - UseExistingSG
