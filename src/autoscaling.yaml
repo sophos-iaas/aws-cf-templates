@@ -1188,7 +1188,7 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: '100'
-          VolumeType: 'gp2'
+          VolumeType: gp2
       SecurityGroups:
       - Ref: SwarmSecurityGroup
       - Ref: TrustedNetworkGroup
@@ -1310,7 +1310,7 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: '100'
-          VolumeType: 'gp2'
+          VolumeType: gp2
       SecurityGroups:
       - Ref: QueenSecurityGroup
       - Ref: TrustedNetworkGroup
