@@ -1325,29 +1325,15 @@ Resources:
           - ''
           - - "#!/bin/bash\n"
             - "date +'UserData start %c'\n"
-            - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
-            - Ref: basicCountry
-            - "\"`\n"
-            - echo "{ hostname => '
-            - Ref: basicHostname
-            - "', organization => '"
-            - Ref: basicOrganization
-            - "', city => '"
-            - Ref: basicCity
-            - "', country => '$cc', email => '"
-            - Ref: basicAdminEmail
-            - "', password => '"
-            - Ref: basicAdminPassword
-            - "' }\" > /var/confd/var/storage/setup.ph\n"
-            - "/etc/init.d/confd restart\n"
-            - "sleep 5\n"
-            - "/usr/local/bin/debugmode "
-            - Ref: debugMode
-            - "\n"
             - "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s "
             - Ref: AWS::StackId
             - " -r QueenLaunchConfiguration --region "
             - Ref: AWS::Region
+            - "\n"
+            - "/etc/init.d/confd restart\n"
+            - "sleep 5\n"
+            - "/usr/local/bin/debugmode "
+            - Ref: debugMode
             - "\n"
             - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config\n"
             - "date +'UserData aws deamons start %c'\n"
@@ -1372,6 +1358,26 @@ Resources:
           - queen_config
         queen_config:
           files:
+            "/var/confd/var/storage/setup.ph":
+              mode: '0600'
+              owner: root
+              group: root
+              content:
+                Fn::Join:
+                - ''
+                - - "{ hostname => '"
+                  - Ref: basicHostname
+                  - "', organization => '"
+                  - Ref: basicOrganization
+                  - "', city => '"
+                  - Ref: basicCity
+                  - "', country => country_name_to_code('"
+                  - Ref: basicCountry
+                  - "'), email => '"
+                  - Ref: basicAdminEmail
+                  - "', password => '"
+                  - Ref: basicAdminPassword
+                  - "'}"
             "/etc/cloud/user_data.yml":
               mode: '0644'
               owner: root
