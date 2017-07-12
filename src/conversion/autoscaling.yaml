@@ -466,10 +466,6 @@ Resources:
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-          - Action:
-            - ec2:Describe*
-            Effect: Allow
-            Resource: "*"
           - Resource:
             - Fn::If:
               - CreateS3Bucket
@@ -616,17 +612,56 @@ Resources:
                 - ":iam::*:role/actions/EC2ActionsAccess"
             Effect: Allow
           - Effect: Allow
-            Action: cloudformation:*
+            Action:
+            - cloudformation:*
+            - cloudformation:DescribeStackResources
+            - cloudformation:DescribeStacks
+            Resource: "*"
+          - Effect: Allow
+            Action: cloudformation:UpdateStack
+            Resource:
+              Ref: AWS::StackId
+          - Effect: Allow
+            Action:
+            - ec2:Describe*
+            - ec2:AssociateAddress
+            - ec2:ModifyInstanceAttribute
+            Resource: "*"
+          - Effect: Allow
+            Action: ec2:*
+            Condition:
+              StringEquals:
+                ec2:ResourceTag/aws:cloudformation:stack-id:
+                  Ref: AWS::StackId
             Resource: "*"
           - Effect: Allow
             Action: ec2:*
             Resource: "*"
           - Effect: Allow
-            Action: autoscaling:*
+            Action:
+            - autoscaling:SetDesiredCapacity
+            - autoscaling:TerminateInstanceInAutoScalingGroup
+            - autoscaling:UpdateAutoScalingGroup
+            Condition:
+              StringEquals:
+                autoscaling:ResourceTag/aws:cloudformation:stack-id:
+                  Ref: AWS::StackId
             Resource: "*"
-          - Action: cloudwatch:*
+          - Effect: Allow
+            Action:
+            - autoscaling:CreateLaunchConfiguration
+            - autoscaling:DeleteLaunchConfiguration
+            - autoscaling:DescribeAutoScalingGroups
+            - autoscaling:DescribeAutoScalingInstances
+            - autoscaling:DescribeLaunchConfigurations
+            - autoscaling:DescribeScalingActivities
+            - autoscaling:DescribeScheduledActions
             Resource: "*"
-            Effect: Allow
+          - Effect: Allow
+            Action:
+            - cloudwatch:DeleteAlarms
+            - cloudwatch:PutMetricAlarm
+            Resource: "*"
           - Effect: Allow
             Action: elasticloadbalancing:*
             Resource:
@@ -640,10 +675,9 @@ Resources:
                 - ":elasticloadbalancing:*:*:loadbalancer/"
                 - Ref: ElasticLoadBalancer
           - Effect: Allow
-            Action: elasticloadbalancing:DescribeLoadBalancerPolicies
-            Resource: "*"
-          - Effect: Allow
-            Action: elasticloadbalancing:DescribeLoadBalancers
+            Action:
+            - elasticloadbalancing:DescribeLoadBalancers
+            - elasticloadbalancing:DescribeLoadBalancerPolicies
             Resource: "*"
           - Resource:
             - Fn::If:
@@ -688,31 +722,6 @@ Resources:
                   - ":s3:::"
                   - Ref: optionalExistingS3Bucket
                   - "/*"
-            - Fn::If:
-              - EnableLicensePool
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalLicensePool
-              - Ref: AWS::NoValue
-            - Fn::If:
-              - EnableLicensePool
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalLicensePool
-                  - "/*"
-              - Ref: AWS::NoValue
             Action:
             - s3:*
             Effect: Allow
@@ -749,6 +758,31 @@ Resources:
                   - Ref: AWS::Region
                   - ARN
                 - ":s3:::sophos-nsg-cf/*"
+            - Fn::If:
+              - EnableLicensePool
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalLicensePool
+              - Ref: AWS::NoValue
+            - Fn::If:
+              - EnableLicensePool
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalLicensePool
+                  - "/*"
+              - Ref: AWS::NoValue
             Action:
             - s3:List*
             - s3:Get*
