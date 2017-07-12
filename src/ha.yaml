@@ -734,7 +734,7 @@ Resources:
             - "exec 2<&-"
             - "exec 1<>/dev/console"
             - "exec 2>&1"
-            - "/opt/aws/apitools/cfn-init/bin/cfn-init -c utm_node -s "
+            - "/opt/aws/apitools/cfn-init/bin/cfn-init -v -c utm_node -s "
             - Ref: AWS::StackId
             - " -r UTMLaunchConfiguration --region "
             - Ref: AWS::Region
