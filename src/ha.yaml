@@ -769,7 +769,7 @@ Resources:
                   - "', country => country_name_to_code('"
                   - Ref: Country
                   - "'), email => '"
-                  - Ref: AdminEmail
+                  - Ref: Email
                   - "', password => '"
                   - Ref: AdminPassword
                   - "'}"
