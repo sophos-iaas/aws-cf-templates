@@ -827,17 +827,17 @@ Resources:
                   - "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n"
                   - "\"s3_bucket\" => \""
                   - Fn::If:
-                   - CreateS3Bucket
-                   - Ref: S3Bucket
-                   - Ref: ExistingS3Bucket
+                    - CreateS3Bucket
+                    - Ref: S3Bucket
+                    - Ref: ExistingS3Bucket
                   - "\",\n"
                   - "\"stack_name\" => \""
                   - Ref: AWS::StackName
                   - "\",\n"
                   - "\"elastic_ip\" => \""
                   - Fn::If:
-                   - AllocateElasticIP
-                   - Ref: IPAddress
+                    - AllocateElasticIP
+                    - Ref: IPAddress
                   - Ref: ExistingElasticIP
                   - "\",\n"
                   - "\"trusted_network\" => \""
