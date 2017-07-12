@@ -730,90 +730,119 @@ Resources:
           - ''
           - - "#!/bin/bash\n"
             - "date +'UserData start %c'\n"
-            - "echo 'version: \"0.1.0\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'instance_role: \""
-            - Fn::FindInMap:
-              - HAModes
-              - Ref: HAMode
-              - InstanceRole
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'deployment_type: \""
-            - Fn::FindInMap:
-              - HAModes
-              - Ref: HAMode
-              - DeploymentType
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'license_pool: \""
-            - Ref: LicensePool
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'region: \""
+            - "/opt/aws/apitools/cfn-init/bin/cfn-init -c utm_node -s "
+            - Ref: AWS::StackId
+            - " -r UTMLaunchConfiguration --region "
             - Ref: AWS::Region
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
-            - Ref: Country
-            - "\"`\n"
-            - echo "{ hostname => '
-            - Ref: Hostname
-            - "', organization => '"
-            - Ref: Organization
-            - "', city => '"
-            - Ref: City
-            - "', country => '$cc', email => '"
-            - Ref: Email
-            - "', password => '"
-            - Ref: AdminPassword
-            - "' }\" > /var/confd/var/storage/setup.ph\n"
+            - "\n"
             - "/etc/init.d/confd restart\n"
             - "sleep 5\n"
             - "/usr/local/bin/debugmode "
             - Ref: debugMode
             - "\n"
-            - "echo 'elastic_ip: \""
-            - Fn::If:
-              - AllocateElasticIP
-              - Ref: IPAddress
-              - Ref: ExistingElasticIP
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 's3_bucket: \""
-            - Fn::If:
-              - CreateS3Bucket
-              - Ref: S3Bucket
-              - Ref: ExistingS3Bucket
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "echo 'stack_name: \""
-            - Ref: AWS::StackName
-            - "\"' >> /etc/cloud/user_data.yml\n"
-            - "date +'UserData confd config start %c'\n"
-            - "echo '{' > /tmp/user_data.config\n"
-            - "echo '\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },' >> /tmp/user_data.config\n"
-            - "echo '\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },' >> /tmp/user_data.config\n"
-            - "echo '\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },' >> /tmp/user_data.config\n"
-            - "echo '\"s3_bucket\" => \""
-            - Fn::If:
-              - CreateS3Bucket
-              - Ref: S3Bucket
-              - Ref: ExistingS3Bucket
-            - "\",' >> /tmp/user_data.config\n"
-            - "echo '\"stack_name\" => \""
-            - Ref: AWS::StackName
-            - "\",' >> /tmp/user_data.config\n"
-            - "echo '\"elastic_ip\" => \""
-            - Fn::If:
-              - AllocateElasticIP
-              - Ref: IPAddress
-              - Ref: ExistingElasticIP
-            - "\",' >> /tmp/user_data.config\n"
-            - "echo '\"trusted_network\" => \""
-            - Ref: TrustedNetwork
-            - "\"' >> /tmp/user_data.config\n"
-            - "echo '}' >> /tmp/user_data.config\n"
             - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config\n"
-            - "date +'UserData confd config end %c'\n"
             - "date +'UserData ha aws start %c'\n"
             - "/etc/init.d/ha_aws start\n"
             - "/usr/local/bin/aws_set_sd_check disable\n"
             - "/usr/local/bin/confd-client.plx trigger ha_aws\n"
             - "exit 0\n"
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          utm_node:
+          - utm_config
+        utm_config:
+          files:
+            "/var/confd/var/storage/setup.ph":
+              mode: '0640'
+              owner: root
+              group: root
+              content:
+                Fn::Join:
+                - ''
+                - - "{ hostname => '"
+                  - Ref: basicHostname
+                  - "', organization => '"
+                  - Ref: basicOrganization
+                  - "', city => '"
+                  - Ref: basicCity
+                  - "', country => country_name_to_code('"
+                  - Ref: basicCountry
+                  - "'), email => '"
+                  - Ref: basicAdminEmail
+                  - "', password => '"
+                  - Ref: basicAdminPassword
+                  - "'}"
+            "/etc/cloud/user_data.yml":
+              mode: '0644'
+              owner: root
+              group: root
+              content:
+                Fn::Join:
+                - ''
+                - - "version: 0.1.0\n"
+                  - "instance_role: "
+                  - Fn::FindInMap:
+                    - HAModes
+                    - Ref: HAMode
+                    - InstanceRole
+                  - "\n"
+                  - "deployment_type: "
+                  - Fn::FindInMap:
+                    - HAModes
+                    - Ref: HAMode
+                    - DeploymentType
+                  - "\n"
+                  - "license_pool: "
+                  - Ref: LicensePool
+                  - "\n"
+                  - "region: "
+                  - Ref: AWS::Region
+                  - "\n"
+                  - "elastic_ip: "
+                  - Fn::If:
+                    - AllocateElasticIP
+                    - Ref: IPAddress
+                    - Ref: ExistingElasticIP
+                  - "\n"
+                  - "s3_bucket: "
+                  - Fn::If:
+                    - CreateS3Bucket
+                    - Ref: S3Bucket
+                    - Ref: ExistingS3Bucket
+                  - "\n"
+                  - "stack_name: "
+                  - Ref: AWS::StackName
+                  - "\n"
+            "/tmp/user_data.config":
+              mode: '0644'
+              owner: root
+              group: root
+              content:
+                Fn::Join:
+                - ''
+                - - "{\n"
+                  - "\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },\n"
+                  - "\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },\n"
+                  - "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n"
+                  - "\"s3_bucket\" => \""
+                  - Fn::If:
+                   - CreateS3Bucket
+                   - Ref: S3Bucket
+                   - Ref: ExistingS3Bucket
+                  - "\",\n"
+                  - "\"stack_name\" => \""
+                  - Ref: AWS::StackName
+                  - "\",\n"
+                  - "\"elastic_ip\" => \""
+                  - Fn::If:
+                   - AllocateElasticIP
+                   - Ref: IPAddress
+                  - Ref: ExistingElasticIP
+                  - "\",\n"
+                  - "\"trusted_network\" => \""
+                  - Ref: TrustedNetwork
+                  - "\"\n}\n"
   IngressTrafficMinimal:
     Type: AWS::CloudWatch::Alarm
     Properties:
