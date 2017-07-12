@@ -613,6 +613,8 @@ Resources:
             Effect: Allow
           - Effect: Allow
             Action:
+            # We still rely on the * permission for the OGW auto-deployment.
+            # Once this is sourced out we only require the two describe calls.
             - cloudformation:*
             - cloudformation:DescribeStackResources
             - cloudformation:DescribeStacks
@@ -634,6 +636,8 @@ Resources:
                 ec2:ResourceTag/aws:cloudformation:stack-id:
                   Ref: AWS::StackId
             Resource: "*"
+            # We still rely on the following * permission w/o resource
+            # restriction for the OGW auto-deployment.
           - Effect: Allow
             Action: ec2:*
             Resource: "*"
