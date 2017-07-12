@@ -838,7 +838,7 @@ Resources:
                   - Fn::If:
                     - AllocateElasticIP
                     - Ref: IPAddress
-                  - Ref: ExistingElasticIP
+                    - Ref: ExistingElasticIP
                   - "\",\n"
                   - "\"trusted_network\" => \""
                   - Ref: TrustedNetwork
