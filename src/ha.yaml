@@ -761,17 +761,17 @@ Resources:
                 Fn::Join:
                 - ''
                 - - "{ hostname => '"
-                  - Ref: basicHostname
+                  - Ref: Hostname
                   - "', organization => '"
-                  - Ref: basicOrganization
+                  - Ref: Organization
                   - "', city => '"
-                  - Ref: basicCity
+                  - Ref: City
                   - "', country => country_name_to_code('"
-                  - Ref: basicCountry
+                  - Ref: Country
                   - "'), email => '"
-                  - Ref: basicAdminEmail
+                  - Ref: AdminEmail
                   - "', password => '"
-                  - Ref: basicAdminPassword
+                  - Ref: AdminPassword
                   - "'}"
             "/etc/cloud/user_data.yml":
               mode: '0644'
