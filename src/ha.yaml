@@ -760,18 +760,20 @@ Resources:
               content:
                 Fn::Join:
                 - ''
-                - - "{ hostname => '"
+                - - "use Info::country qw(country_name_to_code);\n"
+                  - "{\n  hostname => '"
                   - Ref: Hostname
-                  - "', organization => '"
+                  - "',\n  organization => '"
                   - Ref: Organization
-                  - "', city => '"
+                  - "',\n  city => '"
                   - Ref: City
-                  - "', country => 'us"
-                  - "', email => '"
+                  - "',\n  country => Info::country::country_name_to_code('"
+                  - Ref: Country
+                  - "'),\n  email => '"
                   - Ref: Email
-                  - "', password => '"
+                  - "',\n  password => '"
                   - Ref: AdminPassword
-                  - "'}"
+                  - "'\n}"
             "/etc/cloud/user_data.yml":
               mode: '0644'
               owner: root
