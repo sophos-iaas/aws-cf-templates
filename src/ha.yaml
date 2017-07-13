@@ -729,22 +729,11 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "date +'UserData start %c'\n"
-            - "timeout 60 /opt/aws/apitools/cfn-init/bin/cfn-init -v -c utm_node -s "
+            - "/usr/bin/userdata-init ha -s "
             - Ref: AWS::StackId
-            - " -r UTMLaunchConfiguration --region "
-            - Ref: AWS::Region
-            - "\n"
-            - "/etc/init.d/confd restart\n"
-            - "sleep 5\n"
-            - "/usr/local/bin/debugmode "
+            - " -d "
             - Ref: debugMode
             - "\n"
-            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config\n"
-            - "date +'UserData ha aws start %c'\n"
-            - "/etc/init.d/ha_aws start\n"
-            - "/usr/local/bin/aws_set_sd_check disable\n"
-            - "/usr/local/bin/confd-client.plx trigger ha_aws\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
@@ -760,20 +749,19 @@ Resources:
               content:
                 Fn::Join:
                 - ''
-                - - "use Info::country qw(country_name_to_code);\n"
-                  - "{\n  hostname => '"
+                - - "{ hostname => '"
                   - Ref: Hostname
-                  - "',\n  organization => '"
+                  - "', organization => '"
                   - Ref: Organization
-                  - "',\n  city => '"
+                  - "', city => '"
                   - Ref: City
-                  - "',\n  country => Info::country::country_name_to_code('"
+                  - "', country =>'"
                   - Ref: Country
-                  - "'),\n  email => '"
+                  - "', email => '"
                   - Ref: Email
-                  - "',\n  password => '"
+                  - "', password => '"
                   - Ref: AdminPassword
-                  - "'\n}"
+                  - "' }"
             "/etc/cloud/user_data.yml":
               mode: '0644'
               owner: root
