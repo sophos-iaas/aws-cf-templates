@@ -730,12 +730,11 @@ Resources:
           - ''
           - - "#!/bin/bash\n"
             - "date +'UserData start %c'\n"
-            - "timeout 5 /opt/aws/apitools/cfn-init/bin/cfn-init -v -c utm_node -s "
+            - "timeout 60 /opt/aws/apitools/cfn-init/bin/cfn-init -v -c utm_node -s "
             - Ref: AWS::StackId
             - " -r UTMLaunchConfiguration --region "
             - Ref: AWS::Region
             - "\n"
-            - "exit 0\n"
             - "/etc/init.d/confd restart\n"
             - "sleep 5\n"
             - "/usr/local/bin/debugmode "
