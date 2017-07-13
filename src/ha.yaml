@@ -755,7 +755,7 @@ Resources:
         utm_config:
           files:
             "/var/confd/var/storage/setup.ph":
-              mode: '0640'
+              mode: '0644'
               owner: root
               group: root
               content:
@@ -767,9 +767,8 @@ Resources:
                   - Ref: Organization
                   - "', city => '"
                   - Ref: City
-                  - "', country => country_name_to_code('"
-                  - Ref: Country
-                  - "'), email => '"
+                  - "', country => 'us"
+                  - "', email => '"
                   - Ref: Email
                   - "', password => '"
                   - Ref: AdminPassword
