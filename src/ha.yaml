@@ -729,7 +729,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "/usr/bin/userdata-init ha -s "
+            - "/usr/libexec/cloud/userdata_init.sh ha -s "
             - Ref: AWS::StackId
             - " -d "
             - Ref: debugMode
