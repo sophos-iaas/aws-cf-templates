@@ -743,7 +743,7 @@ Resources:
         utm_config:
           files:
             "/var/confd/var/storage/setup.ph":
-              mode: '0644'
+              mode: '0640'
               owner: root
               group: root
               content:

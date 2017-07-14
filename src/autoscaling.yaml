@@ -1240,7 +1240,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "/usr/bin/userdata-init autoscaling_worker -s "
+            - "/usr/libexec/cloud/userdata_init.sh autoscaling -i worker -s "
             - Ref: AWS::StackId
             - " -n "
             - Ref: AWS::StackName
@@ -1351,7 +1351,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "/usr/bin/userdata-init autoscaling_queen -s "
+            - "/usr/libexec/cloud/userdata_init.sh autoscaling -i controller -s "
             - Ref: AWS::StackId
             - " -n "
             - Ref: AWS::StackName
@@ -1367,7 +1367,7 @@ Resources:
         queen_config:
           files:
             "/var/confd/var/storage/setup.ph":
-              mode: '0644'
+              mode: '0640'
               owner: root
               group: root
               content:
