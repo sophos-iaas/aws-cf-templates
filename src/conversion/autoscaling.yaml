@@ -1222,23 +1222,12 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "date +'UserData start %c'\n"
-            - "sed -i 's/^/#/' /etc/crontab.reporting\n"
-            - "/usr/local/bin/confd-client.plx trigger crontab\n"
-            - "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n"
-            - "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s "
+            - "/usr/libexec/cloud/userdata_init.sh autoscaling -i worker -s "
             - Ref: AWS::StackId
-            - " -r SwarmLaunchConfiguration --region "
-            - Ref: AWS::Region
-            - "\n"
-            - "/etc/init.d/mdw restart && sleep 10\n"
-            - "/etc/init.d/httpd restart\n"
-            - "/etc/init.d/worker_config_management start\n"
-            - "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack "
+            - " -n "
             - Ref: AWS::StackName
-            - " --resource SwarmScalingGroup "
-            - " --region "
-            - Ref: AWS::Region
+            - " -d "
+            - Ref: debugMode
             - "\n"
             - "exit 0\n"
     Metadata:
@@ -1360,46 +1349,13 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "date +'UserData start %c'\n"
-            - "cc=`/usr/local/bin/confd-client.plx country_name_to_code \""
-            - Ref: basicCountry
-            - "\"`\n"
-            - echo "{ hostname => '
-            - Ref: basicHostname
-            - "', organization => '"
-            - Ref: basicOrganization
-            - "', city => '"
-            - Ref: basicCity
-            - "', country => '$cc', email => '"
-            - Ref: basicAdminEmail
-            - "', password => '"
-            - Ref: basicAdminPassword
-            - "' }\" > /var/confd/var/storage/setup.ph\n"
-            - "/etc/init.d/confd restart\n"
-            - "sleep 5\n"
-            - "/usr/local/bin/debugmode "
+            - "/usr/libexec/cloud/userdata_init.sh autoscaling -i controller -s "
+            - Ref: AWS::StackId
+            - " -n "
+            - Ref: AWS::StackName
+            - " -d "
             - Ref: debugMode
             - "\n"
-            - "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s "
-            - Ref: AWS::StackId
-            - " -r QueenLaunchConfiguration --region "
-            - Ref: AWS::Region
-            - "\n"
-            - "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config\n"
-            - "date +'UserData aws deamons start %c'\n"
-            - "/etc/init.d/ha_aws start\n"
-            - "/etc/init.d/queen_config_management start\n"
-            - "/etc/init.d/aws_resource_management start\n"
-            - "date +'UserData aws deamons end %c'\n"
-            - "/usr/local/bin/aws_set_sd_check disable\n"
-            - "/usr/local/bin/confd-client.plx trigger ha_aws\n"
-            - "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack "
-            - Ref: AWS::StackName
-            - " --resource QueenScalingGroup "
-            - " --region "
-            - Ref: AWS::Region
-            - "\n"
-            - "/usr/bin/sg-iaas ogw-create-cw-role\n"
             - "exit 0\n"
     Metadata:
       AWS::CloudFormation::Init:
@@ -1408,6 +1364,26 @@ Resources:
           - queen_config
         queen_config:
           files:
+            "/var/confd/var/storage/setup.ph":
+              mode: '0640'
+              owner: root
+              group: root
+              content:
+                Fn::Join:
+                - ''
+                - - "{ hostname => '"
+                  - Ref: basicHostname
+                  - "', organization => '"
+                  - Ref: basicOrganization
+                  - "', city => '"
+                  - Ref: basicCity
+                  - "', country => '"
+                  - Ref: basicCountry
+                  - "', email => '"
+                  - Ref: basicAdminEmail
+                  - "', password => '"
+                  - Ref: basicAdminPassword
+                  - "' }"
             "/etc/cloud/user_data.yml":
               mode: '0644'
               owner: root
