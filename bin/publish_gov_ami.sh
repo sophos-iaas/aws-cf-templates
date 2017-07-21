@@ -26,4 +26,5 @@ if [[ "$RESULT" == "true" ]] ; then
 else
   echo -e "AMI $AMI is \033[0;31mPRIVATE\033[0m"
   echo "RESULT: $RESULT"
+  exit 1
 fi
