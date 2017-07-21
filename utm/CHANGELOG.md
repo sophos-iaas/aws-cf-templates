@@ -4,9 +4,8 @@
 
 ### AWS Firmware
 
-Release notes UTM on AWS 9.501: Will be updated soon.
-
-Release notes UTM 9.501: https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-501-released
+* [UTM on AWS 9.501 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/sophos-utm-9-501-on-aws-release-notes)
+* [UTM 9.501 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-501-released)
 
 ### Templates
 
@@ -14,10 +13,10 @@ The following templates were changed in this release:
 
 |Feature|Template|Template Changes|
 |-------|--------|----------------|
-|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.4501/ha_standalone.template)|Will be updated|
-|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/ha_warm_standby.template)| Will be updated|
-|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/standalone.template)|Will be updated|
-|Autoscaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/autoscaling.template)|Will be updated|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.4501/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
+|Autoscaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
 
 #### Mandatory Changes
 
@@ -27,12 +26,12 @@ The following templates were changed in this release:
 | |ha_standalone.template|474-566|Changes AMI to UTM 9.501 AMI|
 | |ha_warm_standby.template|474-566|Changes AMI to UTM 9.501 AMI|
 | |standalone.template|136-240|Changes AMI to UTM 9.501 AMI|
-|Removal of SNS|autoscaling.template|653-659, 1013-1019, 1658-1660, 1841, 2069, 2106, 2140-2144, 2166-2192, 2202, 2436-2440, 2679-2683, 2735-2740|The usage of AWS SNS was removed completely|
-|NUTM-6607|autoscaling.template|2068-2069, 2146, 2321-2322, 2375||
-|AWS logs agent as RPM|autoscaling.template|2094, 2365-2372, 2494, 2496| Installation and provisioning of AWS logs agent has been removed due to installation as RPM|
-||ha_standalone.template <br/> ha_warm_standby.template|1227, 1268, 1272-1278||
-|Auto-managed/non-managed Security Groups|autoscaling.template|2561, 2569-2573||
-|Increased pause time/health check grace period|autoscaling.template|1850, 1855, 2210, 2215| Increased pause time and added a health check grace period in order to stabilize deployment|
+|Removal of SNS|autoscaling.template|653-659, 1013-1019, 1658-1660, 1841, 2069, 2105, 2139-2143, 2165-2191, 2201, 2434-2438, 2676-2680, 2732-2737|The usage of AWS SNS was removed completely|
+|NUTM-6607|autoscaling.template|2067-2068, 2144, 2319-2320, 2375||
+|AWS logs agent as RPM|autoscaling.template|2093, 2363-2370, 2492, 2494| Installation and provisioning of AWS logs agent has been removed due to installation as RPM|
+||ha_standalone.template <br/> ha_warm_standby.template|1226, 1267, 1271-1277||
+|Auto-managed/non-managed Security Groups|autoscaling.template|2558, 2566-2570||
+|Increased pause time/health check grace period|autoscaling.template|1850, 1855, 2209, 2215| Increased pause time and added a health check grace period in order to stabilize deployment|
 ||ha_standalone.template <br/> ha_warm_standby.template|1003| Added a health check grace period in order to stabilize deployment|
 
 #### Optional Changes
