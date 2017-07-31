@@ -2,7 +2,7 @@
 # UTM_VERSION = *_verdi branch version that has been deployed to aws
 # The default here is only for convenience, and usually is passed with the
 # jenkins build job or during execution
-UTM_VERSION ?= 9.408
+UTM_VERSION ?= 9.502
 NEXT_VERSION = $(shell echo $(UTM_VERSION) | awk -F '.' '{ $$2++; print $$1"."$$2; }')
 
 # EGW_VERSION = version of interface paramters (if they change in an
