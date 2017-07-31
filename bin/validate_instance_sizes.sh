@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Run this from root of template repo
+# it will change to tmp and validate all regions and instance sizes there
+
 # This does not make a real difference unless it's linux
 TRY_AMI="ha_byol.ami"
 
