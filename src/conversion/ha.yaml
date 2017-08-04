@@ -65,15 +65,18 @@ Parameters:
     ConstraintDescription: Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).
   Email:
     Description: The email address is only used for UTM administrative purposes.
-    Default: ''
     Type: String
+    AllowedPattern: "^[^\\']+$"
   AdminPassword:
     Type: String
     NoEcho: 'True'
+    AllowedPattern: "^[^\\']+$"
   Organization:
     Type: String
+    AllowedPattern: "^[^\\']+$"
   City:
     Type: String
+    AllowedPattern: "^[^\\']+$"
   Country:
     Type: String
     AllowedValues:
