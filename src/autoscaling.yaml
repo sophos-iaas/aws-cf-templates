@@ -52,18 +52,25 @@ Parameters:
     Type: String
     MaxLength: '64'
     AllowedPattern: "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$"
-    ConstraintDescription: Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).
+    ConstraintDescription: Must only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).
   basicAdminEmail:
     Description: The email address is only used for UTM administrative purposes.
-    Default: ''
     Type: String
+    AllowedPattern: "^[^\\']+$"
+    ConstraintDescription: Must not be empty. Must not contain backslashes(\) or quotes(').
   basicAdminPassword:
     Type: String
     NoEcho: 'True'
+    AllowedPattern: "^[^\\']+$"
+    ConstraintDescription: Must not be empty. Must not contain backslashes(\) or quotes(').
   basicOrganization:
     Type: String
+    AllowedPattern: "^[^\\']+$"
+    ConstraintDescription: Must not be empty. Must not contain backslashes(\) or quotes(').
   basicCity:
     Type: String
+    AllowedPattern: "^[^\\']+$"
+    ConstraintDescription: Must not be empty. Must not contain backslashes(\) or quotes(').
   basicCountry:
     Type: String
     AllowedValues:
