@@ -596,18 +596,34 @@ Resources:
           Version: '2012-10-17'
           Statement:
           - Effect: Allow
-            Action:
-            - iam:PassRole
-            - iam:CreateInstanceProfile
-            - iam:AddRoleToInstanceProfile
-            - iam:RemoveRoleFromInstanceProfile
-            - iam:DeleteInstanceProfile
-            Resource: "*"
+            Action: iam:PassRole
+            Resource:
+            - Fn::Join:
+              - ''
+              - - 'arn:'
+                - Fn::FindInMap:
+                  - RegionMap
+                  - Ref: AWS::Region
+                  - ARN
+                - ":iam::"
+                - Ref: AWS::AccountId
+                - ":role/"
+                - Ref: AWS::StackName
+                - "-WorkerRole-*"
+            - Fn::Join:
+              - ''
+              - - 'arn:'
+                - Fn::FindInMap:
+                  - RegionMap
+                  - Ref: AWS::Region
+                  - ARN
+                - ":iam::"
+                - Ref: AWS::AccountId
+                - ":role/"
+                - Ref: AWS::StackName
+                - "-QueenRole-*"
           - Effect: Allow
             Action:
-            # We still rely on the * permission for the OGW auto-deployment.
-            # Once this is sourced out we only require the two describe calls.
-            - cloudformation:*
             - cloudformation:DescribeStackResources
             - cloudformation:DescribeStacks
             Resource: "*"
@@ -628,11 +644,6 @@ Resources:
                 ec2:ResourceTag/aws:cloudformation:stack-id:
                   Ref: AWS::StackId
             Resource: "*"
-            # We still rely on the following * permission w/o resource
-            # restriction for the OGW auto-deployment.
-          - Effect: Allow
-            Action: ec2:*
-            Resource: "*"
           - Effect: Allow
             Action:
             - autoscaling:SetDesiredCapacity
@@ -652,11 +663,6 @@ Resources:
             - autoscaling:DescribeLaunchConfigurations
             - autoscaling:DescribeScalingActivities
             - autoscaling:DescribeScheduledActions
-            Resource: "*"
-          - Effect: Allow
-            Action:
-            - cloudwatch:DeleteAlarms
-            - cloudwatch:PutMetricAlarm
             Resource: "*"
           - Effect: Allow
             Action: elasticloadbalancing:*
