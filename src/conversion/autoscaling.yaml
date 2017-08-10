@@ -598,26 +598,11 @@ Resources:
           - Effect: Allow
             Action:
             - iam:PassRole
-            - iam:CreateRole
-            - iam:PutRolePolicy
-            - iam:DeleteRolePolicy
             - iam:CreateInstanceProfile
             - iam:AddRoleToInstanceProfile
             - iam:RemoveRoleFromInstanceProfile
             - iam:DeleteInstanceProfile
-            - iam:DeleteRole
             Resource: "*"
-          - Action: iam:AttachRolePolicy
-            Resource:
-            - Fn::Join:
-              - ''
-              - - 'arn:'
-                - Fn::FindInMap:
-                  - RegionMap
-                  - Ref: AWS::Region
-                  - ARN
-                - ":iam::*:role/actions/EC2ActionsAccess"
-            Effect: Allow
           - Effect: Allow
             Action:
             # We still rely on the * permission for the OGW auto-deployment.
