@@ -720,18 +720,21 @@ Resources:
                   - Ref: AWS::Region
                   - ARN
                 - ":iam::*:role/actions/EC2ActionsAccess"
-          - Sid: SecurityGroupManagement
+          - Sid: SecurityGroupManagement1
             Effect: Allow
             Action:
             - ec2:AuthorizeSecurityGroupEgress
             - ec2:AuthorizeSecurityGroupIngress
-            - ec2:DescribeSecurityGroups
             - ec2:RevokeSecurityGroupEgress
             - ec2:RevokeSecurityGroupIngress
             Condition:
               StringEquals:
                 ec2:ResourceTag/aws:cloudformation:stack-id:
                   Ref: AWS::StackId
+            Resource: "*"
+          - Sid: SecurityGroupManagement2
+            Effect: Allow
+            Action: ec2:DescribeSecurityGroups
             Resource: "*"
           - Sid: UtmUpdate1
             Effect: Allow
