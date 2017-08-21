@@ -473,104 +473,106 @@ Resources:
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-          - Resource:
-            - Fn::If:
-              - CreateS3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: S3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalExistingS3Bucket
-            - Fn::If:
-              - CreateS3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: S3Bucket
-                  - "/*"
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalExistingS3Bucket
-                  - "/*"
-            Action:
-            - s3:List*
-            - s3:Get*
+          - Sid: ConfigSyncAndBackup
             Effect: Allow
-          - Resource:
-            - Fn::If:
-              - CreateS3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: S3Bucket
-                  - "/adbs"
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalExistingS3Bucket
-                  - "/adbs"
-            - Fn::If:
-              - CreateS3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: S3Bucket
-                  - "/adbs/*"
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalExistingS3Bucket
-                  - "/adbs/*"
             Action:
-            - s3:List*
             - s3:Get*
-            - s3:Put*
+            - s3:List*
+            Resource:
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/*"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/*"
+          - Sid: ReportingSync
+            Effect: Allow
+            Action:
+            - s3:Get*
             - s3:Delete*
-            Effect: Allow
+            - s3:List*
+            - s3:Put*
+            Resource:
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/adbs"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/adbs"
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/adbs/*"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/adbs/*"
   WorkerInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -595,19 +597,141 @@ Resources:
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-          - Effect: Allow
-            Action:
-            - iam:PassRole
-            - iam:CreateRole
-            - iam:PutRolePolicy
-            - iam:DeleteRolePolicy
-            - iam:CreateInstanceProfile
-            - iam:AddRoleToInstanceProfile
-            - iam:RemoveRoleFromInstanceProfile
-            - iam:DeleteInstanceProfile
-            - iam:DeleteRole
+          - Sid: DisableSrcDestCheck
+            Effect: Allow
+            Action: ec2:ModifyInstanceAttribute
             Resource: "*"
-          - Action: iam:AttachRolePolicy
+          - Sid: EipAssociation1
+            Effect: Allow
+            Action: autoscaling:DescribeAutoScalingGroups
+            Resource: "*"
+          - Sid: EipAssociation2
+            Effect: Allow
+            Action: cloudformation:DescribeStackResources
+            Resource: "*"
+          - Sid: EipAssociation3
+            Effect: Allow
+            Action:
+            - ec2:AssociateAddress
+            - ec2:DescribeAddresses
+            Resource: "*"
+          - Sid: CloudWatchLogging
+            Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+            - Fn::Join:
+              - ''
+              - - 'arn:'
+                - Fn::FindInMap:
+                  - RegionMap
+                  - Ref: AWS::Region
+                  - ARN
+                - ":logs:*:*:*"
+          - Sid: ConfigSyncAndBackup
+            Effect: Allow
+            Action:
+            - s3:*
+            Resource:
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+            - Fn::If:
+              - CreateS3Bucket
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: S3Bucket
+                  - "/*"
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalExistingS3Bucket
+                  - "/*"
+          - Fn::If:
+            - EnableLicensePool
+            - Sid: LicensePool1
+              Effect: Allow
+              Action:
+              - ec2:CreateTags
+              Condition:
+                StringEquals:
+                  ec2:ResourceTag/aws:cloudformation:stack-id:
+                    Ref: AWS::StackId
+              Resource: "*"
+            - Ref: AWS::NoValue
+          - Fn::If:
+            - EnableLicensePool
+            - Sid: LicensePool2
+              Effect: Allow
+              Action:
+              - ec2:DescribeInstances
+              Resource: "*"
+            - Ref: AWS::NoValue
+          - Fn::If:
+            - EnableLicensePool
+            - Sid: LicensePool3
+              Effect: Allow
+              Action:
+              - s3:Get*
+              - s3:List*
+              Resource:
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalLicensePool
+              - Fn::Join:
+                - ''
+                - - 'arn:'
+                  - Fn::FindInMap:
+                    - RegionMap
+                    - Ref: AWS::Region
+                    - ARN
+                  - ":s3:::"
+                  - Ref: optionalLicensePool
+                  - "/*"
+            - Ref: AWS::NoValue
+          - Sid: OGWAutoRecovery
+            Effect: Allow
+            Action:
+            - iam:AttachRolePolicy
+            - iam:CreateRole
+            - iam:DeleteRole
+            - iam:PassRole
             Resource:
             - Fn::Join:
               - ''
@@ -617,38 +741,24 @@ Resources:
                   - Ref: AWS::Region
                   - ARN
                 - ":iam::*:role/actions/EC2ActionsAccess"
+          - Sid: SecurityGroupManagement1
             Effect: Allow
-          - Effect: Allow
             Action:
-            # We still rely on the * permission for the OGW auto-deployment.
-            # Once this is sourced out we only require the two describe calls.
-            - cloudformation:*
-            - cloudformation:DescribeStackResources
-            - cloudformation:DescribeStacks
-            Resource: "*"
-          - Effect: Allow
-            Action: cloudformation:UpdateStack
-            Resource:
-              Ref: AWS::StackId
-          - Effect: Allow
-            Action:
-            - ec2:Describe*
-            - ec2:AssociateAddress
-            - ec2:ModifyInstanceAttribute
-            Resource: "*"
-          - Effect: Allow
-            Action: ec2:*
+            - ec2:AuthorizeSecurityGroupEgress
+            - ec2:AuthorizeSecurityGroupIngress
+            - ec2:RevokeSecurityGroupEgress
+            - ec2:RevokeSecurityGroupIngress
             Condition:
               StringEquals:
                 ec2:ResourceTag/aws:cloudformation:stack-id:
                   Ref: AWS::StackId
             Resource: "*"
-            # We still rely on the following * permission w/o resource
-            # restriction for the OGW auto-deployment.
-          - Effect: Allow
-            Action: ec2:*
+          - Sid: SecurityGroupManagement2
+            Effect: Allow
+            Action: ec2:DescribeSecurityGroups
             Resource: "*"
-          - Effect: Allow
+          - Sid: UtmUpdate1
+            Effect: Allow
             Action:
             - autoscaling:SetDesiredCapacity
             - autoscaling:TerminateInstanceInAutoScalingGroup
@@ -658,7 +768,8 @@ Resources:
                 autoscaling:ResourceTag/aws:cloudformation:stack-id:
                   Ref: AWS::StackId
             Resource: "*"
-          - Effect: Allow
+          - Sid: UtmUpdate2
+            Effect: Allow
             Action:
             - autoscaling:CreateLaunchConfiguration
             - autoscaling:DeleteLaunchConfiguration
@@ -668,13 +779,13 @@ Resources:
             - autoscaling:DescribeScalingActivities
             - autoscaling:DescribeScheduledActions
             Resource: "*"
-          - Effect: Allow
-            Action:
-            - cloudwatch:DeleteAlarms
-            - cloudwatch:PutMetricAlarm
+          - Sid: UtmUpdate3
+            Effect: Allow
+            Action: cloudformation:DescribeStacks
             Resource: "*"
-          - Effect: Allow
-            Action: elasticloadbalancing:*
+          - Sid: UtmUpdate4
+            Effect: Allow
+            Action: cloudformation:UpdateStack
             Resource:
             - Fn::Join:
               - ''
@@ -683,60 +794,56 @@ Resources:
                   - RegionMap
                   - Ref: AWS::Region
                   - ARN
-                - ":elasticloadbalancing:*:*:loadbalancer/"
-                - Ref: ElasticLoadBalancer
-          - Effect: Allow
-            Action:
-            - elasticloadbalancing:DescribeLoadBalancers
-            - elasticloadbalancing:DescribeLoadBalancerPolicies
-            Resource: "*"
-          - Resource:
-            - Fn::If:
-              - CreateS3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: S3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalExistingS3Bucket
-            - Fn::If:
-              - CreateS3Bucket
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: S3Bucket
-                  - "/*"
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalExistingS3Bucket
-                  - "/*"
-            Action:
-            - s3:*
+                - ":cloudformation:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":stack/"
+                - Ref: AWS::StackName
+                - "/*"
+          - Sid: UtmUpdate5
             Effect: Allow
-          - Resource:
+            Action:
+            - ec2:DescribeAvailabilityZones
+            - ec2:DescribeInstances
+            - ec2:DescribeImages
+            - ec2:DescribeKeyPairs
+            - ec2:DescribeSecurityGroups
+            Resource: "*"
+          - Sid: UtmUpdate6
+            Effect: Allow
+            Action: iam:PassRole
+            Resource:
+            - Fn::Join:
+              - ''
+              - - 'arn:'
+                - Fn::FindInMap:
+                  - RegionMap
+                  - Ref: AWS::Region
+                  - ARN
+                - ":iam::"
+                - Ref: AWS::AccountId
+                - ":role/"
+                - Ref: AWS::StackName
+                - "-WorkerRole-*"
+            - Fn::Join:
+              - ''
+              - - 'arn:'
+                - Fn::FindInMap:
+                  - RegionMap
+                  - Ref: AWS::Region
+                  - ARN
+                - ":iam::"
+                - Ref: AWS::AccountId
+                - ":role/"
+                - Ref: AWS::StackName
+                - "-QueenRole-*"
+          - Sid: UtmUpdate7
+            Effect: Allow
+            Action:
+            - s3:Get*
+            - s3:List*
+            Resource:
             - Fn::Join:
               - ''
               - - 'arn:'
@@ -769,41 +876,13 @@ Resources:
                   - Ref: AWS::Region
                   - ARN
                 - ":s3:::sophos-nsg-cf/*"
-            - Fn::If:
-              - EnableLicensePool
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalLicensePool
-              - Ref: AWS::NoValue
-            - Fn::If:
-              - EnableLicensePool
-              - Fn::Join:
-                - ''
-                - - 'arn:'
-                  - Fn::FindInMap:
-                    - RegionMap
-                    - Ref: AWS::Region
-                    - ARN
-                  - ":s3:::"
-                  - Ref: optionalLicensePool
-                  - "/*"
-              - Ref: AWS::NoValue
-            Action:
-            - s3:List*
-            - s3:Get*
+          - Sid: WafElbManagement1
             Effect: Allow
-          - Effect: Allow
             Action:
-            - logs:CreateLogGroup
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-            - logs:DescribeLogStreams
+            - elasticloadbalancing:ConfigureHealthCheck
+            - elasticloadbalancing:CreateLoadBalancerListeners
+            - elasticloadbalancing:DeleteLoadBalancerListeners
+            - elasticloadbalancing:SetLoadBalancerPoliciesForBackendServer
             Resource:
             - Fn::Join:
               - ''
@@ -812,7 +891,18 @@ Resources:
                   - RegionMap
                   - Ref: AWS::Region
                   - ARN
-                - ":logs:*:*:*"
+                - ":elasticloadbalancing:*:*:loadbalancer/"
+                - Ref: ElasticLoadBalancer
+          - Sid: WafElbManagement2
+            Effect: Allow
+            Action:
+            - elasticloadbalancing:DescribeLoadBalancers
+            - elasticloadbalancing:DescribeLoadBalancerPolicies
+            Resource: "*"
+          - Sid: WafElbManagement3
+            Effect: Allow
+            Action: cloudformation:DescribeStackResources
+            Resource: "*"
   QueenInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
