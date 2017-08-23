@@ -593,6 +593,7 @@ Resources:
             Action:
             - ec2:AssociateAddress
             - ec2:DescribeAddresses
+            - ec2:DisassociateAddress
             Resource: "*"
           - Sid: CloudWatchLogging
             Effect: Allow
