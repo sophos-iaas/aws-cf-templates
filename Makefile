@@ -72,7 +72,7 @@ VERSION := $(shell ./bin/version_parser.sh $(VERSION))
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
 UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-.*$$
 # TODO change SUM and EGW to new regex on new release
-SUM_REGEX=^acc-.*$$
+SUM_REGEX=^sophos_sum.*$$
 EGW_REGEX=^sophos_egw_.*$$
 STANDALONE_BYOL_REGEX=^sophos_utm_standalone_$(VERSION).*_byol.*$$
 STANDALONE_MP_REGEX=^sophos_utm_standalone_$(VERSION).*_mp.*$$
