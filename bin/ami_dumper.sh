@@ -53,7 +53,7 @@ describe_images() {
 if [[ $public == "yes" ]]; then
   public_filter="Name=is-public,Values=true"
 else
-  public_filter="Name=is-public,Values=false"
+  public_filter="Name=is-public,Values=true,false"
 fi
 
 if [[ $region =~ \-gov\- ]] ; then
