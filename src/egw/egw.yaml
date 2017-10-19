@@ -28,6 +28,7 @@ Parameters:
   AuthToken:
     Description: AuthToken for API access. This token would be used as a shared secret for API communication between Gateway and the UTMs.
     Type: String
+    MinLength: 1
   LoadBalancerUID:
     Description: 'Unique ID for the Gateway instance. Start with 1 if you don''t have any preference. (Note: Gateways with Resource Management by the UTM will use the range 8k - 16k)'
     Type: Number
