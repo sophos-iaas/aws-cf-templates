@@ -89,6 +89,7 @@ RELEASE_FILTER=
 endif
 
 ifeq ($(PUBLIC),1)
+RELEASE_FILTER=--release
 PUBLIC_AMIS=--public
 else
 PUBLIC_AMIS=
