@@ -12,7 +12,10 @@ EGW_VERSION ?= 1.0
 PUBLIC ?= 0
 VERSION ?= .*
 NOTAG ?= 0
+# Build templates using non-public release AMIs (based on naming-scheme) owned by dev account (default: no)
 RELEASE ?= 0
+# Build templates using AMIs in staging area (owned by AWS but not public yet) (default: no)
+STAGING ?= 0
 # Execute make in parallel and disable internal rules
 MAKEFLAGS += --jobs=100 -r
 
@@ -64,7 +67,7 @@ BUILD_JSON=./bin/json_builder.sh
 MERGE_JSON=jq -s 'reduce .[] as $$hash ({}; . * $$hash)'
 ADD_REGION_MAP=jq -s '.[0].Mappings.RegionMap=.[1] | .[0]'
 MODIFY_JSON=./bin/modify_json.sh
-AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t$$(cat $@)"
+AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t\t$$(cat $@)"
 
 # The version regex must be adapted so "9.4" will not capture 9.470 (beta of 9.5)
 VERSION := $(shell ./bin/version_parser.sh $(VERSION))
@@ -79,6 +82,12 @@ STANDALONE_MP_REGEX=^sophos_utm_standalone_$(VERSION).*_mp.*$$
 AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_$(VERSION).*_byol.*$$
 AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_$(VERSION).*_mp.*$$
 
+ifeq ($(RELEASE),1)
+RELEASE_FILTER=--release
+else
+RELEASE_FILTER=
+endif
+
 ifeq ($(PUBLIC),1)
 PUBLIC_AMIS=--public
 else
@@ -91,10 +100,11 @@ else
 SMOKETEST_FILTER=
 endif
 
-ifeq ($(RELEASE),1)
+ifeq ($(STAGING),1)
 RELEASE_FILTER=--release
+STAGING_AMIS=--staging
 else
-RELEASE_FILTER=
+STAGING_AMIS=
 endif
 
 # get_region returns region name from a file path (e.g. tmp/us-east-1/foo.bar -> us-east-1)
@@ -173,7 +183,7 @@ $(ALL_ARN) $(ALL_DEFAULT_ITYPE) $(ALL_LARGE_ITYPE):
 	$(AMI_NAME)
 
 %/ha_byol.ami: %/aws.dump
-	./bin/ami_filter.sh --input $^ --name-regex "$(STANDALONE_BYOL_REGEX)" $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
+	$(Q)./bin/ami_filter.sh --input $^ --name-regex "$(STANDALONE_BYOL_REGEX)" $(SMOKETEST_FILTER) $(RELEASE_FILTER) > $@
 	$(AMI_NAME)
 
 %/ha_mp.ami: %/aws.dump
@@ -198,7 +208,7 @@ $(TMP_OUT)/us-gov-west-1/ha_mp.ami: $(TMP_OUT)/us-gov-west-1/ha_byol.ami
 ## AWS AMI dump
 %/aws.dump: force $(ALL_REGION_DIRS)
 	$(ECHO) "[AMI_DUMP] $(call get_region,$@)"
-	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) --out $@
+	$(Q)./bin/ami_dumper.sh --region $(call get_region,$@) $(PUBLIC_AMIS) $(STAGING_AMIS) --out $@
 
 ## Build actual templates by merging region map and template source
 # convert yaml sources to json
