@@ -16,7 +16,11 @@ help() {
   echo "  -r|--region <region> (mandatory)"
   echo "  -o|--out <out.file> (mandatory)"
   echo "  --public (select public AMIs)"
+  echo "  --staging (select non-public HA/AS AMIs owned by AWS marketplace; useful to create templates for publishing)"
 }
+
+public="no"
+staging="no"
 
 while [[ $# -ge 1 ]] ; do
 	key="$1"
@@ -31,6 +35,9 @@ while [[ $# -ge 1 ]] ; do
 		;;
 		--public)
 		public="yes"
+		;;
+		--staging)
+		staging="yes"
 		;;
 		*)
 		help
@@ -56,27 +63,35 @@ else
   public_filter="Name=is-public,Values=true,false"
 fi
 
+echo "AMI dumper: region: $region public: $public, staging: $staging > ${out}"
+# govcloud
 if [[ $region =~ \-gov\- ]] ; then
   profile="govcloud"
-    echo "AMI dumper: region: $region public: ${public-no} > ${out}"
-    # All AMIs are owned by us as there is no MarketPlace available
-    $(describe_images) --owner $owner_gov --filters "$public_filter" > ${out}.1
-    $(describe_images) --owner $owner_ubuntu_gov --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*" > ${out}.2
-    jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
-      jq ".Images | { Images: sort_by(.CreationDate) }" > $out
+  if [[ $staging == "yes" ]]; then
+    # OGW, HA and AS AMIs must be public in GovCloud during staging
+    public_filter="Name=is-public,Values=true"
+  fi
+  # All AMIs are owned by us as there is no MarketPlace available
+  $(describe_images) --owner $owner_gov --filters "$public_filter" > ${out}.1
+  $(describe_images) --owner $owner_ubuntu_gov --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*" > ${out}.2
+  jq -s '{ Images: (.[0].Images + .[1].Images) }' ${out}.1 ${out}.2 | \
+    jq ".Images | { Images: sort_by(.CreationDate) }" > $out
 else
   profile="default"
-  if [[ $public == "yes" ]]; then
-    echo "AMI dumper: region: $region public: $public > $out"
-    # HA/AS AMIs from MarketPlace
-    $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=sophos_*" > ${out}.1
+  if [[ $public == "yes" ]] || [[ $staging == "yes" ]]; then
     # EGW AMIs are owned by us
-    $(describe_images) --owner $owner_dev --filters "$public_filter" "Name=name,Values=sophos_*" > ${out}.2
+    $(describe_images) --owner $owner_dev --filters "$public_filter" "Name=name,Values=sophos_egw_*_public" > ${out}.2
+    # HA/AS AMIs from MarketPlace
+    if [[ $staging == "yes" ]]; then
+      # staging HA/AS AMIs are owned by AWS but not public yet (accessible by PO/build account)
+      public_filter="Name=is-public,Values=false"
+      profile="egwbuild"
+    fi
+    $(describe_images) --owner $owner_aws --filters "$public_filter" "Name=name,Values=sophos_*" > ${out}.1
     $(describe_images) --owner $owner_ubuntu --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*" > ${out}.3
     jq -s '{ Images: (.[0].Images + .[1].Images + .[2].Images) }' ${out}.1 ${out}.2 ${out}.3 | \
       jq ".Images | { Images: sort_by(.CreationDate) }" > $out
   else
-    echo "AMI dumper: region: $region public: no > $out"
     # All AMIs are owned by us
     $(describe_images) --owner $owner_dev --filters "$public_filter" "Name=name,Values=sophos_*" > ${out}.1
     $(describe_images) --owner $owner_ubuntu --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*" > ${out}.2
