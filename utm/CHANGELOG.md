@@ -1,5 +1,44 @@
 # Sophos UTM on AWS Release Notes
 
+## Sophos UTM 9.506 on AWS
+
+### AWS Firmware
+
+* [UTM on AWS 9.506 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/sophos-utm-9-506-on-aws-release-notes)
+* [UTM 9.506 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-506-released)
+
+### Templates
+
+The following templates were changed in this release:
+
+|Feature|Template|Template Changes|
+|-------|--------|----------------|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
+
+#### Mandatory Changes
+
+|Change|Template|Line(s)|Description|
+|------|--------|-----|-----------|
+|AMI ID changes|autoscaling.template|466-565|Changes AMI to UTM 9.506 AMI|
+| |ha_standalone.template|477-562|Changes AMI to UTM 9.506 AMI|
+| |ha_warm_standby.template|477-562|Changes AMI to UTM 9.506 AMI|
+| |standalone.template|136-229|Changes AMI to UTM 9.506 AMI|
+|Instance Sizes|autoscaling.template|2220|Fixed a bug in choosing the correct default instance type|
+|NUTM-7925|autoscaling.template|640-868, 904-1280|Reduced necessary permissions for UTM Auto Scaling deployment and extracted OGW permissions|
+|NUTM-7925|iam_profile.template|all|Added template for simplifying creation of AWS Profile permissions needed for OGW deployment and monitoring|
+|NUTM-7741|autoscaling.template|2045-2074, 2261-2327, new: 2512-2548|Removed sensitive information from UserData|
+| |ha_standalone.template|1125-1274, new: 1147-1324|Removed sensitive information from UserData|
+| |ha_warm_standby.template|1125-1274, new: 1147-1324|Removed sensitive information from UserData|
+
+#### Optional Changes
+
+|Change|Template|Line(s)|Description|
+|------|--------|-----|-------------|
+|Instance Sizes|autoscaling.template|23-27|Use a default instance type that's supported in all regions|
+
 ## Sophos UTM 9.501 on AWS
 
 ### AWS Firmware
@@ -13,10 +52,10 @@ The following templates were changed in this release:
 
 |Feature|Template|Template Changes|
 |-------|--------|----------------|
-|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.4501/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
 |HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
 |Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
-|Autoscaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.501/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.411...utm9.501)|
 
 #### Mandatory Changes
 
@@ -75,7 +114,7 @@ The following templates were changed in this release:
 |HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/ha_standalone.template)|[Diff of ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
 |HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/ha_warm_standby.template)|[Diff of ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)| |
 |Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/standalone.template)|[Diff of standalone.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
-|Autoscaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/autoscaling.template)|[Diff of autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.411/autoscaling.template)|[Diff of autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.409...utm9.411)|
 
 #### Mandatory Changes
 
