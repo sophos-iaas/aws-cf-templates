@@ -33,7 +33,8 @@
     },
     "AuthToken": {
       "Description": "AuthToken for API access. This token would be used as a shared secret for API communication between Gateway and the UTMs.",
-      "Type": "String"
+      "Type": "String",
+      "MinLength": 1
     },
     "LoadBalancerUID": {
       "Description": "Unique ID for the Gateway instance. Start with 1 if you don't have any preference. (Note: Gateways with Resource Management by the UTM will use the range 8k - 16k)",
@@ -139,77 +140,77 @@
   "Mappings": {
     "RegionMap": {
       "ap-northeast-1": {
-        "EGW": "ami-900febf6",
+        "EGW": "ami-e4941682",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "ap-northeast-2": {
-        "EGW": "ami-b025fbde",
+        "EGW": "ami-bd50f6d3",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "ap-south-1": {
-        "EGW": "ami-54cdb43b",
+        "EGW": "ami-eabff785",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "ap-southeast-1": {
-        "EGW": "ami-59ec7d3a",
+        "EGW": "ami-d72a4aab",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "ap-southeast-2": {
-        "EGW": "ami-02021e61",
+        "EGW": "ami-38a3555a",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "ca-central-1": {
-        "EGW": "ami-0e43fc6a",
+        "EGW": "ami-2cbb0148",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "eu-central-1": {
-        "EGW": "ami-d251f3bd",
+        "EGW": "ami-e8d45f87",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "eu-west-1": {
-        "EGW": "ami-a85cb0d1",
+        "EGW": "ami-71088d08",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "eu-west-2": {
-        "EGW": "ami-72a0b616",
+        "EGW": "ami-a45148c0",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "sa-east-1": {
-        "EGW": "ami-c4a0d4a8",
+        "EGW": "ami-b66f29da",
         "ARN": "aws",
         "EGWInstanceType": "m3.large"
       },
       "us-east-1": {
-        "EGW": "ami-bd889cab",
+        "EGW": "ami-4e761c34",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "us-east-2": {
-        "EGW": "ami-0a8fae6f",
+        "EGW": "ami-d86c44bd",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "us-gov-west-1": {
-        "EGW": "ami-d0f475b1",
+        "EGW": "ami-ae65eacf",
         "ARN": "aws-us-gov",
         "EGWInstanceType": "c4.large"
       },
       "us-west-1": {
-        "EGW": "ami-8582ace5",
+        "EGW": "ami-2d6f6b4d",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
       "us-west-2": {
-        "EGW": "ami-f20c128b",
+        "EGW": "ami-bd65c3c5",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       }

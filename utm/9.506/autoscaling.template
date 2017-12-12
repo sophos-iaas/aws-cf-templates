@@ -554,8 +554,8 @@
         "SwarmInstanceType": "c4.large"
       },
       "us-gov-west-1": {
-        "Hourly": "",
-        "BYOL": "",
+        "Hourly": "ami-6fb23e0e",
+        "BYOL": "ami-6fb23e0e",
         "ARN": "aws-us-gov",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"

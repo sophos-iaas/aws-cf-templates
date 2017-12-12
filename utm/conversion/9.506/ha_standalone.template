@@ -575,8 +575,8 @@
         "HAInstanceType": "c4.large"
       },
       "us-gov-west-1": {
-        "Hourly": "",
-        "BYOL": "",
+        "Hourly": "ami-96a32ff7",
+        "BYOL": "ami-96a32ff7",
         "ARN": "aws-us-gov",
         "HAInstanceType": "c4.large"
       },
