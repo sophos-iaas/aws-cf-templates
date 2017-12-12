@@ -1,0 +1,471 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  UserName:
+    Description: Name of the user to be created for managed OGW deployments
+    Type: String
+Mappings:
+  RegionMap:
+    ap-northeast-1:
+      partition: aws
+    ap-northeast-2:
+      partition: aws
+    ap-south-1:
+      partition: aws
+    ap-southeast-1:
+      partition: aws
+    ap-southeast-2:
+      partition: aws
+    ca-central-1:
+      partition: aws
+    eu-central-1:
+      partition: aws
+    eu-west-1:
+      partition: aws
+    eu-west-2:
+      partition: aws
+    sa-east-1:
+      partition: aws
+    us-east-1:
+      partition: aws
+    us-east-2:
+      partition: aws
+    us-gov-west-1:
+      partition: "aws-us-gov"
+    us-west-1:
+      partition: aws
+    us-west-2:
+      partition: aws
+Resources:
+  EGWAutodeploymentUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName:
+        Ref: UserName
+  EGWAudodeploymentPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    DependsOn:
+      - EGWAutodeploymentUser
+    Properties:
+      Users:
+        - Ref: UserName
+      PolicyDocument: {
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InitiateDeployment1",
+      "Effect": "Allow",
+      "Action": "cloudformation:CreateStack",
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "cloudformation:TemplateUrl": [
+            "https://s3.amazonaws.com/sophos-nsg-cf/egw/*/egw.template",
+            "https://s3.amazonaws.com/sophos-nsg-cf-dev/egw/*/egw.template",
+            "https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf/egw/*/egw.template",
+            "https://s3-us-gov-west-1.amazonaws.com/sophos-nsg-cf-dev/egw/*/egw.template"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "InitiateDeployment2",
+      "Effect": "Allow",
+      "Action": "ec2:DescribeInternetGateways",
+      "Resource": "*"
+    },
+    {
+      "Sid": "InitiateDeployment3",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": [
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":s3:::sophos-nsg-cf"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":s3:::sophos-nsg-cf-dev"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Sid": "InitiateDeployment4",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": [
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":s3:::sophos-nsg-cf/egw/*"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":s3:::sophos-nsg-cf-dev/egw/*"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Sid": "MonitorDeployment1",
+      "Effect": "Allow",
+      "Action": "cloudformation:DescribeStacks",
+      "Resource": "*"
+    },
+    {
+      "Sid": "MonitorDeployment2",
+      "Effect": "Allow",
+      "Action": "ec2:DescribeInstances",
+      "Resource": "*"
+    },
+    {
+      "Sid": "MonitorAndTerminateDeployment",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeStackResources"
+      ],
+      "Resource": {
+        "Fn::Join": [
+          "",
+          [
+            "arn:",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "partition"
+              ]
+            },
+            ":cloudformation:*:*:stack/*-gateway-*"
+          ]
+        ]
+      }
+    },
+    {
+      "Sid": "ManageOGWStackResources1",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AssociateRouteTable",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:CreateRoute",
+        "ec2:CreateRouteTable",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateTags",
+        "ec2:DescribeInstances",
+        "ec2:DescribeKeyPairs",
+        "ec2:DescribeRouteTables",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeVpcs",
+        "ec2:DisassociateRouteTable",
+        "ec2:ModifyInstanceAttribute"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ManageOGWStackResources2",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": {
+        "Fn::Join": [
+          "",
+          [
+            "arn:",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "partition"
+              ]
+            },
+            ":ec2:*:*:instance/*",
+          ]
+        ]
+      },
+      "Condition": {
+        "StringLike": {
+          "ec2:InstanceProfile": [
+            "*-InstanceIAM-*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "ManageOGWStackResources3",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:RunInstances"
+      ],
+      "Resource": [
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":ec2:*::image/ami-*"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":ec2:*:*:key-pair/*"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":ec2:*:*:network-interface/*"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":ec2:*:*:security-group/*"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":ec2:*:*:subnet/*"
+            ]
+          ]
+        },
+        {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "partition"
+                ]
+              },
+              ":ec2:*:*:volume/*"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Sid": "ManageOGWStackResources4",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteRoute",
+        "ec2:DeleteRouteTable",
+        "ec2:DeleteSecurityGroup",
+        "ec2:TerminateInstances"
+      ],
+      "Condition": {
+        "StringLike": {
+          "ec2:ResourceTag/aws:cloudformation:stack-id": "*-gateway-*"
+        }
+      },
+      "Resource": "*"
+    },
+    {
+      "Sid": "ManageOGWStackResources5",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:DeleteRolePolicy",
+        "iam:PassRole",
+        "iam:PutRolePolicy"
+      ],
+      "Resource": {
+        "Fn::Join": [
+          "",
+          [
+            "arn:",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "partition"
+              ]
+            },
+            ":iam::*:role/*-InstanceIAMRole-*"
+          ]
+        ]
+      }
+    },
+    {
+      "Sid": "ManageOGWStackResources6",
+      "Effect": "Allow",
+      "Action": [
+        "iam:AddRoleToInstanceProfile",
+        "iam:CreateInstanceProfile",
+        "iam:DeleteInstanceProfile",
+        "iam:RemoveRoleFromInstanceProfile"
+      ],
+      "Resource": {
+        "Fn::Join": [
+          "",
+          [
+            "arn:",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "partition"
+              ]
+            },
+            ":iam::*:instance-profile/*-InstanceIAM-*"
+          ]
+        ]
+      }
+    },
+    {
+      "Sid": "ManageOGWStackResources7",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DeleteAlarms"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RequiredForCloudWatchPutMetricAlarm",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstanceRecoveryAttribute",
+        "ec2:DescribeInstanceStatus",
+        "ec2:RecoverInstances"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RequiredForOGWInstancePolicy",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeRouteTables",
+        "ec2:DescribeSubnets",
+        "ec2:ReplaceRoute"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
