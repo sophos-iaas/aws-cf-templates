@@ -21,7 +21,7 @@
       "Default": "default"
     },
     "utmWorkerInstanceSize": {
-      "Description": "The default EC2 instance type is c4.large. If c4.large is not available in your region, a similar EC2 instance type will be used.",
+      "Description": "The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.",
       "Type": "String",
       "Default": "default"
     },
@@ -64,22 +64,29 @@
       "Type": "String",
       "MaxLength": "64",
       "AllowedPattern": "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$",
-      "ConstraintDescription": "Invalid hostname. The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters)."
+      "ConstraintDescription": "Must only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters)."
     },
     "basicAdminEmail": {
       "Description": "The email address is only used for UTM administrative purposes.",
-      "Default": "",
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
     },
     "basicAdminPassword": {
       "Type": "String",
-      "NoEcho": "True"
+      "NoEcho": "True",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
     },
     "basicOrganization": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
     },
     "basicCity": {
-      "Type": "String"
+      "Type": "String",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
     },
     "basicCountry": {
       "Type": "String",
@@ -463,106 +470,106 @@
   "Mappings": {
     "RegionMap": {
       "ap-northeast-1": {
-        "Hourly": "ami-dec3deb9",
-        "BYOL": "ami-fcc1dc9b",
+        "Hourly": "ami-73972f15",
+        "BYOL": "ami-47922a21",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "ap-northeast-2": {
-        "Hourly": "ami-e067b88e",
-        "BYOL": "ami-6a65ba04",
+        "Hourly": "ami-110daa7f",
+        "BYOL": "ami-9900a7f7",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "ap-south-1": {
-        "Hourly": "ami-2cf88643",
-        "BYOL": "ami-22f6884d",
+        "Hourly": "ami-fbc78994",
+        "BYOL": "ami-fac78995",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "ap-southeast-1": {
-        "Hourly": "ami-3c9b105f",
-        "BYOL": "ami-f0850e93",
+        "Hourly": "ami-db1a48b8",
+        "BYOL": "ami-8c1a48ef",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "ap-southeast-2": {
-        "Hourly": "ami-0a7d6f69",
-        "BYOL": "ami-ab7f6dc8",
+        "Hourly": "ami-2d36c34f",
+        "BYOL": "ami-8d34c1ef",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "ca-central-1": {
-        "Hourly": "ami-948738f0",
-        "BYOL": "ami-dd853ab9",
+        "Hourly": "ami-3249f256",
+        "BYOL": "ami-6248f306",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "eu-central-1": {
-        "Hourly": "ami-6fed4d00",
-        "BYOL": "ami-71ec4c1e",
+        "Hourly": "ami-c27bf7ad",
+        "BYOL": "ami-df79f5b0",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "eu-west-1": {
-        "Hourly": "ami-51896f28",
-        "BYOL": "ami-818a6cf8",
+        "Hourly": "ami-bea113c7",
+        "BYOL": "ami-01a31178",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "eu-west-2": {
-        "Hourly": "ami-4bd1c72f",
-        "BYOL": "ami-4ad1c72e",
+        "Hourly": "ami-c24658a6",
+        "BYOL": "ami-b14759d5",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "sa-east-1": {
-        "Hourly": "ami-31d2b85d",
-        "BYOL": "ami-cdd0baa1",
+        "Hourly": "ami-8a85c1e6",
+        "BYOL": "ami-ae84c0c2",
         "ARN": "aws",
         "QueenInstanceType": "m3.large",
         "SwarmInstanceType": "m3.large"
       },
       "us-east-1": {
-        "Hourly": "ami-1183ba07",
-        "BYOL": "ami-e582bbf3",
+        "Hourly": "ami-b0920eca",
+        "BYOL": "ami-d1910dab",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "us-east-2": {
-        "Hourly": "ami-e60d2c83",
-        "BYOL": "ami-a10c2dc4",
+        "Hourly": "ami-dd634ab8",
+        "BYOL": "ami-6c654c09",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "us-gov-west-1": {
-        "Hourly": "ami-b35adcd2",
-        "BYOL": "ami-b35adcd2",
+        "Hourly": "ami-6fb23e0e",
+        "BYOL": "ami-6fb23e0e",
         "ARN": "aws-us-gov",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "us-west-1": {
-        "Hourly": "ami-915f70f1",
-        "BYOL": "ami-4c5f702c",
+        "Hourly": "ami-5dba813d",
+        "BYOL": "ami-5cba813c",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
       },
       "us-west-2": {
-        "Hourly": "ami-b10b1bc8",
-        "BYOL": "ami-6e091917",
+        "Hourly": "ami-9fab72e7",
+        "BYOL": "ami-86aa73fe",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "c4.large"
@@ -582,6 +589,14 @@
       "Fn::Equals": [
         {
           "Ref": "utmWorkerInstanceSize"
+        },
+        "default"
+      ]
+    },
+    "DetectControllerInstanceSize": {
+      "Fn::Equals": [
+        {
+          "Ref": "utmControllerInstanceSize"
         },
         "default"
       ]
@@ -643,225 +658,220 @@
               "Version": "2012-10-17",
               "Statement": [
                 {
-                  "Action": [
-                    "ec2:Describe*"
-                  ],
+                  "Sid": "ConfigSyncAndBackup",
                   "Effect": "Allow",
-                  "Resource": "*"
-                },
-                {
-                  "Resource": [
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              }
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              }
-                            ]
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        }
-                      ]
-                    }
-                  ],
                   "Action": [
-                    "s3:List*",
-                    "s3:Get*"
-                  ],
-                  "Effect": "Allow"
-                },
-                {
-                  "Resource": [
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              },
-                              "/adbs"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              },
-                              "/adbs"
-                            ]
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              },
-                              "/adbs/*"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              },
-                              "/adbs/*"
-                            ]
-                          ]
-                        }
-                      ]
-                    }
-                  ],
-                  "Action": [
-                    "s3:List*",
                     "s3:Get*",
-                    "s3:Put*",
-                    "s3:Delete*"
+                    "s3:List*"
                   ],
-                  "Effect": "Allow"
+                  "Resource": [
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Sid": "ReportingSync",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:Get*",
+                    "s3:Delete*",
+                    "s3:List*",
+                    "s3:Put*"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              },
+                              "/adbs"
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              },
+                              "/adbs"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              },
+                              "/adbs/*"
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              },
+                              "/adbs/*"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -907,22 +917,276 @@
               "Version": "2012-10-17",
               "Statement": [
                 {
+                  "Sid": "DisableSrcDestCheck",
+                  "Effect": "Allow",
+                  "Action": "ec2:ModifyInstanceAttribute",
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "EipAssociation1",
+                  "Effect": "Allow",
+                  "Action": "autoscaling:DescribeAutoScalingGroups",
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "EipAssociation2",
+                  "Effect": "Allow",
+                  "Action": "cloudformation:DescribeStackResources",
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "EipAssociation3",
                   "Effect": "Allow",
                   "Action": [
-                    "iam:PassRole",
-                    "iam:CreateRole",
-                    "iam:PutRolePolicy",
-                    "iam:DeleteRolePolicy",
-                    "iam:CreateInstanceProfile",
-                    "iam:AddRoleToInstanceProfile",
-                    "iam:RemoveRoleFromInstanceProfile",
-                    "iam:DeleteInstanceProfile",
-                    "iam:DeleteRole"
+                    "ec2:AssociateAddress",
+                    "ec2:DescribeAddresses",
+                    "ec2:DisassociateAddress"
                   ],
                   "Resource": "*"
                 },
                 {
-                  "Action": "iam:AttachRolePolicy",
+                  "Sid": "CloudWatchLogging",
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":logs:*:*:*"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Sid": "ConfigSyncAndBackup",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:*"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Fn::If": [
+                        "CreateS3Bucket",
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "S3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalExistingS3Bucket"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Fn::If": [
+                    "EnableLicensePool",
+                    {
+                      "Sid": "LicensePool1",
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:CreateTags"
+                      ],
+                      "Condition": {
+                        "StringEquals": {
+                          "ec2:ResourceTag/aws:cloudformation:stack-id": {
+                            "Ref": "AWS::StackId"
+                          }
+                        }
+                      },
+                      "Resource": "*"
+                    },
+                    {
+                      "Ref": "AWS::NoValue"
+                    }
+                  ]
+                },
+                {
+                  "Fn::If": [
+                    "EnableLicensePool",
+                    {
+                      "Sid": "LicensePool2",
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:DescribeInstances"
+                      ],
+                      "Resource": "*"
+                    },
+                    {
+                      "Ref": "AWS::NoValue"
+                    }
+                  ]
+                },
+                {
+                  "Fn::If": [
+                    "EnableLicensePool",
+                    {
+                      "Sid": "LicensePool3",
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:Get*",
+                        "s3:List*"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalLicensePool"
+                              }
+                            ]
+                          ]
+                        },
+                        {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Fn::FindInMap": [
+                                  "RegionMap",
+                                  {
+                                    "Ref": "AWS::Region"
+                                  },
+                                  "ARN"
+                                ]
+                              },
+                              ":s3:::",
+                              {
+                                "Ref": "optionalLicensePool"
+                              },
+                              "/*"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "Ref": "AWS::NoValue"
+                    }
+                  ]
+                },
+                {
+                  "Sid": "OGWAutoRecovery",
+                  "Effect": "Allow",
+                  "Action": [
+                    "iam:AttachRolePolicy",
+                    "iam:CreateRole",
+                    "iam:DeleteRole",
+                    "iam:PassRole"
+                  ],
                   "Resource": [
                     {
                       "Fn::Join": [
@@ -942,32 +1206,73 @@
                         ]
                       ]
                     }
+                  ]
+                },
+                {
+                  "Sid": "SecurityGroupManagement1",
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:AuthorizeSecurityGroupEgress",
+                    "ec2:AuthorizeSecurityGroupIngress",
+                    "ec2:RevokeSecurityGroupEgress",
+                    "ec2:RevokeSecurityGroupIngress"
                   ],
-                  "Effect": "Allow"
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": "cloudformation:*",
+                  "Condition": {
+                    "StringEquals": {
+                      "ec2:ResourceTag/aws:cloudformation:stack-id": {
+                        "Ref": "AWS::StackId"
+                      }
+                    }
+                  },
                   "Resource": "*"
                 },
                 {
+                  "Sid": "SecurityGroupManagement2",
                   "Effect": "Allow",
-                  "Action": "ec2:*",
+                  "Action": "ec2:DescribeSecurityGroups",
                   "Resource": "*"
                 },
                 {
+                  "Sid": "UtmUpdate1",
                   "Effect": "Allow",
-                  "Action": "autoscaling:*",
+                  "Action": [
+                    "autoscaling:SetDesiredCapacity",
+                    "autoscaling:TerminateInstanceInAutoScalingGroup",
+                    "autoscaling:UpdateAutoScalingGroup"
+                  ],
+                  "Condition": {
+                    "StringEquals": {
+                      "autoscaling:ResourceTag/aws:cloudformation:stack-id": {
+                        "Ref": "AWS::StackId"
+                      }
+                    }
+                  },
                   "Resource": "*"
                 },
                 {
-                  "Action": "cloudwatch:*",
-                  "Resource": "*",
-                  "Effect": "Allow"
+                  "Sid": "UtmUpdate2",
+                  "Effect": "Allow",
+                  "Action": [
+                    "autoscaling:CreateLaunchConfiguration",
+                    "autoscaling:DeleteLaunchConfiguration",
+                    "autoscaling:DescribeAutoScalingGroups",
+                    "autoscaling:DescribeAutoScalingInstances",
+                    "autoscaling:DescribeLaunchConfigurations",
+                    "autoscaling:DescribeScalingActivities",
+                    "autoscaling:DescribeScheduledActions"
+                  ],
+                  "Resource": "*"
                 },
                 {
+                  "Sid": "UtmUpdate3",
                   "Effect": "Allow",
-                  "Action": "elasticloadbalancing:*",
+                  "Action": "cloudformation:DescribeStacks",
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "UtmUpdate4",
+                  "Effect": "Allow",
+                  "Action": "cloudformation:UpdateStack",
                   "Resource": [
                     {
                       "Fn::Join": [
@@ -983,189 +1288,102 @@
                               "ARN"
                             ]
                           },
-                          ":elasticloadbalancing:*:*:loadbalancer/",
+                          ":cloudformation:",
                           {
-                            "Ref": "ElasticLoadBalancer"
-                          }
+                            "Ref": "AWS::Region"
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId"
+                          },
+                          ":stack/",
+                          {
+                            "Ref": "AWS::StackName"
+                          },
+                          "/*"
                         ]
                       ]
                     }
                   ]
                 },
                 {
+                  "Sid": "UtmUpdate5",
                   "Effect": "Allow",
-                  "Action": "elasticloadbalancing:DescribeLoadBalancerPolicies",
+                  "Action": [
+                    "ec2:DescribeAvailabilityZones",
+                    "ec2:DescribeInstances",
+                    "ec2:DescribeImages",
+                    "ec2:DescribeKeyPairs",
+                    "ec2:DescribeSecurityGroups"
+                  ],
                   "Resource": "*"
                 },
                 {
+                  "Sid": "UtmUpdate6",
                   "Effect": "Allow",
-                  "Action": "elasticloadbalancing:DescribeLoadBalancers",
-                  "Resource": "*"
-                },
-                {
+                  "Action": "iam:PassRole",
                   "Resource": [
                     {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
                               {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
+                                "Ref": "AWS::Region"
                               },
-                              ":s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              }
+                              "ARN"
                             ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              }
-                            ]
-                          ]
-                        }
+                          },
+                          ":iam::",
+                          {
+                            "Ref": "AWS::AccountId"
+                          },
+                          ":role/",
+                          {
+                            "Ref": "AWS::StackName"
+                          },
+                          "-WorkerRole-*"
+                        ]
                       ]
                     },
                     {
-                      "Fn::If": [
-                        "CreateS3Bucket",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
                               {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
+                                "Ref": "AWS::Region"
                               },
-                              ":s3:::",
-                              {
-                                "Ref": "S3Bucket"
-                              },
-                              "/*"
+                              "ARN"
                             ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalExistingS3Bucket"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "Fn::If": [
-                        "EnableLicensePool",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalLicensePool"
-                              }
-                            ]
-                          ]
-                        },
-                        {
-                          "Ref": "AWS::NoValue"
-                        }
-                      ]
-                    },
-                    {
-                      "Fn::If": [
-                        "EnableLicensePool",
-                        {
-                          "Fn::Join": [
-                            "",
-                            [
-                              "arn:",
-                              {
-                                "Fn::FindInMap": [
-                                  "RegionMap",
-                                  {
-                                    "Ref": "AWS::Region"
-                                  },
-                                  "ARN"
-                                ]
-                              },
-                              ":s3:::",
-                              {
-                                "Ref": "optionalLicensePool"
-                              },
-                              "/*"
-                            ]
-                          ]
-                        },
-                        {
-                          "Ref": "AWS::NoValue"
-                        }
+                          },
+                          ":iam::",
+                          {
+                            "Ref": "AWS::AccountId"
+                          },
+                          ":role/",
+                          {
+                            "Ref": "AWS::StackName"
+                          },
+                          "-QueenRole-*"
+                        ]
                       ]
                     }
-                  ],
-                  "Action": [
-                    "s3:*"
-                  ],
-                  "Effect": "Allow"
+                  ]
                 },
                 {
+                  "Sid": "UtmUpdate7",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:Get*",
+                    "s3:List*"
+                  ],
                   "Resource": [
                     {
                       "Fn::Join": [
@@ -1239,20 +1457,16 @@
                         ]
                       ]
                     }
-                  ],
-                  "Action": [
-                    "s3:List*",
-                    "s3:Get*"
-                  ],
-                  "Effect": "Allow"
+                  ]
                 },
                 {
+                  "Sid": "WafElbManagement1",
                   "Effect": "Allow",
                   "Action": [
-                    "logs:CreateLogGroup",
-                    "logs:CreateLogStream",
-                    "logs:PutLogEvents",
-                    "logs:DescribeLogStreams"
+                    "elasticloadbalancing:ConfigureHealthCheck",
+                    "elasticloadbalancing:CreateLoadBalancerListeners",
+                    "elasticloadbalancing:DeleteLoadBalancerListeners",
+                    "elasticloadbalancing:SetLoadBalancerPoliciesForBackendServer"
                   ],
                   "Resource": [
                     {
@@ -1269,11 +1483,29 @@
                               "ARN"
                             ]
                           },
-                          ":logs:*:*:*"
+                          ":elasticloadbalancing:*:*:loadbalancer/",
+                          {
+                            "Ref": "ElasticLoadBalancer"
+                          }
                         ]
                       ]
                     }
                   ]
+                },
+                {
+                  "Sid": "WafElbManagement2",
+                  "Effect": "Allow",
+                  "Action": [
+                    "elasticloadbalancing:DescribeLoadBalancers",
+                    "elasticloadbalancing:DescribeLoadBalancerPolicies"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Sid": "WafElbManagement3",
+                  "Effect": "Allow",
+                  "Action": "cloudformation:DescribeStackResources",
+                  "Resource": "*"
                 }
               ]
             }
@@ -2023,7 +2255,8 @@
           {
             "DeviceName": "/dev/xvda",
             "Ebs": {
-              "VolumeSize": "100"
+              "VolumeSize": "100",
+              "VolumeType": "gp2"
             }
           }
         ],
@@ -2044,30 +2277,17 @@
               "",
               [
                 "#!/bin/bash\n",
-                "date +'UserData start %c' > /tmp/user_data.log\n",
-                "sed -i 's/^/#/' /etc/crontab.reporting\n",
-                "/usr/local/bin/confd-client.plx trigger crontab\n",
-                "export shared_secret=$(< /dev/urandom  tr -dc _A-Z-a-z-0-9 | head -c${1:-32})\n",
-                "/opt/aws/apitools/cfn-init/bin/cfn-init -c swarm_node -s ",
+                "/usr/libexec/cloud/userdata_init.sh autoscaling -i worker -s ",
                 {
                   "Ref": "AWS::StackId"
                 },
-                " -r SwarmLaunchConfiguration --region ",
-                {
-                  "Ref": "AWS::Region"
-                },
-                " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n",
-                "/etc/init.d/mdw restart && sleep 10\n",
-                "/etc/init.d/httpd restart\n",
-                "/etc/init.d/worker_config_management start\n",
-                "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
+                " -n ",
                 {
                   "Ref": "AWS::StackName"
                 },
-                " --resource SwarmScalingGroup ",
-                " --region ",
+                " -d ",
                 {
-                  "Ref": "AWS::Region"
+                  "Ref": "debugMode"
                 },
                 "\n",
                 "exit 0\n"
@@ -2217,7 +2437,7 @@
         },
         "InstanceType": {
           "Fn::If": [
-            "DetectWorkerInstanceSize",
+            "DetectControllerInstanceSize",
             {
               "Fn::FindInMap": [
                 "RegionMap",
@@ -2239,7 +2459,8 @@
           {
             "DeviceName": "/dev/xvda",
             "Ebs": {
-              "VolumeSize": "100"
+              "VolumeSize": "100",
+              "VolumeType": "gp2"
             }
           }
         ],
@@ -2260,68 +2481,19 @@
               "",
               [
                 "#!/bin/bash\n",
-                "date +'UserData start %c' > /tmp/user_data.log\n",
-                "cc=`/usr/local/bin/confd-client.plx country_name_to_code \"",
+                "/usr/libexec/cloud/userdata_init.sh autoscaling -i controller -s ",
                 {
-                  "Ref": "basicCountry"
+                  "Ref": "AWS::StackId"
                 },
-                "\"`\n",
-                "echo \"{ hostname => '",
+                " -n ",
                 {
-                  "Ref": "basicHostname"
+                  "Ref": "AWS::StackName"
                 },
-                "', organization => '",
-                {
-                  "Ref": "basicOrganization"
-                },
-                "', city => '",
-                {
-                  "Ref": "basicCity"
-                },
-                "', country => '$cc', email => '",
-                {
-                  "Ref": "basicAdminEmail"
-                },
-                "', password => '",
-                {
-                  "Ref": "basicAdminPassword"
-                },
-                "' }\" > /var/confd/var/storage/setup.ph\n",
-                "/etc/init.d/confd restart\n",
-                "sleep 5\n",
-                "/usr/local/bin/debugmode ",
+                " -d ",
                 {
                   "Ref": "debugMode"
                 },
                 "\n",
-                "/opt/aws/apitools/cfn-init/bin/cfn-init -c queen_node -s ",
-                {
-                  "Ref": "AWS::StackId"
-                },
-                " -r QueenLaunchConfiguration --region ",
-                {
-                  "Ref": "AWS::Region"
-                },
-                " >> /tmp/user_data.log 2>&1 || echo 'Failed to run cfn-init' >> /tmp/user_data.log\n",
-                "/usr/libexec/cloud/confd_apply.sh /tmp/user_data.config >> /tmp/user_data.log\n",
-                "date +'UserData aws deamons start %c' >> /tmp/user_data.log\n",
-                "/etc/init.d/ha_aws start\n",
-                "/etc/init.d/queen_config_management start\n",
-                "/etc/init.d/aws_resource_management start\n",
-                "date +'UserData aws deamons end %c' >> /tmp/user_data.log\n",
-                "/usr/local/bin/aws_set_sd_check disable >> /tmp/user_data.log\n",
-                "/usr/local/bin/confd-client.plx trigger ha_aws\n",
-                "/opt/aws/apitools/cfn-init/bin/cfn-signal -e 0 --stack ",
-                {
-                  "Ref": "AWS::StackName"
-                },
-                " --resource QueenScalingGroup ",
-                " --region ",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "\n",
-                "/usr/bin/sg-iaas ogw-create-cw-role >> /tmp/user_data.log 2>&1\n",
                 "exit 0\n"
               ]
             ]
@@ -2337,6 +2509,43 @@
           },
           "queen_config": {
             "files": {
+              "/var/confd/var/storage/setup.ph": {
+                "mode": "0640",
+                "owner": "root",
+                "group": "root",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "{ hostname => '",
+                      {
+                        "Ref": "basicHostname"
+                      },
+                      "', organization => '",
+                      {
+                        "Ref": "basicOrganization"
+                      },
+                      "', city => '",
+                      {
+                        "Ref": "basicCity"
+                      },
+                      "', country => '",
+                      {
+                        "Ref": "basicCountry"
+                      },
+                      "', email => '",
+                      {
+                        "Ref": "basicAdminEmail"
+                      },
+                      "', password => '",
+                      {
+                        "Ref": "basicAdminPassword"
+                      },
+                      "' }"
+                    ]
+                  ]
+                }
+              },
               "/etc/cloud/user_data.yml": {
                 "mode": "0644",
                 "owner": "root",

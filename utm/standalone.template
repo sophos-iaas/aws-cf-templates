@@ -47,7 +47,7 @@
       "Default": ""
     },
     "InstanceSize": {
-      "Description": "The default EC2 instance type is c4.large. If c4.large is not available in your region, a similar EC2 instance type will be used.",
+      "Description": "The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.",
       "Type": "String",
       "Default": "default"
     },
@@ -136,92 +136,92 @@
   "Mappings": {
     "RegionMap": {
       "ap-northeast-1": {
-        "Hourly": "ami-53c0dd34",
-        "BYOL": "ami-06c0dd61",
+        "Hourly": "ami-46922a20",
+        "BYOL": "ami-99922aff",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "ap-northeast-2": {
-        "Hourly": "ami-0865ba66",
-        "BYOL": "ami-1d66b973",
+        "Hourly": "ami-3e0cab50",
+        "BYOL": "ami-810daaef",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "ap-south-1": {
-        "Hourly": "ami-c3f688ac",
-        "BYOL": "ami-a1f987ce",
+        "Hourly": "ami-f9c88696",
+        "BYOL": "ami-bcc688d3",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "ap-southeast-1": {
-        "Hourly": "ami-9d850efe",
-        "BYOL": "ami-f3850e90",
+        "Hourly": "ami-a21547c1",
+        "BYOL": "ami-e51b4986",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "ap-southeast-2": {
-        "Hourly": "ami-f17c6e92",
-        "BYOL": "ami-da7e6cb9",
+        "Hourly": "ami-e831c48a",
+        "BYOL": "ami-e337c281",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "ca-central-1": {
-        "Hourly": "ami-f0863994",
-        "BYOL": "ami-34813e50",
+        "Hourly": "ami-634af107",
+        "BYOL": "ami-4f54ef2b",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "eu-central-1": {
-        "Hourly": "ami-6cee4e03",
-        "BYOL": "ami-6fee4e00",
+        "Hourly": "ami-9c7af6f3",
+        "BYOL": "ami-5d7af632",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "eu-west-1": {
-        "Hourly": "ami-a38b6dda",
-        "BYOL": "ami-4e967037",
+        "Hourly": "ami-c4a311bd",
+        "BYOL": "ami-bca113c5",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "eu-west-2": {
-        "Hourly": "ami-d9d3c5bd",
-        "BYOL": "ami-37d1c753",
+        "Hourly": "ami-c8455bac",
+        "BYOL": "ami-e1475985",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "sa-east-1": {
-        "Hourly": "ami-7fd1bb13",
-        "BYOL": "ami-d3d0babf",
+        "Hourly": "ami-6e7b3f02",
+        "BYOL": "ami-8785c1eb",
         "ARN": "aws",
         "HAInstanceType": "m3.large"
       },
       "us-east-1": {
-        "Hourly": "ami-5685bc40",
-        "BYOL": "ami-6182bb77",
+        "Hourly": "ami-20920e5a",
+        "BYOL": "ami-86910dfc",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "us-east-2": {
-        "Hourly": "ami-350a2b50",
-        "BYOL": "ami-810d2ce4",
+        "Hourly": "ami-fa644d9f",
+        "BYOL": "ami-6f654c0a",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "us-gov-west-1": {
-        "Hourly": "ami-7a5adc1b",
-        "BYOL": "ami-7a5adc1b",
+        "Hourly": "ami-96a32ff7",
+        "BYOL": "ami-96a32ff7",
         "ARN": "aws-us-gov",
         "HAInstanceType": "c4.large"
       },
       "us-west-1": {
-        "Hourly": "ami-0e5e716e",
-        "BYOL": "ami-435f7023",
+        "Hourly": "ami-eeb9828e",
+        "BYOL": "ami-efb9828f",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       },
       "us-west-2": {
-        "Hourly": "ami-080b1b71",
-        "BYOL": "ami-1709196e",
+        "Hourly": "ami-82a970fa",
+        "BYOL": "ami-ccad74b4",
         "ARN": "aws",
         "HAInstanceType": "c4.large"
       }
