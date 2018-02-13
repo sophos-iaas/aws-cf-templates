@@ -2834,11 +2834,17 @@
           }
         ]
       },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-PublicIPAddress"}
+      },
       "Description": "Use this IP to connect and to forward traffic to the UTM."
     },
     "QueenScalingGroup": {
       "Value": {
         "Ref": "QueenScalingGroup"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-QueenScalingGroup"}
       },
       "Description": "The HA Scaling group."
     },
@@ -2854,11 +2860,17 @@
           }
         ]
       },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-S3Bucket"}
+      },
       "Description": "The S3 Bucket."
     },
     "SwarmScalingGroup": {
       "Value": {
         "Ref": "SwarmScalingGroup"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-SwarmScalingGroup"}
       },
       "Description": "The Swarm scaling group."
     },
@@ -2866,17 +2878,26 @@
       "Value": {
         "Ref": "VPC"
       },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-VPCID"}
+      },
       "Description": "The VPC of the Swarm"
     },
     "Region": {
       "Value": {
         "Ref": "AWS::Region"
       },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-Region"}
+      },
       "Description": "Region of the stack"
     },
     "ELB": {
       "Value": {
         "Ref": "ElasticLoadBalancer"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-ELB"}
       },
       "Description": "Swarm ELB"
     }
