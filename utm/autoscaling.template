@@ -2900,6 +2900,42 @@
         "Name": {"Fn::Sub": "${AWS::StackName}-ELB"}
       },
       "Description": "Swarm ELB"
+    },
+    "QueenSubnet1": {
+      "Value": {
+        "Ref": "QueenSubnet1"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-QueenSubnet1"}
+      },
+      "Description": "Queen Subnet 1"
+    },
+    "QueenSubnet2": {
+      "Value": {
+        "Ref": "QueenSubnet2"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-QueenSubnet2"}
+      },
+      "Description": "Queen Subnet 2"
+    },
+    "SwarmSubnet1": {
+      "Value": {
+        "Ref": "SwarmSubnet1"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-SwarmSubnet1"}
+      },
+      "Description": "Swarm Subnet 1"
+    },
+    "SwarmSubnet2": {
+      "Value": {
+        "Ref": "SwarmSubnet2"
+      },
+      "Export": {
+        "Name": {"Fn::Sub": "${AWS::StackName}-SwarmSubnet2"}
+      },
+      "Description": "Swarm Subnet 2"
     }
   }
 }
