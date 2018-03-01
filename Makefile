@@ -77,10 +77,10 @@ UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-.*$$
 # TODO change SUM and EGW to new regex on new release
 SUM_REGEX=^sophos_sum.*$$
 EGW_REGEX=^sophos_egw_.*$$
-STANDALONE_BYOL_REGEX=^sophos_utm_standalone_$(VERSION).*_byol.*$$
-STANDALONE_MP_REGEX=^sophos_utm_standalone_$(VERSION).*_mp.*$$
-AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_$(VERSION).*_byol.*$$
-AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_$(VERSION).*_mp.*$$
+STANDALONE_BYOL_REGEX=^sophos_utm_standalone_$(VERSION).*(_|-)byol.*$$
+STANDALONE_MP_REGEX=^sophos_utm_standalone_$(VERSION).*(_|-)mp.*$$
+AUTOSCALING_BYOL_REGEX=^sophos_utm_autoscaling_$(VERSION).*(_|-)byol.*$$
+AUTOSCALING_MP_REGEX=^sophos_utm_autoscaling_$(VERSION).*(_|-)mp.*$$
 
 ifeq ($(RELEASE),1)
 RELEASE_FILTER=--release
