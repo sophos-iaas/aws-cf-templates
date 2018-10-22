@@ -1,5 +1,32 @@
 # Sophos UTM on AWS Release Notes
 
+## Sophos UTM 9.510 on AWS
+
+### AWS Firmware
+
+* [UTM on AWS 9.510 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/sophos-utm-9-510-on-aws-release-notes)
+* [UTM 9.510 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-510-released)
+
+### Templates
+
+The following templates were changed in this release:
+
+|Feature|Template|Template Changes|
+|-------|--------|----------------|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.510/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.506...utm9.510)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.510/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.506...utm9.510)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.510/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.506...utm9.510)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.510/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.506...utm9.510)|
+
+#### Mandatory Changes
+
+|Change|Template|Line(s)|Description|
+|------|--------|-----|-----------|
+|AMI ID changes|autoscaling.template|466-565|Changes AMI to UTM 9.510 AMI|
+| |ha_standalone.template|477-562|Changes AMI to UTM 9.510 AMI|
+| |ha_warm_standby.template|477-562|Changes AMI to UTM 9.510 AMI|
+| |standalone.template|136-229|Changes AMI to UTM 9.510 AMI|
+
 ## Sophos UTM 9.506 on AWS
 
 ### AWS Firmware
@@ -14,7 +41,7 @@ The following templates were changed in this release:
 |Feature|Template|Template Changes|
 |-------|--------|----------------|
 |HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
-|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
+HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
 |Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
 |Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.506/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.501...utm9.506)|
 
