@@ -4,7 +4,7 @@
 
 ### AWS Firmware
 
-* [UTM on AWS 9.510 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/sophos-utm-9-510-on-aws-release-notes)
+* [UTM on AWS 9.510 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-510-released)
 * [UTM 9.510 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-510-released)
 
 ### Templates
