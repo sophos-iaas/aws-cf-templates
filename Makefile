@@ -73,7 +73,7 @@ AMI_NAME=$(ECHO) "[AMI] $(call get_region,$@) \t$(call get_product,$@)\t\t$$(cat
 VERSION := $(shell ./bin/version_parser.sh $(VERSION))
 
 # PUBLIC AMIs will have a uuid appended to the name by AWS, so adding a .* in the end
-UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-.*$$
+UBUNTU_REGEX=^ubuntu/images/hvm-ssd/ubuntu-xenial.*$$
 # TODO change SUM and EGW to new regex on new release
 SUM_REGEX=^sophos_sum.*$$
 EGW_REGEX=^sophos_egw_.*$$
