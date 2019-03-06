@@ -1,0 +1,243 @@
+{
+    "data": {
+        "aws_iam_policy_document": {
+            "avis": {
+                "statement": {
+                    "actions": [
+                        "sts:AsssumeRole"
+                    ],
+                    "condition": {
+                        "test": "StringEquals",
+                        "values": [
+                            "${var.EXTERNAL_ID}"
+                        ],
+                        "variable": "sts:ExternalId"
+                    },
+                    "effect": "Allow",
+                    "principals": {
+                        "identifiers": [
+                            "arn:aws:iam::${var.avid_account}:root"
+                        ],
+                        "type": "AWS"
+                        
+                    }
+                }
+            }
+        }
+    }, 
+    "locals": {
+        "act_resource": "${local.pol_resource}/AWSLogs/${local.aws_account_id}/*",
+        "aws_account_id": "${data.aws_caller_identity.current.account_id}",
+        "pol_resource": "arn:aws:s3:::${local.s3bucketname}",
+        "s3bucketname": "${format(\"%s%s\", var.avid_cloudtrailS3bucketprefix, local.aws_account_id)}"
+        },
+        "output": {
+            "account_id": {
+                "value": "${data.aws_caller_identity.current.account_id}"
+            }
+        },
+        "provider": {
+            "aws": {
+                "region": "${var.aws_region}"
+            }
+        },
+        "resource":{
+            "aws_s3_bucket": {
+                "exampless4": {
+                    "acl": "public-write",
+                    "bucket": "RW_bucket"
+                },
+                "avidcloudtrailbucket": {
+                    "bucket": "${local.s3bucketname}",
+                    "force_destroy": true,
+                    "policy": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Sid\": \"AWSCloudTrailAclCheck\",\n            \"Effect\": \"Allow\",\n            \"Principal\": {\n              \"Service\": \"cloudtrail.amazonaws.com\"\n            },\n            \"Action\": \"s3:GetBucketAcl\",\n            \"Resource\": \"${local.pol_resource}\"\n        },\n        {\n            \"Sid\": \"AWSCloudTrailWrite\",\n            \"Effect\": \"Allow\",\n            \"Principal\": {\n              \"Service\": \"cloudtrail.amazonaws.com\"\n            },\n            \"Action\": \"s3:PutObject\",\n            \"Resource\": \"${local.act_resource}\",\n            \"Condition\": {\n                \"StringEquals\": {\n                    \"s3:x-amz-acl\": \"bucket-owner-full-control\"\n                }\n            }\n        }\n    ]\n}"
+                    }
+                },
+                "aws_iam_account_password_policy": {
+                    "strict": {
+                        "allow_users_to_change_password": true,
+                        "minimum_password_length": 8,
+                        "require_lowercase_characters": true,
+                        "require_numbers": false,
+                        "require_symbols": false,
+                        "require_uppercase_characters": false,
+                        "max_password_age": 120,
+                        "password_reuse_prevention":3
+                    }
+                },
+                "aws_redshift_cluster": {
+                    "default": {
+                        "cluster_identifier": "aurora-cluster-demo",
+                        "availability_zones": ["us-west-2a", "us-west-2b", "us-west-2c"],
+                        "database_name": "mydb",
+                        "master_username": "foo",
+                        "master_password": "barbut8chars",
+                        "node_type": "dc1.large",
+                        "cluster_type": "single-node",
+                        "publicly_accessible":false,
+                        "encrypted":false
+                    }
+                },
+                "aws_cloudtrail": {
+                    "AvidSecure-CloudTrail": {
+                        "cloud_watch_logs_group_arn": "${aws_cloudwatch_log_group.CT-Avid-LogGroup-TF.arn}",
+                        "cloud_watch_logs_role_arn": "${aws_iam_role.CloudtrailtoCloudwatch.arn}",
+                        "enable_log_file_validation": true,
+                        "event_selector": {
+                            "include_management_events": true,
+                            "read_write_type": "All"
+                        },
+                        "include_global_service_events": true,
+                        "is_multi_region_trail": false,
+                        "name": "${var.avid_cloudtrailname}",
+                        "s3_bucket_name": "${aws_s3_bucket.avidcloudtrailbucket.bucket}"
+                    }
+                },
+                "aws_cloudwatch_log_group": {
+                    "CT-Avid-LogGroup-TF": {
+                        "name": "CT-Avid-LogGroup-TF"
+                    },
+                    "Flowlogs-Avid-LogGroup-TF": {
+                        "name": "Flowlogs-Avid-LogGroup-TF"
+                    }
+                },
+                "aws_cloudwatch_log_subscription_filter": {
+                    "LambdaStream_vpc-flow-logs-to-avidsecure-TF": {
+                        "destination_arn": "${aws_lambda_function.Avid-VPC-LOGS-function-TF.arn}",
+                        "filter_pattern": "",
+                        "log_group_name": "Flowlogs-Avid-LogGroup-TF",
+                        "name": "LambdaStream_vpc-flow-logs-to-avidsecure-TF"
+                    },
+                    "Lambdafunction_logfilter": {
+                        "destination_arn": "${aws_lambda_function.Avid_cloudtrail_lambda.arn}",
+                        "filter_pattern": "",
+                        "log_group_name": "CT-Avid-LogGroup-TF",
+                        "name": "LambdaStream_cloudtrail-logs-to-avidsecure-TF"
+                    }
+                },
+                "aws_flow_log": {
+                    "Avid-FlowLogs-TF": {
+                        "count": "${length(var.vpc_list)}",
+                        "iam_role_arn": "${aws_iam_role.Avid-VPCFlow-Role-TF.arn}",
+                        "log_group_name": "${aws_cloudwatch_log_group.Flowlogs-Avid-LogGroup-TF.name}",
+                        "traffic_type": "ALL",
+                        "vpc_id": "${var.vpc_list[count.index]}"
+                    }
+                },
+                "aws_iam_role": {
+                    "Avid-VPCFlow-Role-TF": {
+                        "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"Service\": \"vpc-flow-logs.amazonaws.com\"\n      },\n      \"Action\": \"sts:AssumeRole\"\n    }\n  ]\n}",
+                            "name": "Avid-VPCFlow-Role-TF"
+                        },
+                        "CloudtrailtoCloudwatch": {
+                            "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"Service\": \"cloudtrail.amazonaws.com\"\n      },\n      \"Action\": \"sts:AssumeRole\"\n    }\n  ]\n}",
+                                "name": "Avid-CT-to-CW-TF"
+                            },
+                            "avid": {
+                                "assume_role_policy": "${data.aws_iam_policy_document.avid.json}",
+                                "name": "Avid-Role-TF"
+                            },
+                            "iam_for_lambda": {
+                                "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"lambda.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}",
+                                    "name": "Avid-Lambda-to-CloudWatch-CT"
+                                }
+                            },
+                            "aws_iam_role_policy": {
+                                "Avid-VPCFlow-policy-TF": {
+                                    "name": "Avid-VPCFlow-policy-TF",
+                                    "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\",\n        \"logs:DescribeLogGroups\",\n        \"logs:DescribeLogStreams\"\n      ],\n      \"Effect\": \"Allow\",\n      \"Resource\": \"*\"\n    }\n  ]\n}",
+                                        "role": "${aws_iam_role.Avid-VPCFlow-Role-TF.id}"
+                                    },
+                                    "CloudtrailPolicy": {
+                                        "name": "Cloudtrail-Policy",
+                                        "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"AWSCloudTrailCreateLogStream\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\"logs:CreateLogStream\"],\n      \"Resource\": [\n        \"arn:aws:logs:${var.aws_region}:${local.aws_account_id}:log-group:${aws_cloudwatch_log_group.CT-Avid-LogGroup-TF.id}:log-stream:*\"\n      ]\n    },\n    {\n      \"Sid\": \"AWSCloudTrailPutLogEvents\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\"logs:PutLogEvents\"],\n      \"Resource\": [\n        \"arn:aws:logs:${var.aws_region}:${local.aws_account_id}:log-group:${aws_cloudwatch_log_group.CT-Avid-LogGroup-TF.id}:log-stream:*\"\n      ]\n    }\n  ]\n}",
+                                            "role": "${aws_iam_role.CloudtrailtoCloudwatch.id}"
+                                        }
+                                    },
+                                    "aws_iam_role_policy_attachment": {
+                                        "avid_secure_pol": {
+                                            "policy_arn": "arn:aws:iam::aws:policy/ReadOnlyAccess",
+                                            "role": "${aws_iam_role.avid.name}"
+                                        }
+                                    },
+                                    "aws_lambda_function": {
+                                        "Avid-VPC-LOGS-function-TF": {
+                                            "environment": {
+                                                "variables": {
+                                                    "CUSTOMER_ID": "${var.CUSTOMER_ID}"
+                                                }
+                                            },
+                                            "filename": "VPCFlow-lambda.zip",
+                                            "function_name": "Avid-VPC-LOGS-function-TF",
+                                            "handler": "VPCFlow-lambda.handler",
+                                            "memory_size": "128",
+                                            "role": "${aws_iam_role.iam_for_lambda.arn}",
+                                            "runtime": "nodejs6.10",
+                                            "timeout": "10"
+                                        },
+                                        "Avid_cloudtrail_lambda": {
+                                            "environment": {
+                                                "variables": {
+                                                    "CUSTOMER_ID": "${var.CUSTOMER_ID}"
+                                                }
+                                            },
+                                            "filename": "cloudtrail-lambda.zip",
+                                            "function_name": "Avid-CloudTrail-function-TF",
+                                            "handler": "cloudtrail-lambda.handler",
+                                            "memory_size": "128",
+                                            "role": "${aws_iam_role.iam_for_lambda.arn}",
+                                            "runtime": "nodejs6.10",
+                                            "timeout": "10"
+                                        }
+                                    },
+                                    "aws_lambda_permission": {
+                                        "Avid-VPC-LOGS-function-TF": {
+                                            "action": "lambda:InvokeFunction",
+                                            "function_name": "${aws_lambda_function.Avid-VPC-LOGS-function-TF.function_name}",
+                                            "principal": "logs.${var.aws_region}.amazonaws.com",
+                                            "source_account": "${local.aws_account_id}",
+                                            "source_arn": "arn:aws:logs:${var.aws_region}:${local.aws_account_id}:log-group:Flowlogs-Avid-LogGroup-TF:*",
+                                            "statement_id": "Avid-VPC-LOGS-function-TF"
+                                        },
+                                        "allow_cloudwatch": {
+                                            "action": "lambda:InvokeFunction",
+                                            "function_name": "${aws_lambda_function.Avid_cloudtrail_lambda.function_name}",
+                                            "principal": "logs.${var.aws_region}.amazonaws.com",
+                                            "source_account": "${local.aws_account_id}",
+                                            "source_arn": "arn:aws:logs:${var.aws_region}:${local.aws_account_id}:log-group:CT-Avid-LogGroup-TF:*",
+                                            "statement_id": "AllowExecutionFromCloudWatch"
+                                        }
+                                    }
+                                },
+
+                                "variable": {
+                                    "CUSTOMER_ID": {
+                                        "type": "string"
+                                    },
+                                    "EXTERNAL_ID": {
+                                        "type": "string"
+                                    },
+                                    "avid_account": {
+                                        "default": "195990147830",
+                                        "type": "string"
+                                    },
+                                    "avid_cloudtrailS3bucketprefix": {
+                                        "default": "avid-cloudtrail-tf-",
+                                        "type": "string"
+                                    },
+                                    "avid_cloudtrailname": {
+                                        "default": "CT-AvidSecure-TF",
+                                        "type": "string"
+                                    },
+                                    "aws_region": {
+                                        "default": "us-east-1",
+                                        "type": "string"
+                                    },
+                                    "vpc_list": {
+                                        "type": "list"
+                                    }
+                                    
+                                }
+                            }
+                            
+

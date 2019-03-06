@@ -1,0 +1,35 @@
+hosts: localhost
+connection: local
+gather_facts: False
+tasks:
+
+  - name: create multi-region trail with validation and tags
+    cloudtrail:
+      state: present
+      name: default
+      s3_bucket_name: mylogbucket
+      region: us-east-1
+      is_multi_region_trail: false
+      enable_log_file_validation: true
+      cloudwatch_logs_role_arn: "arn:aws:iam::123456789012:role/CloudTrail_CloudWatchLogs_Role"
+      cloudwatch_logs_log_group_arn: "arn:aws:logs:us-east-1:123456789012:log-group:CloudTrail/DefaultLogGroup:*"
+      kms_key_id: "alias/MyAliasName"
+      tags:
+        environment: dev
+        Name: default
+
+  - name: Create an empty bucket
+    aws_s3:
+      bucket: mybucket
+      mode: createhttps://app.asana.com/0/467999648782683/956997898934393
+      permission: public-read
+      
+   # Cluster delete example
+  - name: "mah redshift"
+    redshift:
+      command: delete
+      identifier: new_cluster
+      skip_final_cluster_snapshot: false
+      publicly_accessible: true
+      encrypted: false
+      
