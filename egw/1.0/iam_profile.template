@@ -29,7 +29,13 @@ Mappings:
       partition: aws
     us-east-2:
       partition: aws
+    eu-west-3:
+      partition: aws
+    eu-north-1:
+      partition: aws
     us-gov-west-1:
+      partition: "aws-us-gov"
+    us-gov-east-1:
       partition: "aws-us-gov"
     us-west-1:
       partition: aws
@@ -453,7 +459,9 @@ Resources:
       "Action": [
         "ec2:DescribeInstanceRecoveryAttribute",
         "ec2:DescribeInstanceStatus",
-        "ec2:RecoverInstances"
+        "ec2:RecoverInstances",
+        "iam:CreateServiceLinkedRole"
+
       ],
       "Resource": "*"
     },
