@@ -2,7 +2,6 @@
 
 This repository tracks the templates used within the Sophos NSG CloudFormation template S3 bucket *s3://sophos-nsg-cf/*
 
-
 ## Instant Deployment
 
 With the templates we provide, you can instantly deploy our UTM solutions on AWS using any of the Amazon 1-Click launch options below.
