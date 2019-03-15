@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "High Availability (HA) UTM CloudFormation template",
+  "Description": "High Availability (HA) UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.",
   "Parameters": {
     "HAMode": {
       "Description": "Cold has one active instance which will recover in case of a failure. Warm has two running instances, one acting as active.",
@@ -9,7 +9,7 @@
         "Cold",
         "Warm"
       ],
-      "Default": "Warm"
+      "Default": "Cold"
     },
     "AMI": {
       "Description": "Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.",
@@ -37,16 +37,26 @@
       "Type": "AWS::EC2::AvailabilityZone::Name",
       "Description": "Please provide another (different) Availability Zone."
     },
-    "NetworkPrefix": {
-      "Description": "Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example for the network 10.6.0.0/16 you should provide 10.6",
-      "Type": "String",
-      "Default": "10.15"
+    "VPCID": {
+      "Description": "ID of an existing VPC to launch the deployment in.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "GatewayID": {
+      "Description": "The Internet Gateway ID of the VPC.",
+      "Type": "String"
+    },
+    "SubnetIPBlocks": {
+      "Description": "Please provide a comma-separated list of two CIDR blocks within your VPC. The template will create two subnets automatically, e.g.: 10.6.1.0/24,10.6.2.0/24.",
+      "Type": "CommaDelimitedList"
     },
     "TrustedNetwork": {
       "Description": "Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
+      "Type": "String"
+    },
+    "ExistingSecurityGroup": {
+      "Description": "A security group to assign to the new stack.",
       "Type": "String",
-      "AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "ConstraintDescription": "Must be IPv4 CIDR notation: X.X.X.X/X"
+      "Default": ""
     },
     "ExistingElasticIP": {
       "Description": "Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
@@ -387,8 +397,11 @@
           "Parameters": [
             "AvailabilityZone1",
             "AvailabilityZone2",
-            "NetworkPrefix",
+            "VPCID",
+            "GatewayID",
+            "SubnetIPBlocks",
             "TrustedNetwork",
+            "ExistingSecurityGroup",
             "ExistingElasticIP",
             "ExistingS3Bucket",
             "LicensePool"
@@ -436,11 +449,20 @@
         "AvailabilityZone2": {
           "default": "Availability Zone 2 (required)"
         },
-        "NetworkPrefix": {
-          "default": "Prefix for VPC CIDR Block (required)"
+        "VPCID": {
+          "default": "VPC ID (required)"
+        },
+        "GatewayID": {
+          "default": "Internet Gateway ID (required)"
+        },
+        "SubnetIPBlocks": {
+          "default": "Two Subnet CIDR Blocks (required)"
         },
         "TrustedNetwork": {
           "default": "Trusted Network CIDR (required)"
+        },
+        "ExistingSecurityGroup": {
+          "default": "Existing Security Group (optional)"
         },
         "ExistingElasticIP": {
           "default": "Existing Elastic IP (optional)"
@@ -630,50 +652,33 @@
         },
         ""
       ]
+    },
+    "UseExistingSG": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "ExistingSecurityGroup"
+            },
+            ""
+          ]
+        }
+      ]
     }
   },
   "Resources": {
-    "VPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true",
-        "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "NetworkPrefix"
-              },
-              "0.0/16"
-            ]
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          }
-        ]
-      }
-    },
     "Subnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "VPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "NetworkPrefix"
-              },
-              "1.0/24"
-            ]
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "SubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -697,17 +702,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "VPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "NetworkPrefix"
-              },
-              "2.0/24"
-            ]
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "SubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -727,39 +729,11 @@
         ]
       }
     },
-    "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
-          }
-        ]
-      }
-    },
-    "AttachGateway": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "InternetGateway"
-        }
-      }
-    },
     "RouteTable": {
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "VPCID"
         },
         "Tags": [
           {
@@ -777,14 +751,13 @@
     },
     "Route": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "AttachGateway",
       "Properties": {
         "RouteTableId": {
           "Ref": "RouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "GatewayID"
         }
       }
     },
@@ -812,7 +785,6 @@
     },
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
-      "DependsOn": "AttachGateway",
       "Condition": "AllocateElasticIP",
       "Properties": {
         "Domain": "vpc"
@@ -936,7 +908,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "VPCID"
         }
       }
     },
@@ -955,7 +927,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "VPCID"
         }
       }
     },
@@ -996,7 +968,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "VPCID"
         }
       }
     },
@@ -1127,17 +1099,54 @@
             }
           }
         ],
-        "SecurityGroups": [
-          {
-            "Ref": "UTMSecurityGroup"
-          },
-          {
-            "Ref": "TrustedNetworkGroup"
-          },
-          {
-            "Ref": "UntrustedGroup"
-          }
-        ],
+        "SecurityGroups": {
+          "Fn::If": [
+            "UseExistingSG",
+            [
+              {
+                "Ref": "ExistingSecurityGroup"
+              },
+              {
+                "Fn::GetAtt": [
+                  "UTMSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ],
+            [
+              {
+                "Fn::GetAtt": [
+                  "UTMSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ]
+          ]
+        },
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -1441,7 +1450,7 @@
     },
     "VPCID": {
       "Value": {
-        "Ref": "VPC"
+        "Ref": "VPCID"
       },
       "Description": "The VPC of the deployment."
     }
