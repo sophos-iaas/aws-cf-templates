@@ -1,1 +1,1449 @@
-../ha_warm_standby.template
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "High Availability (HA) UTM CloudFormation template",
+  "Parameters": {
+    "HAMode": {
+      "Description": "Cold has one active instance which will recover in case of a failure. Warm has two running instances, one acting as active.",
+      "Type": "String",
+      "AllowedValues": [
+        "Cold",
+        "Warm"
+      ],
+      "Default": "Warm"
+    },
+    "AMI": {
+      "Description": "Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.",
+      "Type": "String",
+      "Default": "autodetect"
+    },
+    "LicenseType": {
+      "Description": "Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.",
+      "Type": "String",
+      "AllowedValues": [
+        "Hourly",
+        "BYOL"
+      ]
+    },
+    "InstanceSize": {
+      "Description": "The default EC2 instance type is m4.large. If m4.large is not available in your region, a similar EC2 instance type will be used.",
+      "Type": "String",
+      "Default": "default"
+    },
+    "AvailabilityZone1": {
+      "Type": "AWS::EC2::AvailabilityZone::Name",
+      "Description": "Please provide an Availability Zone."
+    },
+    "AvailabilityZone2": {
+      "Type": "AWS::EC2::AvailabilityZone::Name",
+      "Description": "Please provide another (different) Availability Zone."
+    },
+    "NetworkPrefix": {
+      "Description": "Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example for the network 10.6.0.0/16 you should provide 10.6",
+      "Type": "String",
+      "Default": "10.15"
+    },
+    "TrustedNetwork": {
+      "Description": "Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
+      "Type": "String",
+      "AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "ConstraintDescription": "Must be IPv4 CIDR notation: X.X.X.X/X"
+    },
+    "ExistingElasticIP": {
+      "Description": "Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
+      "Type": "String",
+      "Default": ""
+    },
+    "ExistingS3Bucket": {
+      "Description": "S3 Bucket to store and restore backups. If left empty a new Bucket will be created automatically.",
+      "Type": "String",
+      "Default": ""
+    },
+    "LicensePool": {
+      "Description": "With BYOL the license is automatically fetched from the S3 bucket (one license per deployment). If you leave this field empty, you can install the license using WebAdmin.",
+      "Type": "String",
+      "Default": ""
+    },
+    "Hostname": {
+      "Description": "The hostname can only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters).",
+      "Type": "String",
+      "MaxLength": "64",
+      "AllowedPattern": "^[0-9A-Za-z]{1}([A-Za-z0-9.-]*)$",
+      "ConstraintDescription": "Must only contain lower and uppercase letters, numbers, dots(.), dashes(-) and needs to begin with a letter or a number (max. 64 characters)."
+    },
+    "Email": {
+      "Description": "The email address is only used for UTM administrative purposes.",
+      "Type": "String",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
+    },
+    "AdminPassword": {
+      "Type": "String",
+      "NoEcho": "True",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
+    },
+    "Organization": {
+      "Type": "String",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
+    },
+    "City": {
+      "Type": "String",
+      "AllowedPattern": "^[^\\']+$",
+      "ConstraintDescription": "Must not be empty. Must not contain backslashes(\\) or quotes(')."
+    },
+    "Country": {
+      "Type": "String",
+      "AllowedValues": [
+        "Andorra",
+        "United Arab Emirates",
+        "Afghanistan",
+        "Antigua and Barbuda",
+        "Anguilla",
+        "Albania",
+        "Armenia",
+        "Netherlands Antilles",
+        "Angola",
+        "Antarctica",
+        "Argentina",
+        "American Samoa",
+        "Austria",
+        "Australia",
+        "Aland Islands",
+        "Aruba",
+        "Azerbaidjan",
+        "Bosnia and Herzegovina",
+        "Barbados",
+        "Bangladesh",
+        "Belgium",
+        "Burkina Faso",
+        "Bulgaria",
+        "Bahrain",
+        "Burundi",
+        "Benin",
+        "Saint Barthelemey",
+        "Bermuda",
+        "Brunei Darussalam",
+        "Bolivia",
+        "Brazil",
+        "Bahamas",
+        "Bhutan",
+        "Bouvet Island",
+        "Botswana",
+        "Belarus",
+        "Belize",
+        "Canada",
+        "Cocos Islands",
+        "Congo, Democratic Rebpulic of the",
+        "Central African Republic",
+        "Congo",
+        "Switzerland",
+        "Ivory Coast",
+        "Cook Islands",
+        "Chile",
+        "Cameroon",
+        "China",
+        "Colombia",
+        "Costa Rica",
+        "Cuba",
+        "Cape Verde",
+        "Christmas Island",
+        "Cyprus",
+        "Czech Republic",
+        "Germany",
+        "Djibouti",
+        "Denmark",
+        "Dominica",
+        "Dominican Republic",
+        "Algeria",
+        "Ecuador",
+        "Estonia",
+        "Egypt",
+        "Western Sahara",
+        "Eritrea",
+        "Spain",
+        "Ethiopia",
+        "Finland",
+        "Fiji",
+        "Falkland Islands",
+        "Micronesia",
+        "Faroe Islands",
+        "France",
+        "Gabon",
+        "Great Britain",
+        "Grenada",
+        "Georgia",
+        "French Guyana",
+        "Guernsey",
+        "Ghana",
+        "Gibraltar",
+        "Greenland",
+        "Gambia",
+        "Guinea",
+        "Guadeloupe",
+        "Equatorial Guinea",
+        "Greece",
+        "S. Georgia & S. Sandwich Isls.",
+        "Guatemala",
+        "Guam (USA)",
+        "Guinea Bissau",
+        "Guyana",
+        "Hong Kong",
+        "Heard and McDonald Islands",
+        "Honduras",
+        "Croatia",
+        "Haiti",
+        "Hungary",
+        "Indonesia",
+        "Ireland",
+        "Israel",
+        "Isle of Man",
+        "India",
+        "British Indian Ocean Territory",
+        "Iraq",
+        "Iran",
+        "Iceland",
+        "Italy",
+        "Jersey",
+        "Jamaica",
+        "Jordan",
+        "Japan",
+        "Kenya",
+        "Kyrgyz Republic (Kyrgyzstan)",
+        "Cambodia, Kingdom of",
+        "Kiribati",
+        "Comoros",
+        "Saint Kitts & Nevis Anguilla",
+        "North Korea",
+        "South Korea",
+        "Kuwait",
+        "Cayman Islands",
+        "Kazakhstan",
+        "Laos",
+        "Lebanon",
+        "Saint Lucia",
+        "Liechtenstein",
+        "Sri Lanka",
+        "Liberia",
+        "Lesotho",
+        "Lithuania",
+        "Luxembourg",
+        "Latvia",
+        "Libya",
+        "Morocco",
+        "Monaco",
+        "Moldavia",
+        "Montenegro",
+        "Saint Martin (French)",
+        "Madagascar",
+        "Marshall Islands",
+        "Macedonia",
+        "Mali",
+        "Myanmar",
+        "Mongolia",
+        "Macau",
+        "Northern Mariana Islands",
+        "Martinique (French)",
+        "Mauritania",
+        "Montserrat",
+        "Malta",
+        "Mauritius",
+        "Maldives",
+        "Malawi",
+        "Mexico",
+        "Malaysia",
+        "Mozambique",
+        "Namibia",
+        "New Caledonia (French)",
+        "Niger",
+        "Norfolk Island",
+        "Nigeria",
+        "Nicaragua",
+        "Netherlands",
+        "Norway",
+        "Nepal",
+        "Nauru",
+        "Niue",
+        "New Zealand",
+        "Oman",
+        "Panama",
+        "Peru",
+        "Polynesia (French)",
+        "Papua New Guinea",
+        "Philippines",
+        "Pakistan",
+        "Poland",
+        "Saint Pierre and Miquelon",
+        "Pitcairn Island",
+        "Puerto Rico",
+        "Palestinian Territory (Occupied)",
+        "Portugal",
+        "Palau",
+        "Paraguay",
+        "Qatar",
+        "Reunion (French)",
+        "Romania",
+        "Serbia",
+        "Russian Federation",
+        "Rwanda",
+        "Saudi Arabia",
+        "Solomon Islands",
+        "Seychelles",
+        "Sudan",
+        "Sweden",
+        "Singapore",
+        "Saint Helena",
+        "Slovenia",
+        "Svalbard Jan Mayen Islands",
+        "Slovak Republic",
+        "Sierra Leone",
+        "San Marino",
+        "Senegal",
+        "Somalia",
+        "Suriname",
+        "Saint Tome and Principe",
+        "El Salvador",
+        "Syria",
+        "Swaziland",
+        "Turks and Caicos Islands",
+        "Chad",
+        "French Southern Territories",
+        "Togo",
+        "Thailand",
+        "Tadjikistan",
+        "Tokelau",
+        "Timor-Leste",
+        "Turkmenistan",
+        "Tunisia",
+        "Tonga",
+        "Turkey",
+        "Trinidad and Tobago",
+        "Tuvalu",
+        "Taiwan",
+        "Tanzania",
+        "Ukraine",
+        "Uganda",
+        "United Kingdom",
+        "USA Minor Outlying Islands",
+        "United States",
+        "Uruguay",
+        "Uzbekistan",
+        "Holy See (Vatican City State)",
+        "Saint Vincent & Grenadines",
+        "Venezuela",
+        "Virgin Islands (British)",
+        "Virgin Islands (USA)",
+        "Vietnam",
+        "Vanuatu",
+        "Wallis and Futuna Islands",
+        "Samoa",
+        "Yemen",
+        "Mayotte",
+        "South Africa",
+        "Zambia",
+        "Zimbabwe"
+      ]
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access.",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Default": ""
+    },
+    "debugMode": {
+      "Description": "Enable debug logging on the UTM instances (\"off\" to disable; \"on\" to enable)",
+      "Type": "String",
+      "AllowedValues": [
+        "on",
+        "off"
+      ],
+      "Default": "off"
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Deployment Configuration"
+          },
+          "Parameters": [
+            "HAMode"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Instance Configuration"
+          },
+          "Parameters": [
+            "AMI",
+            "LicenseType",
+            "InstanceSize"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Infrastructure Configuration"
+          },
+          "Parameters": [
+            "AvailabilityZone1",
+            "AvailabilityZone2",
+            "NetworkPrefix",
+            "TrustedNetwork",
+            "ExistingElasticIP",
+            "ExistingS3Bucket",
+            "LicensePool"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Settings for Initial UTM Setup"
+          },
+          "Parameters": [
+            "Hostname",
+            "Email",
+            "AdminPassword",
+            "Organization",
+            "City",
+            "Country",
+            "KeyName"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Debug Settings"
+          },
+          "Parameters": [
+            "debugMode"
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "HAMode": {
+          "default": "High Availability Standby Mode (required)"
+        },
+        "AMI": {
+          "default": "AMI ID (required)"
+        },
+        "LicenseType": {
+          "default": "Pricing Option (required)"
+        },
+        "InstanceSize": {
+          "default": "Instance Type (required)"
+        },
+        "AvailabilityZone1": {
+          "default": "Availability Zone 1 (required)"
+        },
+        "AvailabilityZone2": {
+          "default": "Availability Zone 2 (required)"
+        },
+        "NetworkPrefix": {
+          "default": "Prefix for VPC CIDR Block (required)"
+        },
+        "TrustedNetwork": {
+          "default": "Trusted Network CIDR (required)"
+        },
+        "ExistingElasticIP": {
+          "default": "Existing Elastic IP (optional)"
+        },
+        "ExistingS3Bucket": {
+          "default": "S3 Bucket for UTM Synchronization and Backup (optional)"
+        },
+        "LicensePool": {
+          "default": "S3 Bucket Containing Licenses (optional)"
+        },
+        "Hostname": {
+          "default": "Hostname (required)"
+        },
+        "Email": {
+          "default": "Admin E-Mail Address (required)"
+        },
+        "AdminPassword": {
+          "default": "Admin Password (required)"
+        },
+        "Organization": {
+          "default": "Organization (required)"
+        },
+        "City": {
+          "default": "City (required)"
+        },
+        "Country": {
+          "default": "Country (required)"
+        },
+        "KeyName": {
+          "default": "SSH Key (required)"
+        },
+        "debugMode": {
+          "default": "Debug Mode"
+        }
+      }
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "ap-northeast-1": {
+        "Hourly": "ami-0e3a7604da9331953",
+        "BYOL": "ami-0e0714d53f349e7fb",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "ap-northeast-2": {
+        "Hourly": "ami-08a4e209de5cbb2ce",
+        "BYOL": "ami-06c0c297bea13f2d4",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "ap-south-1": {
+        "Hourly": "ami-02d1b9b6f0d4947ee",
+        "BYOL": "ami-0a537a65a19402051",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "ap-southeast-1": {
+        "Hourly": "ami-0a611b5eda24cf6d5",
+        "BYOL": "ami-0bb975393d72e5756",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "ap-southeast-2": {
+        "Hourly": "ami-047a6f3755105cdda",
+        "BYOL": "ami-0a25ba50219bbb8ee",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "ca-central-1": {
+        "Hourly": "ami-0d059fca8ac7ede85",
+        "BYOL": "ami-05aa20d209bf162df",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "eu-central-1": {
+        "Hourly": "ami-0dd28a54dbf08c98f",
+        "BYOL": "ami-0667c2a266f850479",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "eu-north-1": {
+        "Hourly": "ami-7257de0c",
+        "BYOL": "ami-5551d82b",
+        "ARN": "aws",
+        "HAInstanceType": "c5.large"
+      },
+      "eu-west-1": {
+        "Hourly": "ami-0475bbd1fe90814cf",
+        "BYOL": "ami-0d99e1ac9337c9c67",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "eu-west-2": {
+        "Hourly": "ami-08262b76295ba4d69",
+        "BYOL": "ami-06527c1272841a980",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "eu-west-3": {
+        "Hourly": "ami-042e2db71efb3b0df",
+        "BYOL": "ami-01fb50d199042b53b",
+        "ARN": "aws",
+        "HAInstanceType": "c5.large"
+      },
+      "sa-east-1": {
+        "Hourly": "ami-076c88ce56557d39c",
+        "BYOL": "ami-091600602db9ad7bf",
+        "ARN": "aws",
+        "HAInstanceType": "m3.large"
+      },
+      "us-east-1": {
+        "Hourly": "ami-0b75250a4873f9bff",
+        "BYOL": "ami-060ec4abb84dc7ddb",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "us-east-2": {
+        "Hourly": "ami-0b10ee8f903ce5855",
+        "BYOL": "ami-0c5ee2b34b9a26c8d",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "us-gov-west-1": {
+        "Hourly": "ami-a881eac9",
+        "BYOL": "ami-3a8ce75b",
+        "ARN": "aws-us-gov",
+        "HAInstanceType": "c4.large"
+      },
+      "us-west-1": {
+        "Hourly": "ami-08ad7d31b67949842",
+        "BYOL": "ami-0e1a426f1532091cf",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      },
+      "us-west-2": {
+        "Hourly": "ami-06bc5524777ee33e1",
+        "BYOL": "ami-0d45d6f80eddfb08d",
+        "ARN": "aws",
+        "HAInstanceType": "c4.large"
+      }
+    },
+    "HAModes": {
+      "Cold": {
+        "MinSize": "0",
+        "DesiredCapacity": "1",
+        "DeploymentType": "ha_standalone",
+        "InstanceRole": "ha"
+      },
+      "Warm": {
+        "MinSize": "1",
+        "DesiredCapacity": "2",
+        "DeploymentType": "ha_warm_standby",
+        "InstanceRole": "ha_standalone"
+      }
+    }
+  },
+  "Conditions": {
+    "DetectAMI": {
+      "Fn::Equals": [
+        {
+          "Ref": "AMI"
+        },
+        "autodetect"
+      ]
+    },
+    "DetectInstanceSize": {
+      "Fn::Equals": [
+        {
+          "Ref": "InstanceSize"
+        },
+        "default"
+      ]
+    },
+    "CreateS3Bucket": {
+      "Fn::Equals": [
+        {
+          "Ref": "ExistingS3Bucket"
+        },
+        ""
+      ]
+    },
+    "AllocateElasticIP": {
+      "Fn::Equals": [
+        {
+          "Ref": "ExistingElasticIP"
+        },
+        ""
+      ]
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "NetworkPrefix"
+              },
+              "0.0/16"
+            ]
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          }
+        ]
+      }
+    },
+    "Subnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "NetworkPrefix"
+              },
+              "1.0/24"
+            ]
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone1"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": "HA_UTM"
+          }
+        ]
+      }
+    },
+    "Subnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "NetworkPrefix"
+              },
+              "2.0/24"
+            ]
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone2"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": "HA_UTM"
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "RouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "Route": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "AttachGateway",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "Subnet1RouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "Subnet1"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        }
+      }
+    },
+    "Subnet2RouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "Subnet2"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        }
+      }
+    },
+    "IPAddress": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": "AttachGateway",
+      "Condition": "AllocateElasticIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "S3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Condition": "CreateS3Bucket",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Prefix": "confd_backup",
+              "ExpirationInDays": "3",
+              "Status": "Enabled"
+            },
+            {
+              "Prefix": "postgres_basebackup",
+              "ExpirationInDays": "3",
+              "Status": "Enabled"
+            },
+            {
+              "Prefix": "postgres_wal",
+              "ExpirationInDays": "3",
+              "Status": "Enabled"
+            }
+          ]
+        }
+      }
+    },
+    "UTMRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "UTMPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "iam:PassRole",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "NotAction": "iam:*",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "cloudformation:UpdateStack",
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "logs:DescribeLogStreams"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:",
+                          {
+                            "Fn::FindInMap": [
+                              "RegionMap",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              "ARN"
+                            ]
+                          },
+                          ":logs:*:*:*"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "UTMInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "UTMRole"
+          }
+        ]
+      }
+    },
+    "UTMSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Identifying security group",
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "TrustedNetworkGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable TCP access from trusted network",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": {
+              "Ref": "TrustedNetwork"
+            }
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "UntrustedGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Untrusted network restricted from accessing port 22 and 4444.",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "21",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "23",
+            "ToPort": "4443",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "4445",
+            "ToPort": "5431",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "5433",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "udp",
+            "FromPort": "3410",
+            "ToPort": "3410",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "UTMScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT5M"
+        }
+      },
+      "Properties": {
+        "DesiredCapacity": {
+          "Fn::FindInMap": [
+            "HAModes",
+            {
+              "Ref": "HAMode"
+            },
+            "DesiredCapacity"
+          ]
+        },
+        "HealthCheckGracePeriod": "1200",
+        "MaxSize": "2",
+        "MinSize": {
+          "Fn::FindInMap": [
+            "HAModes",
+            {
+              "Ref": "HAMode"
+            },
+            "MinSize"
+          ]
+        },
+        "TerminationPolicies": [
+          "Default"
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "Subnet1"
+          },
+          {
+            "Ref": "Subnet2"
+          }
+        ],
+        "AvailabilityZones": [
+          {
+            "Ref": "AvailabilityZone1"
+          },
+          {
+            "Ref": "AvailabilityZone2"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "UTMLaunchConfiguration"
+        },
+        "NotificationConfiguration": {
+          "TopicARN": {
+            "Ref": "UnhealthyTopic"
+          },
+          "NotificationTypes": [
+            "autoscaling:EC2_INSTANCE_LAUNCH",
+            "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+            "autoscaling:EC2_INSTANCE_TERMINATE",
+            "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HA-UTM",
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      }
+    },
+    "UTMLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "AssociatePublicIpAddress": true,
+        "IamInstanceProfile": {
+          "Ref": "UTMInstanceProfile"
+        },
+        "ImageId": {
+          "Fn::If": [
+            "DetectAMI",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                {
+                  "Ref": "LicenseType"
+                }
+              ]
+            },
+            {
+              "Ref": "AMI"
+            }
+          ]
+        },
+        "InstanceType": {
+          "Fn::If": [
+            "DetectInstanceSize",
+            {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "HAInstanceType"
+              ]
+            },
+            {
+              "Ref": "InstanceSize"
+            }
+          ]
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": "100",
+              "VolumeType": "gp2"
+            }
+          }
+        ],
+        "SecurityGroups": [
+          {
+            "Ref": "UTMSecurityGroup"
+          },
+          {
+            "Ref": "TrustedNetworkGroup"
+          },
+          {
+            "Ref": "UntrustedGroup"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "/usr/libexec/cloud/userdata_init.sh ha -s ",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                " -d ",
+                {
+                  "Ref": "debugMode"
+                },
+                "\n",
+                "exit 0\n"
+              ]
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "configSets": {
+            "utm_node": [
+              "utm_config"
+            ]
+          },
+          "utm_config": {
+            "files": {
+              "/var/confd/var/storage/setup.ph": {
+                "mode": "0640",
+                "owner": "root",
+                "group": "root",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "{ hostname => '",
+                      {
+                        "Ref": "Hostname"
+                      },
+                      "', organization => '",
+                      {
+                        "Ref": "Organization"
+                      },
+                      "', city => '",
+                      {
+                        "Ref": "City"
+                      },
+                      "', country =>'",
+                      {
+                        "Ref": "Country"
+                      },
+                      "', email => '",
+                      {
+                        "Ref": "Email"
+                      },
+                      "', password => '",
+                      {
+                        "Ref": "AdminPassword"
+                      },
+                      "' }"
+                    ]
+                  ]
+                }
+              },
+              "/etc/cloud/user_data.yml": {
+                "mode": "0644",
+                "owner": "root",
+                "group": "root",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "version: 0.1.0\n",
+                      "instance_role: ",
+                      {
+                        "Fn::FindInMap": [
+                          "HAModes",
+                          {
+                            "Ref": "HAMode"
+                          },
+                          "InstanceRole"
+                        ]
+                      },
+                      "\n",
+                      "deployment_type: ",
+                      {
+                        "Fn::FindInMap": [
+                          "HAModes",
+                          {
+                            "Ref": "HAMode"
+                          },
+                          "DeploymentType"
+                        ]
+                      },
+                      "\n",
+                      "license_pool: ",
+                      {
+                        "Ref": "LicensePool"
+                      },
+                      "\n",
+                      "region: ",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n",
+                      "elastic_ip: ",
+                      {
+                        "Fn::If": [
+                          "AllocateElasticIP",
+                          {
+                            "Ref": "IPAddress"
+                          },
+                          {
+                            "Ref": "ExistingElasticIP"
+                          }
+                        ]
+                      },
+                      "\n",
+                      "s3_bucket: ",
+                      {
+                        "Fn::If": [
+                          "CreateS3Bucket",
+                          {
+                            "Ref": "S3Bucket"
+                          },
+                          {
+                            "Ref": "ExistingS3Bucket"
+                          }
+                        ]
+                      },
+                      "\n",
+                      "stack_name: ",
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "\n"
+                    ]
+                  ]
+                }
+              },
+              "/tmp/user_data.config": {
+                "mode": "0644",
+                "owner": "root",
+                "group": "root",
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "{\n",
+                      "\"confd\" => { \"backup\" => 1, \"backup_interval\" => 300, \"restore\" => 1, \"restore_done\" => 0 },\n",
+                      "\"postgres\" => { \"archive_timeout\" => 300, \"backup\" => 1, \"base_backup_interval\" => 3600, \"restore\" => 1 },\n",
+                      "\"syslog\" => { \"backup\" => 1, \"restore\" => 1, \"restore_period\" => 8 },\n",
+                      "\"s3_bucket\" => \"",
+                      {
+                        "Fn::If": [
+                          "CreateS3Bucket",
+                          {
+                            "Ref": "S3Bucket"
+                          },
+                          {
+                            "Ref": "ExistingS3Bucket"
+                          }
+                        ]
+                      },
+                      "\",\n",
+                      "\"stack_name\" => \"",
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "\",\n",
+                      "\"elastic_ip\" => \"",
+                      {
+                        "Fn::If": [
+                          "AllocateElasticIP",
+                          {
+                            "Ref": "IPAddress"
+                          },
+                          {
+                            "Ref": "ExistingElasticIP"
+                          }
+                        ]
+                      },
+                      "\",\n",
+                      "\"trusted_network\" => \"",
+                      {
+                        "Ref": "TrustedNetwork"
+                      },
+                      "\"\n}\n"
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "IngressTrafficMinimal": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Terminate if the incoming traffic is suspiciously low",
+        "MetricName": "NetworkIn",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Sum",
+        "Period": "60",
+        "EvaluationPeriods": "2",
+        "Threshold": "100",
+        "AlarmActions": [
+          {
+            "Ref": "UnhealthyTopic"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "UTMScalingGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "EgressTrafficMinimal": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Terminate if the outgoing traffic is suspiciously low",
+        "MetricName": "NetworkOut",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Sum",
+        "Period": "60",
+        "EvaluationPeriods": "2",
+        "Threshold": "100",
+        "AlarmActions": [
+          {
+            "Ref": "UnhealthyTopic"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "UTMScalingGroup"
+            }
+          }
+        ],
+        "ComparisonOperator": "LessThanThreshold"
+      }
+    },
+    "UnhealthyTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "Subscription": [
+          {
+            "Endpoint": {
+              "Ref": "Email"
+            },
+            "Protocol": "email"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "PublicIPAddress": {
+      "Value": {
+        "Fn::If": [
+          "AllocateElasticIP",
+          {
+            "Ref": "IPAddress"
+          },
+          {
+            "Ref": "ExistingElasticIP"
+          }
+        ]
+      },
+      "Description": "Use this IP to connect and to forward traffic to the UTM."
+    },
+    "ScalingGroup": {
+      "Value": {
+        "Ref": "UTMScalingGroup"
+      },
+      "Description": "The HA Scaling group."
+    },
+    "S3Bucket": {
+      "Value": {
+        "Fn::If": [
+          "CreateS3Bucket",
+          {
+            "Ref": "S3Bucket"
+          },
+          {
+            "Ref": "ExistingS3Bucket"
+          }
+        ]
+      },
+      "Description": "The S3 Bucket."
+    },
+    "VPCID": {
+      "Value": {
+        "Ref": "VPC"
+      },
+      "Description": "The VPC of the deployment."
+    }
+  }
+}
