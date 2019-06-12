@@ -174,6 +174,11 @@
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
       },
+      "eu-north-1": {
+        "EGW": "ami-0fffc0fd11916f545",
+        "ARN": "aws",
+        "EGWInstanceType": "m5.large"
+      },
       "eu-west-1": {
         "EGW": "ami-0fca50ef5a9fb3ec2",
         "ARN": "aws",
@@ -183,6 +188,11 @@
         "EGW": "ami-05f83b31a6d1365db",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
+      },
+      "eu-west-3": {
+        "EGW": "ami-05c5f6a316d2d0d20",
+        "ARN": "aws",
+        "EGWInstanceType": "m5.large"
       },
       "sa-east-1": {
         "EGW": "ami-0622432257bd2d416",
@@ -198,6 +208,11 @@
         "EGW": "ami-05e8e585c8c631ca6",
         "ARN": "aws",
         "EGWInstanceType": "c4.large"
+      },
+      "us-gov-east-1": {
+        "EGW": "ami-06e513067a76a05e6",
+        "ARN": "aws-us-gov",
+        "EGWInstanceType": "m5.large"
       },
       "us-gov-west-1": {
         "EGW": "ami-6966fc08",
