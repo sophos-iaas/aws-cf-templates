@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Scalable UTM CloudFormation template",
+  "Description": "Scalable UTM CloudFormation template. Please make sure that the VPC has a Gateway attached.",
   "Parameters": {
     "awsAMI": {
       "Description": "Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.",
@@ -33,16 +33,26 @@
       "Type": "AWS::EC2::AvailabilityZone::Name",
       "Description": "Please provide another (different) Availability Zone."
     },
-    "awsNetworkPrefix": {
-      "Description": "Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example for the network 10.6.0.0/16 you should provide 10.6",
-      "Type": "String",
-      "Default": "10.15"
+    "awsVPCID": {
+      "Description": "ID of an existing VPC to launch the deployment in.",
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "awsGatewayID": {
+      "Description": "The Internet Gateway ID of the VPC.",
+      "Type": "String"
+    },
+    "awsSubnetIPBlocks": {
+      "Description": "Please provide a comma-separated list of four CIDR blocks within your VPC. The template will create four subnets automatically, e.g.: 10.6.1.0/24,10.6.2.0/24,10.6.3.0/24,10.6.4.0/24.",
+      "Type": "CommaDelimitedList"
     },
     "awsTrustedNetwork": {
       "Description": "Only connections from this network are allowed to ports 22 and 4444. E.g. 92.198.130.0/24. To allow access from anywhere use 0.0.0.0/0",
+      "Type": "String"
+    },
+    "optionalExistingSecurityGroup": {
+      "Description": "A security group to assign to the new stack.",
       "Type": "String",
-      "AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "ConstraintDescription": "Must be IPv4 CIDR notation: X.X.X.X/X"
+      "Default": ""
     },
     "optionalExistingElasticIP": {
       "Description": "Elastic IP to assign to the UTM instance. If left empty a new Elastic IP will be allocated automatically.",
@@ -376,8 +386,11 @@
           "Parameters": [
             "awsAvailabilityZone1",
             "awsAvailabilityZone2",
-            "awsNetworkPrefix",
+            "awsVPCID",
+            "awsGatewayID",
+            "awsSubnetIPBlocks",
             "awsTrustedNetwork",
+            "optionalExistingSecurityGroup",
             "optionalExistingElasticIP",
             "optionalExistingS3Bucket",
             "optionalLicensePool"
@@ -425,11 +438,20 @@
         "awsAvailabilityZone2": {
           "default": "Availability Zone 2 (required)"
         },
-        "awsNetworkPrefix": {
-          "default": "Prefix for VPC CIDR Block (required)"
+        "awsVPCID": {
+          "default": "VPC ID (required)"
+        },
+        "awsGatewayID": {
+          "default": "Internet Gateway ID (required)"
+        },
+        "awsSubnetIPBlocks": {
+          "default": "Four Subnet CIDR Blocks (required)"
         },
         "awsTrustedNetwork": {
           "default": "Trusted Network CIDR (required)"
+        },
+        "optionalExistingSecurityGroup": {
+          "default": "Existing Security Group (optional)"
         },
         "optionalExistingElasticIP": {
           "default": "Existing Elastic IP (optional)"
@@ -470,130 +492,130 @@
   "Mappings": {
     "RegionMap": {
       "ap-northeast-1": {
-        "Hourly": "ami-0cf2dc012acebbef7",
-        "BYOL": "ami-0fdbcb3568550be16",
+        "Hourly": "",
+        "BYOL": "ami-0a6c917e400700f88",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "ap-northeast-2": {
-        "Hourly": "ami-071e1983e94d315fe",
-        "BYOL": "ami-0e1ae3a0293bf9db1",
+        "Hourly": "",
+        "BYOL": "ami-04db75aa700fc2a3f",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "ap-south-1": {
-        "Hourly": "ami-0644ec541c3282095",
-        "BYOL": "ami-0dcddcc78417a49f8",
+        "Hourly": "",
+        "BYOL": "ami-06db2f06ed6b343a5",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "ap-southeast-1": {
-        "Hourly": "ami-0b9fc847716d5aa6a",
-        "BYOL": "ami-0d5eec2cb6761f2f7",
+        "Hourly": "",
+        "BYOL": "ami-0a78b565f82fa1529",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "ap-southeast-2": {
-        "Hourly": "ami-007483bd9cccc4d4a",
-        "BYOL": "ami-056ab42bf43816b9e",
+        "Hourly": "",
+        "BYOL": "ami-04bc4f6e6c7b0f791",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "ca-central-1": {
-        "Hourly": "ami-0828b168eee16b3e0",
-        "BYOL": "ami-0bdc6cccf17ca6911",
+        "Hourly": "",
+        "BYOL": "ami-0de9b494acdf47843",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "eu-central-1": {
-        "Hourly": "ami-026a36fa62cba0145",
-        "BYOL": "ami-045a0f2515b86981a",
+        "Hourly": "",
+        "BYOL": "ami-0c8909e6f651d5ab3",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "eu-north-1": {
-        "Hourly": "ami-d14dc6af",
-        "BYOL": "ami-ab4ec5d5",
+        "Hourly": "",
+        "BYOL": "ami-0018358ecfe3bc2da",
         "ARN": "aws",
-        "QueenInstanceType": "m5.large",
-        "SwarmInstanceType": "c5.large"
+        "QueenInstanceType": "c5.large",
+        "SwarmInstanceType": "m5.large"
       },
       "eu-west-1": {
-        "Hourly": "ami-04e3fd9842c0e4bc9",
-        "BYOL": "ami-080c09bed420c42f4",
+        "Hourly": "",
+        "BYOL": "ami-0d28da4d5711f0269",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "eu-west-2": {
-        "Hourly": "ami-0dce38edf12e81822",
-        "BYOL": "ami-0b3da69278f97eace",
+        "Hourly": "",
+        "BYOL": "ami-0c17e53b8533cde94",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "eu-west-3": {
-        "Hourly": "ami-05e970260e1abf9d9",
-        "BYOL": "ami-061745637ef6244fd",
+        "Hourly": "",
+        "BYOL": "ami-0bd420b07f13861e7",
         "ARN": "aws",
         "QueenInstanceType": "c5.large",
         "SwarmInstanceType": "m5.large"
       },
       "sa-east-1": {
-        "Hourly": "ami-06f3fe6a06289c21a",
-        "BYOL": "ami-0631897e042c49be0",
+        "Hourly": "",
+        "BYOL": "ami-0820481a300b0b39b",
         "ARN": "aws",
-        "QueenInstanceType": "m3.large",
-        "SwarmInstanceType": "m3.large"
+        "QueenInstanceType": "m3.medium",
+        "SwarmInstanceType": "m3.medium"
       },
       "us-east-1": {
-        "Hourly": "ami-034186084ebe6537c",
-        "BYOL": "ami-08b1eae9a64299ea6",
+        "Hourly": "ami-002456f2d60a6efbf",
+        "BYOL": "ami-0a76718a6e4cbf302",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "us-east-2": {
-        "Hourly": "ami-02a3d6b65d60a842e",
-        "BYOL": "ami-0b73d7cdf905b466b",
+        "Hourly": "",
+        "BYOL": "ami-04bb70f5a8cd63942",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "us-gov-east-1": {
-        "Hourly": "ami-c1ab4bb0",
-        "BYOL": "ami-efab4b9e",
+        "Hourly": "",
+        "BYOL": "ami-04f2d569dd548d5ec",
         "ARN": "aws-us-gov",
         "QueenInstanceType": "c5.large",
         "SwarmInstanceType": "m5.large"
       },
       "us-gov-west-1": {
-        "Hourly": "ami-29a1e348",
-        "BYOL": "ami-d4a8eab5",
+        "Hourly": "ami-9b4b08fa",
+        "BYOL": "ami-9b4b08fa",
         "ARN": "aws-us-gov",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "us-west-1": {
-        "Hourly": "ami-03a350f297d0125cd",
-        "BYOL": "ami-04a8684cc16eb763f",
+        "Hourly": "",
+        "BYOL": "ami-09cf8fe9711f57641",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       },
       "us-west-2": {
-        "Hourly": "ami-06f78ed17304a491a",
-        "BYOL": "ami-0dae1b8401351c0a6",
+        "Hourly": "",
+        "BYOL": "ami-04e15af82a3eb2853",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
-        "SwarmInstanceType": "c4.large"
+        "SwarmInstanceType": "m4.large"
       }
     }
   },
@@ -644,6 +666,18 @@
           "Fn::Equals": [
             {
               "Ref": "optionalLicensePool"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "UseExistingSG": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "optionalExistingSecurityGroup"
             },
             ""
           ]
@@ -1545,47 +1579,18 @@
         ]
       }
     },
-    "VPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true",
-        "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "0.0/16"
-            ]
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          }
-        ]
-      }
-    },
     "QueenSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "1.0/24"
-            ]
+          "Fn::Select": [
+            "0",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1609,17 +1614,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "2.0/24"
-            ]
+          "Fn::Select": [
+            "1",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1643,17 +1645,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "4.0/24"
-            ]
+          "Fn::Select": [
+            "2",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1677,17 +1676,14 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "CidrBlock": {
-          "Fn::Join": [
-            ".",
-            [
-              {
-                "Ref": "awsNetworkPrefix"
-              },
-              "5.0/24"
-            ]
+          "Fn::Select": [
+            "3",
+            {
+              "Ref": "awsSubnetIPBlocks"
+            }
           ]
         },
         "AvailabilityZone": {
@@ -1707,44 +1703,15 @@
         ]
       }
     },
-    "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackId"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
-          }
-        ]
-      }
-    },
-    "AttachGateway": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "InternetGateway"
-        }
-      }
-    },
     "QueenRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "AttachGateway",
       "Properties": {
         "RouteTableId": {
           "Ref": "RouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "awsGatewayID"
         }
       }
     },
@@ -1752,7 +1719,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1794,7 +1761,7 @@
       "Type": "AWS::EC2::RouteTable",
       "Properties": {
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "Tags": [
           {
@@ -1812,14 +1779,13 @@
     },
     "SwarmRoute": {
       "Type": "AWS::EC2::Route",
-      "DependsOn": "AttachGateway",
       "Properties": {
         "RouteTableId": {
           "Ref": "SwarmRouteTable"
         },
         "DestinationCidrBlock": "0.0.0.0/0",
         "GatewayId": {
-          "Ref": "InternetGateway"
+          "Ref": "awsGatewayID"
         }
       }
     },
@@ -1847,7 +1813,6 @@
     },
     "IPAddress": {
       "Type": "AWS::EC2::EIP",
-      "DependsOn": "AttachGateway",
       "Condition": "AllocateElasticIP",
       "Properties": {
         "Domain": "vpc"
@@ -1905,7 +1870,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1919,7 +1884,7 @@
       "Properties": {
         "GroupDescription": "Group for the receivers of the ElasticLoadBalancer",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -1928,7 +1893,7 @@
       "Properties": {
         "GroupDescription": "Identifying security group",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         },
         "SecurityGroupEgress": [
           {
@@ -1961,7 +1926,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -2002,7 +1967,7 @@
           }
         ],
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -2016,7 +1981,7 @@
       "Properties": {
         "GroupDescription": "Enable HTTP access on port 8080",
         "VpcId": {
-          "Ref": "VPC"
+          "Ref": "awsVPCID"
         }
       }
     },
@@ -2068,14 +2033,12 @@
             ]
           }
         ]
-      },
-      "DependsOn": "AttachGateway"
+      }
     },
     "SwarmScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": [
-        "QueenScalingGroup",
-        "AttachGateway"
+        "QueenScalingGroup"
       ],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
@@ -2383,9 +2346,6 @@
     },
     "QueenScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "DependsOn": [
-        "AttachGateway"
-      ],
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
           "MinInstancesInService": "1",
@@ -2485,17 +2445,54 @@
             }
           }
         ],
-        "SecurityGroups": [
-          {
-            "Ref": "QueenSecurityGroup"
-          },
-          {
-            "Ref": "TrustedNetworkGroup"
-          },
-          {
-            "Ref": "UntrustedGroup"
-          }
-        ],
+        "SecurityGroups": {
+          "Fn::If": [
+            "UseExistingSG",
+            [
+              {
+                "Ref": "optionalExistingSecurityGroup"
+              },
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ],
+            [
+              {
+                "Fn::GetAtt": [
+                  "QueenSecurityGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "TrustedNetworkGroup",
+                  "GroupId"
+                ]
+              },
+              {
+                "Fn::GetAtt": [
+                  "UntrustedGroup",
+                  "GroupId"
+                ]
+              }
+            ]
+          ]
+        },
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -2629,11 +2626,6 @@
                           },
                           "ARN"
                         ]
-                      },
-                      "\n",
-                      "debugMode: ",
-                      {
-                        "Ref": "debugMode"
                       },
                       "\n"
                     ]
@@ -2885,7 +2877,7 @@
     },
     "VPCID": {
       "Value": {
-        "Ref": "VPC"
+        "Ref": "awsVPCID"
       },
       "Description": "The VPC of the Swarm"
     },
