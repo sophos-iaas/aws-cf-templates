@@ -1,5 +1,33 @@
 # Sophos UTM on AWS Release Notes
 
+## Sophos UTM 9.701 on AWS
+
+### AWS Firmware
+
+* [UTM on AWS 9.701 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-701-released)
+* [UTM 9.701 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-701-released)
+
+### Templates
+
+The following templates were changed in this release:
+
+|Feature|Template|Template Changes|
+|-------|--------|----------------|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.701/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.605...utm9.701)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.701/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.605...utm9.701)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.701/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.605...utm9.701)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.701/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.605...utm9.701)|
+
+#### Mandatory Changes
+
+|Change|Template|Line(s)|Description|
+|------|--------|-----|-----------|
+|AMI ID changes|autoscaling.template|470-599|Changes AMI to UTM 9.701 AMI|
+| |ha_standalone.template|481-591|Changes AMI to UTM 9.701 AMI|
+| |ha_warm_standby.template|481-591|Changes AMI to UTM 9.701 AMI|
+| |standalone.template|136-246|Changes AMI to UTM 9.701 AMI|
+
+
 ## Sophos UTM 9.605 on AWS
 
 ### AWS Firmware
