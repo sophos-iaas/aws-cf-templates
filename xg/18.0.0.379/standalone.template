@@ -1,0 +1,959 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Sophos XG Firewall",
+  "Parameters": {
+    "AMI": {
+      "Description": "Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.",
+      "Type": "String",
+      "Default": "autodetect"
+    },
+    "AvailabilityZone": {
+      "Type": "AWS::EC2::AvailabilityZone::Name",
+      "Description": "Please provide an AvailabilityZone."
+    },
+    "PublicNetworkPrefix": {
+      "Description": "Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example for the network 10.6.0.0/16 you should provide 10.6",
+      "Type": "String",
+      "Default": "10.15",
+      "ConstraintDescription": "Must be notation like: X.X",
+      "AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+    },
+    "OptExistingVPC": {
+      "Description": "VPC id for using existing VPC, make sure it has at least one Subnet, leave blank for creating a new VPC",
+      "Type": "String",
+      "Default": ""
+    },
+    "OptExistingSubnet": {
+      "Description": "Subnet id for using existing VPC",
+      "Type": "String",
+      "Default": ""
+    },
+    "OptExistingSubnetPriv": {
+      "Description": "Subnet id for using existing VPC for private subnet",
+      "Type": "String",
+      "Default": ""
+    },
+    "TrustedNetwork": {
+      "Description": "Allow all traffic (including! TCP port 22 and 4444) from this CIDR on the public network interface.",
+      "Type": "String",
+      "AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "ConstraintDescription": "Must be like X.X.X.X/X"
+    },
+    "OptUsingEIPonXG": {
+      "Description": "Associate an Elastic IP to XG instance if yes is selected",
+      "Type": "String",
+      "AllowedValues": [
+        "yes",
+        "no"
+      ],
+      "Default": "yes"
+    },
+    "OptExistingElasticIpId": {
+      "Description": "Allocation ID of an existing Elastic IP if specified, or a new one will created if using EIP",
+      "Type": "String",
+      "Default": ""
+    },
+    "InstanceSize": {
+      "Description": "The default EC2 instance type needs to have at least 4GB memory. t3,c5,m5 instances are currently not supported",
+      "Type": "String",
+      "Default": ""
+    },
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access."
+    },
+    "LicenseType": {
+      "Description": "Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.",
+      "Type": "String",
+      "AllowedValues": [
+        "Hourly",
+        "BYOL"
+      ]
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Cloud Infrastructure Configuration"
+          },
+          "Parameters": [
+            "AMI",
+            "InstanceSize",
+            "AvailabilityZone",
+            "PublicNetworkPrefix",
+            "OptExistingVPC",
+            "OptExistingSubnet",
+            "OptExistingSubnetPriv",
+            "TrustedNetwork",
+            "OptUsingEIPonXG",
+            "OptExistingElasticIpId"
+          ]
+        },
+        {
+          "Label": {
+            "default": "XG Firewall Configuration"
+          },
+          "Parameters": [
+            "LicenseType",
+            "KeyName"
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "AMI": {
+          "default": "AMI ID (required)"
+        },
+        "LicenseType": {
+          "default": "Pricing Option (required)"
+        },
+        "InstanceSize": {
+          "default": "Instance Size (required)"
+        },
+        "AvailabilityZone": {
+          "default": "AvailabilityZone for Public Subnet (required)"
+        },
+        "PublicNetworkPrefix": {
+          "default": "Network Prefix for new VPC (required)"
+        },
+        "OptExistingVPC": {
+          "default": "Deploy to my existing VPC"
+        },
+        "OptExistingSubnet": {
+          "default": "The existing public subnet"
+        },
+        "OptExistingSubnetPriv": {
+          "default": "The existing private subnet"
+        },
+        "OptUsingEIPonXG": {
+          "default": "Using Elastic IP"
+        },
+        "OptExistingElasticIpId": {
+          "default": "Existing Elastic IP ID"
+        },
+        "KeyName": {
+          "default": "SSH Key (required)"
+        },
+        "TrustedNetwork": {
+          "default": "Trusted Network CIDR (required)"
+        }
+      }
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "ap-northeast-1": {
+        "Hourly": "ami-07eb81eff75d166eb",
+        "BYOL": "ami-004308b2d939bbabb",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "ap-northeast-2": {
+        "Hourly": "ami-0c00fc171014f9382",
+        "BYOL": "ami-094901f02bb022c5a",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "ap-south-1": {
+        "Hourly": "ami-0d573030e18c43785",
+        "BYOL": "ami-04f0a5daa1b0f5534",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "ap-southeast-1": {
+        "Hourly": "ami-02254029031389cd3",
+        "BYOL": "ami-03c44cd7088e1ee3d",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "ap-southeast-2": {
+        "Hourly": "ami-07fef4365fbc85a5e",
+        "BYOL": "ami-022cb05124fa471ed",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "ca-central-1": {
+        "Hourly": "ami-056c3193c56bdddc4",
+        "BYOL": "ami-024599a19673b5ba1",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "eu-central-1": {
+        "Hourly": "ami-018d2a8dd32ae7d40",
+        "BYOL": "ami-00ecff0cacc9452df",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "eu-west-1": {
+        "Hourly": "ami-0bfa6cf1ceb48bab4",
+        "BYOL": "ami-0cf44ea4bd24e0282",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "eu-west-2": {
+        "Hourly": "ami-036500597bd41a0b2",
+        "BYOL": "ami-0c42fe7eb03d7650e",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "sa-east-1": {
+        "Hourly": "ami-0e15c483ba758a072",
+        "BYOL": "ami-0856baad0611c278e",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "us-east-1": {
+        "Hourly": "ami-0da6577655b079c9b",
+        "BYOL": "ami-008c84f1d838125cd",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "us-east-2": {
+        "Hourly": "ami-0fd7f4c5868a5ada0",
+        "BYOL": "ami-0fb2ff6500d3aca60",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+        "us-west-1": {
+        "Hourly": "ami-0ea4dc08d9b27cf43",
+        "BYOL": "ami-0630264db28083c0c",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      },
+      "us-west-2": {
+        "Hourly": "ami-0ba55f30a1180af14",
+        "BYOL": "ami-0efc886772482f227",
+        "ARN": "aws",
+        "InstanceType": "m4.large"
+      }
+    }
+  },
+  "Conditions": {
+    "UsingAutoDetectedAMI": {
+      "Fn::Equals": [
+        {
+          "Ref": "AMI"
+        },
+        "autodetect"
+      ]
+    },
+    "DetectInstanceSize": {
+      "Fn::Equals": [
+        {
+          "Ref": "InstanceSize"
+        },
+        "default"
+      ]
+    },
+    "UsingEIP": {
+      "Fn::Equals": [
+        {
+          "Ref": "OptUsingEIPonXG"
+        },
+        "yes"
+      ]
+    },
+    "AllocateNewEIP": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptUsingEIPonXG"
+            },
+            "yes"
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingElasticIpId"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "creatingNewVPCSubnet": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingVPC"
+            },
+            ""
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingSubnet"
+            },
+            ""
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingSubnetPriv"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "UsingExistingVPCSubnet": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingVPC"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "PublicNetworkPrefix"
+              },
+              "0.0/16"
+            ]
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "VPC"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "SubnetPublic": {
+      "Type": "AWS::EC2::Subnet",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "PublicNetworkPrefix"
+              },
+              "1.0/24"
+            ]
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone"
+        },
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  "XG",
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "public"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "SubnetPrivate": {
+      "Type": "AWS::EC2::Subnet",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "PublicNetworkPrefix"
+              },
+              "0.0/24"
+            ]
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  "XG",
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "private"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "IGW"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "RouteTablePublic": {
+      "Type": "AWS::EC2::RouteTable",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  "XG",
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "rtable",
+                  "public"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "RouteTablePrivate": {
+      "Type": "AWS::EC2::RouteTable",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Private"
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  "XG",
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "rtable",
+                  "private"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "RouteToIGW": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "AttachGateway",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTablePublic"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "RouteToPrivSubnet": {
+      "Type": "AWS::EC2::Route",
+      "Condition": "creatingNewVPCSubnet",
+      "DependsOn": "AttachGateway",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTablePrivate"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NetworkInterfaceId": {
+          "Ref": "PrivateENI"
+        }
+      }
+    },
+    "SubnetPublicRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "SubnetPublic"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTablePublic"
+        }
+      }
+    },
+    "SubnetPrivateRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "SubnetPrivate"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTablePrivate"
+        }
+      }
+    },
+    "SecurityGroupPublic": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Untrusted network restricted from accessing port 22 and 4444.",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 0,
+            "ToPort": 21,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 23,
+            "ToPort": 4443,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 4445,
+            "ToPort": 65535,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "VpcId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingVPC"
+            },
+            {
+              "Ref": "VPC"
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "xg",
+                  "public"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "SecurityGroupTrusted": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable TCP access from trusted network",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 0,
+            "ToPort": 65535,
+            "CidrIp": {
+              "Ref": "TrustedNetwork"
+            }
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "VpcId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingVPC"
+            },
+            {
+              "Ref": "VPC"
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "xg",
+                  "trusted"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "PublicENI": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "SubnetId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingSubnet"
+            },
+            {
+              "Ref": "SubnetPublic"
+            }
+          ]
+        },
+        "SourceDestCheck": false,
+        "Description": "ENI for Public Subnet",
+        "GroupSet": [
+          {
+            "Ref": "SecurityGroupTrusted"
+          },
+          {
+            "Ref": "SecurityGroupPublic"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "eth1"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "PrivateENI": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "SubnetId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingSubnetPriv"
+            },
+            {
+              "Ref": "SubnetPrivate"
+            }
+          ]
+        },
+        "SourceDestCheck": false,
+        "Description": "ENI for Private Subnet",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "eth0"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "XGLaunchTemplate": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateName": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "AWS::StackName"
+              },
+              "XGLT"
+            ]
+          ]
+        },
+        "LaunchTemplateData": {
+          "InstanceType": {
+            "Fn::If": [
+              "DetectInstanceSize",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "InstanceType"
+                ]
+              },
+              {
+                "Ref": "InstanceSize"
+              }
+            ]
+          },
+          "KeyName": {
+            "Ref": "KeyName"
+          },
+          "NetworkInterfaces": [
+            {
+              "NetworkInterfaceId": {
+                "Ref": "PrivateENI"
+              },
+              "DeviceIndex": 0
+            },
+            {
+              "NetworkInterfaceId": {
+                "Ref": "PublicENI"
+              },
+              "DeviceIndex": 1
+            }
+          ],
+          "ImageId": {
+            "Fn::If": [
+              "UsingAutoDetectedAMI",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  {
+                    "Ref": "LicenseType"
+                  }
+                ]
+              },
+              {
+                "Ref": "AMI"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "XGInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": {
+            "Ref": "XGLaunchTemplate"
+          },
+          "Version": {
+            "Fn::GetAtt": [
+              "XGLaunchTemplate",
+              "LatestVersionNumber"
+            ]
+          }
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone"
+        }
+      }
+    },
+    "NewEIP": {
+      "Type": "AWS::EC2::EIP",
+      "Condition": "AllocateNewEIP",
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "AWS::StackName"
+                  },
+                  "eip"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "AssociateEIP": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Condition": "UsingEIP",
+      "Properties": {
+        "AllocationId": {
+          "Fn::If": [
+            "AllocateNewEIP",
+            {
+              "Fn::GetAtt": [
+                "NewEIP",
+                "AllocationId"
+              ]
+            },
+            {
+              "Ref": "OptExistingElasticIpId"
+            }
+          ]
+        },
+        "NetworkInterfaceId": {
+          "Ref": "PublicENI"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "PublicIPAddress": {
+      "Description": "IP for Access To XG Firewall",
+      "Value": {
+        "Ref": "NewEIP"
+      },
+      "Condition": "AllocateNewEIP"
+    }
+  }
+}
