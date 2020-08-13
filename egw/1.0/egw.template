@@ -23,13 +23,13 @@
 			"Type": "String",
 			"Default": "default"
 		},
-		"ControllerSecurityGroup": {
-			"Description": "Security group ID of the Controller node. Only SSH access to the Gateway will be allowed from this security group.",
-			"Type": "AWS::EC2::SecurityGroup::Id"
+		"ControllerSubnets": {
+			"Description": "Enter the subnets used by the UTM controller, separated by commas (e.g. 10.42.1.0/24,10.42.2.0/24). SSH access to the Gateway will only be allowed from these ranges.",
+			"Type": "CommaDelimitedList"
 		},
-		"UTMWorkerSecurityGroup": {
-			"Description": "Security group ID of the instances the Gateway should balance traffic to.",
-			"Type": "AWS::EC2::SecurityGroup::Id"
+		"UTMWorkerSubnets": {
+			"Description": "Enter the subnets used by the UTM workers, separated by commas (e.g. 10.42.10.0/24,10.42.11.0/24).",
+			"Type": "CommaDelimitedList"
 		},
 		"AuthToken": {
 			"Description": "AuthToken for API access. This token would be used as a shared secret for API communication between Gateway and the UTMs.",
@@ -43,7 +43,7 @@
 			"MaxValue": 16383
 		},
 		"LoadBalancerTunnelPrefix": {
-			"Description": "The network prefix (e.g 240.0.0.0/8) to use (changes only required in case of conflict).",
+			"Description": "The network prefix (e.g. 240.0.0.0/8) to use (changes only required in case of conflict).",
 			"Type": "Number",
 			"Default": 240,
 			"MinValue": 240,
@@ -58,7 +58,7 @@
 			"Type": "String"
 		},
 		"UTMCIDR": {
-			"Description": "CIDR of the VPC containing the UTM controller and workers.",
+			"Description": "CIDR of the VPC containing the UTM controller and workers (e.g. 10.42.0.0/16).",
 			"Type": "String",
 			"AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$",
 			"ConstraintDescription": "Must be IPv4 CIDR notation: X.X.X.X/X"
@@ -93,8 +93,8 @@
 						"VpcID",
 						"InternetGateway",
 						"UTMGateway",
-						"ControllerSecurityGroup",
-						"UTMWorkerSecurityGroup",
+						"ControllerSubnets",
+						"UTMWorkerSubnets",
 						"ClientCIDR",
 						"UTMCIDR"
 					]
@@ -142,11 +142,11 @@
 				"UTMCIDR": {
 					"default": "CIDR of the UTM controller and worker VPC (required)"
 				},
-				"ControllerSecurityGroup": {
-					"default": "Security Group of the Controller node (required)"
+				"ControllerSubnets": {
+					"default": "Subnets of the Controller nodes (required)"
 				},
-				"UTMWorkerSecurityGroup": {
-					"default": "Security Group of the Worker nodes (required)"
+				"UTMWorkerSubnets": {
+					"default": "Subnets of the Worker nodes (required)"
 				},
 				"KeyID": {
 					"default": "SSH Key (required)"
@@ -449,30 +449,76 @@
 						"IpProtocol": "tcp",
 						"FromPort": "22",
 						"ToPort": "22",
-						"SourceSecurityGroupId": {
-							"Ref": "ControllerSecurityGroup"
+						"CidrIp": {
+							"Fn::Select": ["0", {
+								"Ref": "ControllerSubnets"
+							}]
+						}
+					},
+					{
+						"IpProtocol": "tcp",
+						"FromPort": "22",
+						"ToPort": "22",
+						"CidrIp": {
+							"Fn::Select": ["1", {
+								"Ref": "ControllerSubnets"
+							}]
 						}
 					},
 					{
 						"IpProtocol": "tcp",
 						"FromPort": "5555",
 						"ToPort": "5555",
-						"SourceSecurityGroupId": {
-							"Ref": "ControllerSecurityGroup"
+						"CidrIp": {
+							"Fn::Select": ["0", {
+								"Ref": "ControllerSubnets"
+							}]
 						}
 					},
 					{
 						"IpProtocol": "tcp",
 						"FromPort": "5555",
 						"ToPort": "5555",
-						"SourceSecurityGroupId": {
-							"Ref": "UTMWorkerSecurityGroup"
+						"CidrIp": {
+							"Fn::Select": ["1", {
+								"Ref": "ControllerSubnets"
+							}]
+						}
+					},
+					{
+						"IpProtocol": "tcp",
+						"FromPort": "5555",
+						"ToPort": "5555",
+						"CidrIp": {
+							"Fn::Select": ["0", {
+								"Ref": "UTMWorkerSubnets"
+							}]
+						}
+					},
+					{
+						"IpProtocol": "tcp",
+						"FromPort": "5555",
+						"ToPort": "5555",
+						"CidrIp": {
+							"Fn::Select": ["1", {
+								"Ref": "UTMWorkerSubnets"
+							}]
 						}
 					},
 					{
 						"IpProtocol": "47",
-						"SourceSecurityGroupId": {
-							"Ref": "UTMWorkerSecurityGroup"
+						"CidrIp": {
+							"Fn::Select": ["0", {
+								"Ref": "UTMWorkerSubnets"
+							}]
+						}
+					},
+					{
+						"IpProtocol": "47",
+						"CidrIp": {
+							"Fn::Select": ["1", {
+								"Ref": "UTMWorkerSubnets"
+							}]
 						}
 					}
 				],
