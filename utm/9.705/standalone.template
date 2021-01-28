@@ -244,18 +244,18 @@
         "HAInstanceType": "m4.large"
       },
       "us-gov-east-1": {
-        "Hourly": "ami-26d23f57",
-        "BYOL": "ami-fcd4398d",
+        "Hourly": "ami-05cbba416dc25079b",
+        "BYOL": "ami-0125a1fe3bd8fd87f",
         "ARN": "aws-us-gov",
         "HAInstanceType": "m5.large"
       },
       "us-gov-west-1": {
-        "Hourly": "ami-32cfe653",
-        "BYOL": "ami-f9cbe298",
+        "Hourly": "ami-0f13889e57d91c520",
+        "BYOL": "ami-05f56f97a299dd83b",
         "ARN": "aws-us-gov",
         "HAInstanceType": "m4.large"
       },
-      "us-west-1": {
+       "us-west-1": {
         "Hourly": "ami-052b7b926a954255d",
         "BYOL": "ami-03f1e4de99776a1c6",
         "ARN": "aws",

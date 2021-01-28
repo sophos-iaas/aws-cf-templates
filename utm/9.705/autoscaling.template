@@ -596,15 +596,15 @@
         "SwarmInstanceType": "m4.large"
       },
       "us-gov-east-1": {
-        "Hourly": "ami-44d43935",
-        "BYOL": "ami-af2fc2de",
+        "Hourly": "ami-0782d62e38e182c49",
+        "BYOL": "ami-0a4d01b7c875fad81",
         "ARN": "aws-us-gov",
         "QueenInstanceType": "c5.large",
         "SwarmInstanceType": "m5.large"
       },
       "us-gov-west-1": {
-        "Hourly": "ami-07cbe266",
-        "BYOL": "ami-30cfe651",
+        "Hourly": "ami-0b612d42d82bd58f1",
+        "BYOL": "ami-0b4cc8af327f4f685",
         "ARN": "aws-us-gov",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "m4.large"
