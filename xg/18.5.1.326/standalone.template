@@ -1,0 +1,1086 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Sophos Firewall",
+  "Parameters": {
+    "AMI": {
+      "Description": "Autodetect uses the latest AMI based on the pricing option you select. Otherwise, specify an AMI ID.",
+      "Type": "String",
+      "Default": "autodetect",
+      "ConstraintDescription": "Must be 'autodetect' or a valid AMI id starting with 'ami-'",
+      "AllowedPattern": "^(autodetect|ami-[0-9a-f]{8}|ami-[0-9a-f]{17})$"
+    },
+    "AvailabilityZone": {
+      "Type": "AWS::EC2::AvailabilityZone::Name",
+      "Description": "Please provide an AvailabilityZone.",
+      "ConstraintDescription": "Must be a valid AZ code",
+      "AllowedPattern": "\\S+"
+    },
+    "PublicNetworkPrefix": {
+      "Description": "Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example to use address range 10.6.0.0/16 you should provide '10.6' as input. Leave it unchanged if deploying in your existing VPC",
+      "Type": "String",
+      "Default": "10.15",
+      "ConstraintDescription": "Must be notation like: X.X",
+      "AllowedPattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+    },
+    "OptExistingVPC": {
+      "Description": "VPC ID of an existing VPC, make sure it has at least one public subnet and one private subnet. Leave it blank to create a new VPC.",
+      "Type": "String",
+      "Default": "",
+      "ConstraintDescription": "Must be empty or a valid VPC ID",
+      "AllowedPattern": "^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17}|)$"
+    },
+    "OptExistingSubnetPublic": {
+      "Description": "Existing public subnet ID if deploying in your existing VPC.",
+      "Type": "String",
+      "Default": "",
+      "ConstraintDescription": "Must be empty or a valid subnet ID",
+      "AllowedPattern": "^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17}|)$"
+    },
+    "OptExistingSubnetPrivate": {
+      "Description": "Existing private subnet ID if deploying in your existing VPC.",
+      "Type": "String",
+      "Default": "",
+      "ConstraintDescription": "Must be empty or a valid subnet ID",
+      "AllowedPattern": "^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17}|)$"
+    },
+    "TrustedNetwork": {
+      "Description": "Allow all traffic (including TCP port 22 and 4444) from this CIDR on the public network interface.",
+      "Type": "String",
+      "AllowedPattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/(2[4-9]|3[0-2]))$",
+      "ConstraintDescription": "Must be a valid IPv4 CIDR within range /24 to /32"
+    },
+    "OptUsingEIPonFirewall": {
+      "Description": "Associate an Elastic IP to Sophos Firewall instance if yes is selected.",
+      "Type": "String",
+      "AllowedValues": [
+        "yes",
+        "no"
+      ],
+      "Default": "yes"
+    },
+    "OptExistingElasticIpId": {
+      "Description": "Allocation ID of an existing Elastic IP if specified. Leave blank to create a new EIP if 'Using Elastic IP' is selected.",
+      "Type": "String",
+      "Default": "",
+      "ConstraintDescription": "Must be empty or a valid eip allocation id starting with 'eipalloc-'",
+      "AllowedPattern": "^(eipalloc-[0-9a-f]{8}|eipalloc-[0-9a-f]{17}|)$"
+    },
+    "InstanceSize": {
+      "Description": "EC2 instance type to be used for Sophos Firewall deployment.",
+      "Type": "String",
+      "Default": "m5.large",
+      "AllowedValues": [
+        "t2.medium",
+        "t2.large",
+        "t2.xlarge",
+        "t2.2xlarge",
+        "t3.medium",
+        "t3.large",
+        "t3.xlarge",
+        "t3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "m5.large",
+        "m5.xlarge",
+        "m5.2xlarge",
+        "m5.4xlarge",
+        "m5.8xlarge",
+        "m5.12xlarge",
+        "m5.16xlarge",
+        "m5.24xlarge",
+        "c4.large",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge",
+        "c4.8xlarge",
+        "c5.large",
+        "c5.xlarge",
+        "c5.2xlarge",
+        "c5.4xlarge",
+        "c5.9xlarge",
+        "c5.12xlarge",
+        "c5.18xlarge",
+        "c5.24xlarge",
+        "default"
+      ]
+    },
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access."
+    },
+    "SophosFirewallName": {
+      "Description": "Name tag for your Sophos Firewall, as well as the hostname.",
+      "Type": "String",
+      "Default": "Sophos-Firewall",
+      "ConstraintDescription": "Must be a valid hostname",
+      "AllowedPattern": "^\\w([\\-\\.]?\\w)*$",
+      "MaxLength": 255
+    },
+    "LicenseType": {
+      "Description": "Select between Bring Your Own License (BYOL) or pay per instance-hour (Hourly). This parameter does not take effect if you manually enter an AMI ID.",
+      "Type": "String",
+      "AllowedValues": [
+        "Hourly",
+        "BYOL"
+      ],
+      "Default": "BYOL"
+    },
+    "SophosFirewallSerialNumber": {
+      "Description": "Your registered Sophos Firewall serial number on your license.",
+      "Type": "String",
+      "Default": ""
+    },
+    "BasicAdminPassword": {
+      "Description": "Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.",
+      "Type": "String",
+      "NoEcho": "True",
+      "ConstraintDescription": "Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.",
+      "AllowedPattern": "^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.*[a-z])(?=.*[A-Z])(?=(.*)).{10,60}$"
+    },
+    "AgreeUserTerms": {
+      "Description": "Use of this software is subject to the Sophos End User License Agreement (EULA) at https://www.sophos.com/en-us/legal/sophos-end-user-license-agreement.aspx. You must enter 'yes' to accept the EULA to continue, so please read it carefully. You also acknowledge that Sophos processes personal data in accordance with the Sophos Privacy Policy at https://www.sophos.com/en-us/legal/sophos-group-privacy-notice.aspx.",
+      "Type": "String",
+      "AllowedPattern": "^(?i:yes)$"
+    },
+    "SendLearningStats": {
+      "Description": "Learning how customers use Sophos Firewall helps make better products. The product sends information periodically to Sophos which is used for the purpose of improving product stability, prioritizing feature refinements, and protection effectiveness. Details about the data that is transferred can be found in the online help.",
+      "Type": "String",
+      "AllowedValues": [
+        "on",
+        "off"
+      ],
+      "Default": "on"
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Cloud Infrastructure Configuration"
+          },
+          "Parameters": [
+            "AMI",
+            "InstanceSize",
+            "AvailabilityZone",
+            "PublicNetworkPrefix",
+            "OptExistingVPC",
+            "OptExistingSubnetPublic",
+            "OptExistingSubnetPrivate",
+            "TrustedNetwork",
+            "OptUsingEIPonFirewall",
+            "OptExistingElasticIpId"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Sophos Firewall Configuration"
+          },
+          "Parameters": [
+            "SophosFirewallName",
+            "LicenseType",
+            "SophosFirewallSerialNumber",
+            "BasicAdminPassword",
+            "KeyName"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Other Configuration"
+          },
+          "Parameters": [
+            "AgreeUserTerms",
+            "SendLearningStats"
+          ]
+        }
+      ],
+      "ParameterLabels": {
+        "AMI": {
+          "default": "AMI ID (required)"
+        },
+        "LicenseType": {
+          "default": "Pricing Option (required)"
+        },
+        "InstanceSize": {
+          "default": "Instance Size (required)"
+        },
+        "AvailabilityZone": {
+          "default": "AvailabilityZone for deployment (required)"
+        },
+        "PublicNetworkPrefix": {
+          "default": "Network Address Prefix for new VPC (required)"
+        },
+        "OptExistingVPC": {
+          "default": "Deploy to an existing VPC"
+        },
+        "OptExistingSubnetPublic": {
+          "default": "The existing public subnet ID"
+        },
+        "OptExistingSubnetPrivate": {
+          "default": "The existing private subnet ID"
+        },
+        "OptUsingEIPonFirewall": {
+          "default": "Using Elastic IP (required)"
+        },
+        "OptExistingElasticIpId": {
+          "default": "Existing Elastic IP Allocation ID"
+        },
+        "KeyName": {
+          "default": "SSH KeyPair Name (required)"
+        },
+        "TrustedNetwork": {
+          "default": "Trusted Network CIDR (required)"
+        },
+        "SophosFirewallName": {
+          "default": "Sophos Firewall Name (required)"
+        },
+        "SophosFirewallSerialNumber": {
+          "default": "Sophos Firewall Serial Number"
+        },
+        "BasicAdminPassword": {
+          "default": "Admin Password (required)"
+        },
+        "AgreeUserTerms": {
+          "default": "I accept the Sophos End User License Agreement and acknowledge the Sophos Privacy Policy (required)"
+        },
+        "SendLearningStats": {
+          "default": "Opt in to the customer experience improvement program (required)"
+        }
+      }
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "af-south-1": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-east-1": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-northeast-1": {
+        "Hourly": "ami-02b5ed385f819730d",
+        "BYOL": "ami-0f78d6bc0f3da1186",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-northeast-2": {
+        "Hourly": "ami-0ef6b314b0e5b31ae",
+        "BYOL": "ami-090b495c08453fd82",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-northeast-3": {
+        "Hourly": "ami-0d564c1a13b827ef0",
+        "BYOL": "ami-047c3e487a5747309",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-south-1": {
+        "Hourly": "ami-0bddbdfba231ba649",
+        "BYOL": "ami-07e4f1746caed4ba4",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-southeast-1": {
+        "Hourly": "ami-035a70fabb2ccfdd3",
+        "BYOL": "ami-0239f12e404fc46dc",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ap-southeast-2": {
+        "Hourly": "ami-055e61d6ee43f21fc",
+        "BYOL": "ami-003c20525888afa54",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "ca-central-1": {
+        "Hourly": "ami-0f8016af68c89492f",
+        "BYOL": "ami-0e7364c8608b4802c",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "eu-central-1": {
+        "Hourly": "ami-0a393c80dee155bef",
+        "BYOL": "ami-0733732c7a9d191f7",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "eu-north-1": {
+        "Hourly": "ami-0b2e44bf1407d5032",
+        "BYOL": "ami-0fbc9df058539ef85",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "eu-south-1": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "eu-west-1": {
+        "Hourly": "ami-032df2e024ac67c81",
+        "BYOL": "ami-07c6733f5079e9152",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "eu-west-2": {
+        "Hourly": "ami-08bdac1d5cbdcf997",
+        "BYOL": "ami-091f846269a8e336c",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "eu-west-3": {
+        "Hourly": "ami-0107e045a042ced2d",
+        "BYOL": "ami-075ff7957d452a6e1",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "me-south-1": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "sa-east-1": {
+        "Hourly": "ami-0f8ac19cad14dcb69",
+        "BYOL": "ami-00bbe3fa6155f838b",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "us-east-1": {
+        "Hourly": "ami-0dbbd8fe22f776581",
+        "BYOL": "ami-06a31e9e57e327503",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "us-east-2": {
+        "Hourly": "ami-0c0283ee95a64c8f9",
+        "BYOL": "ami-0bf8bd93d4a56286d",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "us-gov-east-1": {
+        "Hourly": "ami-006f32a0fd5050e9a",
+        "BYOL": "ami-09dcc7cf7fd36e9bc",
+        "ARN": "aws-us-gov",
+        "InstanceType": "m5.large"
+      },
+      "us-gov-west-1": {
+        "Hourly": "ami-092b2fbbca17f2b83",
+        "BYOL": "ami-027a2b50beaa4e7d6",
+        "ARN": "aws-us-gov",
+        "InstanceType": "m5.large"
+      },
+      "us-west-1": {
+        "Hourly": "ami-0fb2a8cf2684fdb0c",
+        "BYOL": "ami-065fabeba927f04d3",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      },
+      "us-west-2": {
+        "Hourly": "ami-0632c781b7833031f",
+        "BYOL": "ami-009b8414a895bf268",
+        "ARN": "aws",
+        "InstanceType": "m5.large"
+      }
+    }
+  },
+  "Conditions": {
+    "UsingAutoDetectedAMI": {
+      "Fn::Equals": [
+        {
+          "Ref": "AMI"
+        },
+        "autodetect"
+      ]
+    },
+    "DetectInstanceSize": {
+      "Fn::Equals": [
+        {
+          "Ref": "InstanceSize"
+        },
+        "default"
+      ]
+    },
+    "UsingEIP": {
+      "Fn::Equals": [
+        {
+          "Ref": "OptUsingEIPonFirewall"
+        },
+        "yes"
+      ]
+    },
+    "AllocateNewEIP": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptUsingEIPonFirewall"
+            },
+            "yes"
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingElasticIpId"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "creatingNewVPCSubnet": {
+      "Fn::And": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingVPC"
+            },
+            ""
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingSubnetPublic"
+            },
+            ""
+          ]
+        },
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingSubnetPrivate"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "UsingExistingVPCSubnet": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OptExistingVPC"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "PublicNetworkPrefix"
+              },
+              "0.0/16"
+            ]
+          ]
+        }
+      }
+    },
+    "SubnetPublic": {
+      "Type": "AWS::EC2::Subnet",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "PublicNetworkPrefix"
+              },
+              "1.0/24"
+            ]
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone"
+        },
+        "MapPublicIpOnLaunch": "true"
+      }
+    },
+    "SubnetPrivate": {
+      "Type": "AWS::EC2::Subnet",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "PublicNetworkPrefix"
+              },
+              "0.0/24"
+            ]
+          ]
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone"
+        }
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "RouteTablePublic": {
+      "Type": "AWS::EC2::RouteTable",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "RouteTablePrivate": {
+      "Type": "AWS::EC2::RouteTable",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Network",
+            "Value": "Private"
+          }
+        ]
+      }
+    },
+    "RouteToIGW": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "AttachGateway",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTablePublic"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "RouteToPrivSubnet": {
+      "Type": "AWS::EC2::Route",
+      "Condition": "creatingNewVPCSubnet",
+      "DependsOn": "AttachGateway",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTablePrivate"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NetworkInterfaceId": {
+          "Ref": "PrivateENI"
+        }
+      }
+    },
+    "SubnetPublicRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "SubnetPublic"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTablePublic"
+        }
+      }
+    },
+    "SubnetPrivateRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Condition": "creatingNewVPCSubnet",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "SubnetPrivate"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTablePrivate"
+        }
+      }
+    },
+    "SecurityGroupPublic": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Untrusted network restricted from accessing port 22 and 4444.",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "21",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "23",
+            "ToPort": "4443",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "4445",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "VpcId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingVPC"
+            },
+            {
+              "Ref": "VPC"
+            }
+          ]
+        }
+      }
+    },
+    "SecurityGroupTrusted": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable TCP access from trusted network",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": {
+              "Ref": "TrustedNetwork"
+            }
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "VpcId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingVPC"
+            },
+            {
+              "Ref": "VPC"
+            }
+          ]
+        }
+      }
+    },
+    "SecurityGroupLAN": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security Group for private subnet. Allow everything by default",
+        "VpcId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingVPC"
+            },
+            {
+              "Ref": "VPC"
+            }
+          ]
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "PublicENI": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "SubnetId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingSubnetPublic"
+            },
+            {
+              "Ref": "SubnetPublic"
+            }
+          ]
+        },
+        "SourceDestCheck": "false",
+        "Description": "ENI for Public Subnet",
+        "GroupSet": [
+          {
+            "Ref": "SecurityGroupTrusted"
+          },
+          {
+            "Ref": "SecurityGroupPublic"
+          }
+        ]
+      }
+    },
+    "PrivateENI": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "SubnetId": {
+          "Fn::If": [
+            "UsingExistingVPCSubnet",
+            {
+              "Ref": "OptExistingSubnetPrivate"
+            },
+            {
+              "Ref": "SubnetPrivate"
+            }
+          ]
+        },
+        "SourceDestCheck": "false",
+        "Description": "ENI for Private Subnet",
+        "GroupSet": [
+          {
+            "Ref": "SecurityGroupLAN"
+          }
+        ]
+      }
+    },
+    "SophosFirewallLaunchTemplate": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateName": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "AWS::StackName"
+              },
+              "SFLT"
+            ]
+          ]
+        },
+        "LaunchTemplateData": {
+          "InstanceType": {
+            "Fn::If": [
+              "DetectInstanceSize",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "InstanceType"
+                ]
+              },
+              {
+                "Ref": "InstanceSize"
+              }
+            ]
+          },
+          "KeyName": {
+            "Ref": "KeyName"
+          },
+          "NetworkInterfaces": [
+            {
+              "NetworkInterfaceId": {
+                "Ref": "PrivateENI"
+              },
+              "DeviceIndex": "0"
+            },
+            {
+              "NetworkInterfaceId": {
+                "Ref": "PublicENI"
+              },
+              "DeviceIndex": "1"
+            }
+          ],
+          "ImageId": {
+            "Fn::If": [
+              "UsingAutoDetectedAMI",
+              {
+                "Fn::FindInMap": [
+                  "RegionMap",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  {
+                    "Ref": "LicenseType"
+                  }
+                ]
+              },
+              {
+                "Ref": "AMI"
+              }
+            ]
+          },
+          "IamInstanceProfile": {
+            "Name": {
+              "Ref": "EC2IAMProfile"
+            }
+          },
+          "UserData": {
+            "Fn::Base64": {
+              "Fn::Join": [
+                "",
+                [
+                  "{",
+                  "\"hostname\":\"",
+                  {
+                    "Ref": "SophosFirewallName"
+                  },
+                  "\",",
+                  "\"sendstats\":\"",
+                  {
+                    "Ref": "SendLearningStats"
+                  },
+                  "\",",
+                  "\"serialKey\":\"",
+                  {
+                    "Ref": "SophosFirewallSerialNumber"
+                  },
+                  "\",",
+                  "\"region\":\"",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "\",",
+                  "\"secretId\":\"",
+                  {
+                    "Ref": "PasswordSecret"
+                  },
+                  "\"",
+                  "}\n"
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "SophosFirewallInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": {
+            "Ref": "SophosFirewallLaunchTemplate"
+          },
+          "Version": {
+            "Fn::GetAtt": [
+              "SophosFirewallLaunchTemplate",
+              "LatestVersionNumber"
+            ]
+          }
+        },
+        "AvailabilityZone": {
+          "Ref": "AvailabilityZone"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "SophosFirewallName"
+            }
+          }
+        ]
+      }
+    },
+    "NewEIP": {
+      "Type": "AWS::EC2::EIP",
+      "Condition": "AllocateNewEIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "AssociateEIP": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Condition": "UsingEIP",
+      "Properties": {
+        "AllocationId": {
+          "Fn::If": [
+            "AllocateNewEIP",
+            {
+              "Fn::GetAtt": [
+                "NewEIP",
+                "AllocationId"
+              ]
+            },
+            {
+              "Ref": "OptExistingElasticIpId"
+            }
+          ]
+        },
+        "NetworkInterfaceId": {
+          "Ref": "PublicENI"
+        }
+      }
+    },
+    "PasswordSecret": {
+      "Type": "AWS::SecretsManager::Secret",
+      "Properties": {
+        "Name": {
+          "Fn::Join": [
+            "-",
+            [
+              "sophospass",
+              {
+                "Ref": "AWS::StackName"
+              }
+            ]
+          ]
+        },
+        "Description": "This secret has a hardcoded password in SecretString (use GenerateSecretString instead)",
+        "SecretString": {
+          "Ref": "BasicAdminPassword"
+        }
+      }
+    },
+    "EC2IAMProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "EC2IAMRole"
+          }
+        ]
+      }
+    },
+    "EC2IAMPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "EC2IAMPolicy",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret"
+              ],
+              "Resource": [
+                {
+                  "Ref": "PasswordSecret"
+                }
+              ]
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "EC2IAMRole"
+          }
+        ]
+      }
+    },
+    "EC2IAMRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/"
+      }
+    }
+  },
+  "Outputs": {
+    "PublicIPAddress": {
+      "Description": "Public IP to access Sophos Firewall",
+      "Value": {
+        "Ref": "NewEIP"
+      },
+      "Condition": "AllocateNewEIP"
+    },
+    "PrivateIPAddressPublicENI": {
+      "Description": "Private IP associated with Sophos Sophos Firewall public interface",
+      "Value": {
+        "Fn::GetAtt": [
+          "PublicENI",
+          "PrimaryPrivateIpAddress"
+        ]
+      }
+    }
+  }
+}

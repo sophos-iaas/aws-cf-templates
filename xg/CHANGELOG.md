@@ -1,5 +1,11 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v18.5.1.326 on AWS
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v18.5.1.326 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v18-5-mr1-is-now-available).
+
 ## Sophos XG Firewall v18.0.3.475 on AWS
 
 ### AWS Firmware
