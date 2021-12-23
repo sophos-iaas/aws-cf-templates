@@ -220,7 +220,10 @@ Resources:
         "ec2:DescribeSubnets",
         "ec2:DescribeVpcs",
         "ec2:DisassociateRouteTable",
-        "ec2:ModifyInstanceAttribute"
+        "ec2:ModifyInstanceAttribute",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:AuthorizeSecurityGroupEgress"
       ],
       "Resource": "*"
     },
