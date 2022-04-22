@@ -1,6 +1,4 @@
 # Sophos NSG XG CloudFormation Templates
-[//]: # (TODO: Need to verify descriptions and wording for this customer
-document)
 
 ## Instant Deployment
 
@@ -13,13 +11,13 @@ With the templates we provide, you can instantly deploy our XG solutions on AWS 
 
 ### High Availability ###
 
-[//]: # (TODO: Provide s3 link to HA template when combined template is
-available in s3)
+#### Pay As You Go ####
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=sophos-xg-ha&templateURL=https://s3.amazonaws.com/sophos-nsg-cf/xg/ha_parent_tgw_payg.template">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a>
 
-### Auto Scaling ###
-
-[//]: # (TODO: Provide s3 link to autoscale template when combined template is
-available in s3)
+#### Bring Your Own License ####
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=sophos-xg-ha&templateURL=https://s3.amazonaws.com/sophos-nsg-cf/xg/ha_parent_tgw_byol.template">
+<img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a>
 
 ## Changelog
 See changelog [here](CHANGELOG.md)
