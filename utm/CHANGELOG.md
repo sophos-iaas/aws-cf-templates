@@ -1,5 +1,22 @@
 # Sophos UTM on AWS Release Notes
 
+## Sophos UTM 9.710 on AWS
+
+### AWS Firmware
+
+* [UTM 9.710 Release Notes](https://community.sophos.com/products/unified-threat-management/b/utm-blog/posts/utm-up2date-9-710-released)
+
+### Templates
+
+The following templates were changed in this release:
+
+|Feature|Template|Template Changes|
+|-------|--------|----------------|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.710/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.707...utm9.710)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.710/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.707...utm9.710)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.710/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.707...utm9.710)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.710/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.707...utm9.710)|
+
 ## Sophos UTM 9.707 on AWS
 
 ### AWS Firmware
