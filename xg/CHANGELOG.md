@@ -1,5 +1,19 @@
 # Sophos XG Firewall on AWS Release Notes
 
+
+## Sophos XG Firewall v18.5.3.408 on AWS
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v18.5.3.408 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v18-5-mr3-is-now-available).
+
+### Template
+
+The standalone template has the following changes:
+- The T2 instance type has been deprecated.  T3 is a direct replacement.
+- Added support for SSMK password
+- Added support for restoring configuration from S3 on launch
+
 ## Sophos XG Firewall v18.5.2.380 on AWS
 
 ### AWS Firmware
