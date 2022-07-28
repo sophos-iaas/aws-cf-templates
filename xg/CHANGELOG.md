@@ -1,5 +1,17 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v19.0.0.317 on AWS
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v19.0.0.317 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-os-v19-is-now-available).
+
+### Template
+
+The standalone template has the following changes:
+- Create separate templates for each license type (standalone_byol and standalone_payg)
+- Migrate the templates to YAML format
+
 
 ## Sophos XG Firewall v18.5.3.408 on AWS
 
