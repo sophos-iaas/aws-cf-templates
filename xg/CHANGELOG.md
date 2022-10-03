@@ -1,5 +1,21 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v19.0.1.384 on AWS
+
+This release includes all the features and fixes in v19.0 MR1 (v19.0.1.365).  
+Autoscaling is also supported for EAP customers, please see the link below for details.
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v19.0.1.365 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v19-mr1-re_2d00_release-build-365-is-now-available).
+See the [Autoscaling Sophos Firewall - EAP Announcement](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/autoscaling-sophos-firewall-on-aws---eap-coming-soon)
+
+### Template
+
+The standalone and ha_tgw templates have the following changes:
+- PublicNetworkCIDR is now a configurable parameter 
+
+
 ## Sophos XG Firewall v19.0.0.317 on AWS
 
 ### AWS Firmware
