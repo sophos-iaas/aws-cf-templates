@@ -110,13 +110,6 @@ Parameters:
     Description: Private Autonomous System Number (ASN) for the Amazon side of the BGP setup
     Type: String
     Default: "64512"
-  EnableCloudWatch:
-    Description: View and store logs through AWS CloudWatch
-    Type: String
-    AllowedValues:
-      - 'yes'
-      - 'no'
-    Default: 'no'
   AgreeUserTerms:
     Description: Use of this software is subject to the Sophos End User License Agreement (EULA) at https://www.sophos.com/en-us/legal/sophos-end-user-license-agreement.aspx. You must enter 'yes' to accept the EULA to continue, so please read it carefully. You also acknowledge that Sophos processes personal data in accordance with the Sophos Privacy Policy at https://www.sophos.com/en-us/legal/sophos-group-privacy-notice.aspx.
     Type: String
@@ -153,7 +146,6 @@ Metadata:
           - CentralPassword
           - ExistingS3Bucket
           - KeyName
-          - EnableCloudWatch
       - Label:
           default: Other Configuration
         Parameters:
@@ -175,7 +167,7 @@ Metadata:
       PublicNetworkCIDR:
         default: Public Network CIDR (required)
       AmazonASN:
-        default: ASN for the Amazon side of a BGP exchange
+        default: ' ASN for the Amazon side of a BGP exchange'
       SophosFirewallName:
         default: Sophos Firewall Name (required)
       BasicAdminPassword:
@@ -194,8 +186,6 @@ Metadata:
         default: SSH KeyPair Name (required)
       AgreeUserTerms:
         default: I accept the Sophos End User License Agreement and acknowledge the Sophos Privacy Policy (required)
-      EnableCloudWatch:
-        default: Use CloudWatch
       SendLearningStats:
         default: Opt in to the customer experience improvement program (required)
 Rules:
@@ -323,10 +313,6 @@ Conditions:
       - !Equals
         - !Ref CentralPassword
         - ""
-  UsingCloudWatch: !Not
-    - !Equals
-      - !Ref EnableCloudWatch
-      - 'no'
   HasSSMKPassword: !Not
     - !Equals
       - !Ref SSMKPassword
@@ -706,22 +692,6 @@ Resources:
               - !Ref CentralPasswordSecret
       Roles:
         - !Ref EC2IAMRole
-  EC2IAMPolicyForCloudWatch:
-    Type: AWS::IAM::Policy
-    Condition: UsingCloudWatch
-    Properties:
-      PolicyName: EC2IAMPolicyForCloudWatch
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:Create*
-              - logs:PutLogEvents
-            Resource:
-              - arn:aws:logs:*:*:*
-      Roles:
-        - !Ref EC2IAMRole
   EC2IAMPolicyForSSMK:
     Type: AWS::IAM::Policy
     Condition: HasSSMKPassword
@@ -845,12 +815,6 @@ Resources:
                     - !Ref CentralPasswordSecret
                     - '",'
                 - ""
-              - '"acceptedEULA":"'
-              - !Ref AgreeUserTerms
-              - '",'
-              - '"enableCloudWatch":"'
-              - !Ref EnableCloudWatch
-              - '",'
               - '"hostname":"'
               - !Ref SophosFirewallName
               - '",'
@@ -877,8 +841,6 @@ Resources:
           - SophosFirewallLaunchTemplate
           - LatestVersionNumber
       AvailabilityZone: !Ref AvailabilityZone1
-      # NOTE: Adding or deleting interfaces will change the availability of
-      # the LAN port. With only one interface, the LAN port will be removed
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref PrivateENI1
           DeviceIndex: "0"
@@ -899,8 +861,6 @@ Resources:
           - SophosFirewallLaunchTemplate
           - LatestVersionNumber
       AvailabilityZone: !Ref AvailabilityZone2
-      # NOTE: Adding or deleting interfaces will change the availability of
-      # the LAN port
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref PrivateENI2
           DeviceIndex: "0"

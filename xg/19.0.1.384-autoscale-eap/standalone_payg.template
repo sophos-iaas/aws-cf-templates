@@ -106,10 +106,6 @@ Parameters:
     ConstraintDescription: Must be a valid hostname
     AllowedPattern: ^\w([\-\.]?\w)*$
     MaxLength: 255
-  SophosFirewallSerialNumber:
-    Description: Your registered Sophos Firewall serial number on your license.
-    Type: String
-    Default: ""
   BasicAdminPassword:
     Description: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
     Type: String
@@ -141,12 +137,19 @@ Parameters:
       - 'off'
     Default: 'on'
   CentralUsername:
-    Description: Enter the Sophos ID email address used to access your Sophos Central account. Entering a valid email address and password will automatically register the firewall to Sophos Central and enable management. If using a BYOL license, a valid serial number must be provided above to use this feature. (Optional)
+    Description: Enter the Sophos ID email address used to access your Sophos Central account. Entering a valid email address and password will automatically register the firewall to Sophos Central and enable management. (Optional)
     Type: String
   CentralPassword:
     Description: Enter the password for this Sophos Central login
     Type: String
     NoEcho: "True"
+  EnableCloudWatch:
+    Description: View and store logs through AWS CloudWatch
+    Type: String
+    AllowedValues:
+      - 'yes'
+      - 'no'
+    Default: 'no'
 Rules:
   CentralManagement_Username:
     RuleCondition: !Not
@@ -170,22 +173,6 @@ Rules:
             - !Ref CentralUsername
             - ""
         AssertDescription: Sophos Central credentials misses username
-  BYOL_Check:
-    RuleCondition: !And
-      - !Not
-        - !Equals
-          - !Ref CentralUsername
-          - ""
-      - !Not
-        - !Equals
-          - !Ref CentralPassword
-          - ""
-    Assertions:
-      - Assert: !Not
-          - !Equals
-            - !Ref SophosFirewallSerialNumber
-            - ""
-        AssertDescription: You must specify a serial number if you use a BYOL license and Sophos Central credentials
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -207,7 +194,6 @@ Metadata:
           default: Sophos Firewall Configuration
         Parameters:
           - SophosFirewallName
-          - SophosFirewallSerialNumber
           - BasicAdminPassword
           - ConfigBackupPassword
           - SSMKPassword
@@ -215,6 +201,7 @@ Metadata:
           - ExistingS3Bucket
           - CentralUsername
           - CentralPassword
+          - EnableCloudWatch
       - Label:
           default: Other Configuration
         Parameters:
@@ -249,8 +236,6 @@ Metadata:
         default: Public Network CIDR (required)
       SophosFirewallName:
         default: Sophos Firewall Name (required)
-      SophosFirewallSerialNumber:
-        default: Sophos Firewall Serial Number
       BasicAdminPassword:
         default: Admin Password (required)
       ConfigBackupPassword:
@@ -265,90 +250,92 @@ Metadata:
         default: Sophos ID email address
       CentralPassword:
         default: Sophos ID password
+      EnableCloudWatch:
+        default: Use CloudWatch
 Mappings:
   RegionMap:
     af-south-1:
-      BYOL: ""
+      Hourly: ""
       ARN: aws
       InstanceType: m5.large
     ap-east-1:
-      BYOL: ""
+      Hourly: ""
       ARN: aws
       InstanceType: m5.large
     ap-northeast-1:
-      BYOL: ami-047baa42b4cda1a26
+      Hourly: ami-026720e962652db89
       ARN: aws
       InstanceType: m5.large
     ap-northeast-2:
-      BYOL: ami-07f4bbfcaeceae040
+      Hourly: ami-00e87cfffa3559ce0
       ARN: aws
       InstanceType: m5.large
     ap-northeast-3:
-      BYOL: ""
+      Hourly: ""
       ARN: aws
       InstanceType: m5.large
     ap-south-1:
-      BYOL: ami-053adc71768c2d4fe
+      Hourly: ami-000e8db6d7c798a13
       ARN: aws
       InstanceType: m5.large
     ap-southeast-1:
-      BYOL: ami-0a7fc52f1cd01d5b8
+      Hourly: ami-08e6e5d693231424a
       ARN: aws
       InstanceType: m5.large
     ap-southeast-2:
-      BYOL: ami-013b152e4411c8d85
+      Hourly: ami-01af188b104613dab
       ARN: aws
       InstanceType: m5.large
     ca-central-1:
-      BYOL: ami-064de5817c5c13e9f
+      Hourly: ami-03a78c21c7ca9dfe9
       ARN: aws
       InstanceType: m5.large
     eu-central-1:
-      BYOL: ami-029d769494f964bf9
+      Hourly: ami-0348215a86aeb46af
       ARN: aws
       InstanceType: m5.large
     eu-north-1:
-      BYOL: ami-0a92d3f95937c5b2f
+      Hourly: ami-0bed9d912515bc6d3
       ARN: aws
       InstanceType: m5.large
     eu-south-1:
-      BYOL: ""
+      Hourly: ""
       ARN: aws
       InstanceType: m5.large
     eu-west-1:
-      BYOL: ami-091d3321fecfd5e16
+      Hourly: ami-0199604821b355d20
       ARN: aws
       InstanceType: m5.large
     eu-west-2:
-      BYOL: ami-07efd76c526c717a5
+      Hourly: ami-0f1abdbe1face55c5
       ARN: aws
       InstanceType: m5.large
     eu-west-3:
-      BYOL: ami-0a4385a56b3354919
+      Hourly: ami-0c5658e40ad1e3e3c
       ARN: aws
       InstanceType: m5.large
     me-south-1:
-      BYOL: ""
+      Hourly: ""
       ARN: aws
       InstanceType: m5.large
     sa-east-1:
-      BYOL: ami-0e78ce920aea1ce3a
+      Hourly: ami-0d04814650b6a36fc
       ARN: aws
       InstanceType: m5.large
     us-east-1:
-      BYOL: ami-0e56b306031951c1b
+      Hourly: ami-00bfce2017ed0de20
       ARN: aws
       InstanceType: m5.large
     us-east-2:
-      BYOL: ami-089ba862215e1e610
+      Hourly: ami-0e7c7dd5cbe9b0103
       ARN: aws
       InstanceType: m5.large
     us-west-1:
-      BYOL: ami-037703324ef265430
+      Hourly: ami-0d7615ce54a8138e1
       ARN: aws
       InstanceType: m5.large
     us-west-2:
-      BYOL: ami-0b5d5a9d4b9ee8c99
+      Hourly: ami-04343703db4fd3ebb
       ARN: aws
       InstanceType: m5.large
 Conditions:
@@ -370,6 +357,10 @@ Conditions:
       - !Equals
         - !Ref CentralPassword
         - ""
+  UsingCloudWatch: !Not
+    - !Equals
+      - !Ref EnableCloudWatch
+      - 'no'
   AllocateNewEIP: !And
     - !Equals
       - !Ref OptUsingEIPonFirewall
@@ -589,6 +580,8 @@ Resources:
             - InstanceType
           - !Ref InstanceSize
         KeyName: !Ref KeyName
+        # NOTE: Adding or deleting interfaces will change the availability of
+        # the LAN port. With only one interface, the LAN port will be removed
         NetworkInterfaces:
           - NetworkInterfaceId: !Ref PrivateENI
             DeviceIndex: "0"
@@ -599,7 +592,7 @@ Resources:
           - !FindInMap
             - RegionMap
             - !Ref AWS::Region
-            - BYOL
+            - Hourly
           - !Ref AMI
         IamInstanceProfile:
           Name: !Ref EC2IAMProfile
@@ -639,14 +632,17 @@ Resources:
                     - !Ref CentralPasswordSecret
                     - '",'
                 - ""
+              - '"acceptedEULA":"'
+              - !Ref AgreeUserTerms
+              - '",'
+              - '"enableCloudWatch":"'
+              - !Ref EnableCloudWatch
+              - '",'
               - '"hostname":"'
               - !Ref SophosFirewallName
               - '",'
               - '"sendstats":"'
               - !Ref SendLearningStats
-              - '",'
-              - '"serialKey":"'
-              - !Ref SophosFirewallSerialNumber
               - '",'
               - '"region":"'
               - !Ref AWS::Region
@@ -759,6 +755,22 @@ Resources:
               - secretsmanager:DescribeSecret
             Resource:
               - !Ref CentralPasswordSecret
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForCloudWatch:
+    Type: AWS::IAM::Policy
+    Condition: UsingCloudWatch
+    Properties:
+      PolicyName: EC2IAMPolicyForCloudWatch
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:Create*
+              - logs:PutLogEvents
+            Resource:
+              - arn:aws:logs:*:*:*
       Roles:
         - !Ref EC2IAMRole
   EC2IAMPolicyForSSMK:

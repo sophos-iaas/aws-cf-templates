@@ -141,12 +141,19 @@ Parameters:
       - 'off'
     Default: 'on'
   CentralUsername:
-    Description: Enter the Sophos ID email address used to access your Sophos Central account. Entering a valid email address and password will automatically register the firewall to Sophos Central and enable management. If using a BYOL license, a valid serial number must be provided above to use this feature. (Optional)
+    Description: Enter the Sophos ID email address used to access your Sophos Central account. Entering a valid email address and password will automatically register the firewall to Sophos Central and enable management. A valid  serial number must be provided above to use this feature. (Optional)
     Type: String
   CentralPassword:
     Description: Enter the password for this Sophos Central login
     Type: String
     NoEcho: "True"
+  EnableCloudWatch:
+    Description: View and store logs through AWS CloudWatch
+    Type: String
+    AllowedValues:
+      - 'yes'
+      - 'no'
+    Default: 'no'
 Rules:
   CentralManagement_Username:
     RuleCondition: !Not
@@ -215,6 +222,7 @@ Metadata:
           - ExistingS3Bucket
           - CentralUsername
           - CentralPassword
+          - EnableCloudWatch
       - Label:
           default: Other Configuration
         Parameters:
@@ -265,6 +273,8 @@ Metadata:
         default: Sophos ID email address
       CentralPassword:
         default: Sophos ID password
+      EnableCloudWatch:
+        default: Use CloudWatch
 Mappings:
   RegionMap:
     af-south-1:
@@ -370,6 +380,10 @@ Conditions:
       - !Equals
         - !Ref CentralPassword
         - ""
+  UsingCloudWatch: !Not
+    - !Equals
+      - !Ref EnableCloudWatch
+      - 'no'
   AllocateNewEIP: !And
     - !Equals
       - !Ref OptUsingEIPonFirewall
@@ -589,6 +603,8 @@ Resources:
             - InstanceType
           - !Ref InstanceSize
         KeyName: !Ref KeyName
+        # NOTE: Adding or deleting interfaces will change the availability of
+        # the LAN port. With only one interface, the LAN port will be removed
         NetworkInterfaces:
           - NetworkInterfaceId: !Ref PrivateENI
             DeviceIndex: "0"
@@ -639,6 +655,12 @@ Resources:
                     - !Ref CentralPasswordSecret
                     - '",'
                 - ""
+              - '"acceptedEULA":"'
+              - !Ref AgreeUserTerms
+              - '",'
+              - '"enableCloudWatch":"'
+              - !Ref EnableCloudWatch
+              - '",'
               - '"hostname":"'
               - !Ref SophosFirewallName
               - '",'
@@ -759,6 +781,22 @@ Resources:
               - secretsmanager:DescribeSecret
             Resource:
               - !Ref CentralPasswordSecret
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForCloudWatch:
+    Type: AWS::IAM::Policy
+    Condition: UsingCloudWatch
+    Properties:
+      PolicyName: EC2IAMPolicyForCloudWatch
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:Create*
+              - logs:PutLogEvents
+            Resource:
+              - arn:aws:logs:*:*:*
       Roles:
         - !Ref EC2IAMRole
   EC2IAMPolicyForSSMK:
