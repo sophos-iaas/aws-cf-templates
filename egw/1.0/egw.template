@@ -139,93 +139,118 @@
   },
   "Mappings": {
     "RegionMap": {
+      "af-south-1": {
+        "EGW": "ami-0e8a8108aa5dfa861",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "ap-east-1": {
+        "EGW": "ami-0a9c17f0da24413aa",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
       "ap-northeast-1": {
-        "EGW": "ami-0189eea3a673530fe",
+        "EGW": "ami-070b1d19b45ab45e5",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-northeast-2": {
-        "EGW": "ami-032565bddf1a879c1",
+        "EGW": "ami-0e594f370f2d4f1f8",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "ap-northeast-3": {
+        "EGW": "ami-0e06d5cdd5c7dc3b0",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-south-1": {
-        "EGW": "ami-08cbce4d5146ad7d7",
+        "EGW": "ami-03417ead14f07eedd",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-southeast-1": {
-        "EGW": "ami-008354309002142cc",
+        "EGW": "ami-0501f3b1976d5c8aa",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-southeast-2": {
-        "EGW": "ami-094f46f1d48a9dec1",
+        "EGW": "ami-068e428aead6d9fe3",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ca-central-1": {
-        "EGW": "ami-0d7d57ef88f4ea222",
+        "EGW": "ami-09217be4fee89f892",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-central-1": {
-        "EGW": "ami-01d2476f545349abd",
+        "EGW": "ami-0edf50a031a9bbe67",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-north-1": {
-        "EGW": "ami-0fffc0fd11916f545",
+        "EGW": "ami-0e6baba448201ee47",
         "ARN": "aws",
         "EGWInstanceType": "m5.large"
       },
+      "eu-south-1": {
+        "EGW": "ami-0e44a49b92e2a969f",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
       "eu-west-1": {
-        "EGW": "ami-0fca50ef5a9fb3ec2",
+        "EGW": "ami-0317b83718149a4e3",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-west-2": {
-        "EGW": "ami-05f83b31a6d1365db",
+        "EGW": "ami-036d315f4b1153356",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-west-3": {
-        "EGW": "ami-05c5f6a316d2d0d20",
+        "EGW": "ami-03ead3691b3f0a1ee",
         "ARN": "aws",
         "EGWInstanceType": "m5.large"
       },
+      "me-south-1": {
+        "EGW": "ami-08dbf55b9e2af1084",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
       "sa-east-1": {
-        "EGW": "ami-0622432257bd2d416",
+        "EGW": "ami-04999c7d1132a94fc",
         "ARN": "aws",
         "EGWInstanceType": "m3.medium"
       },
       "us-east-1": {
-        "EGW": "ami-03aff3e0eec3f4f40",
+        "EGW": "ami-0301338f707431d67",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "us-east-2": {
-        "EGW": "ami-05e8e585c8c631ca6",
+        "EGW": "ami-087ba9f6d8798a8c8",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "us-gov-east-1": {
-        "EGW": "ami-06e513067a76a05e6",
+        "EGW": "ami-009effe7286c7f11f",
         "ARN": "aws-us-gov",
         "EGWInstanceType": "m5.large"
       },
       "us-gov-west-1": {
-        "EGW": "ami-6966fc08",
+        "EGW": "ami-06e48d3a4c8c455f8",
         "ARN": "aws-us-gov",
         "EGWInstanceType": "m4.large"
       },
       "us-west-1": {
-        "EGW": "ami-0f3cb25a6fd92201a",
+        "EGW": "ami-05edc52bf51dd9309",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "us-west-2": {
-        "EGW": "ami-0c1bfac5365dc0721",
+        "EGW": "ami-089863da0442d7c2f",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       }
@@ -370,6 +395,13 @@
             }
           }
         ],
+        "SecurityGroupEgress": [
+          {
+            "Description": "Allow all outbound traffic",
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
         "Tags": [
           {
             "Key": "Name",
@@ -415,6 +447,13 @@
             "SourceSecurityGroupId": {
               "Ref": "UTMWorkerSecurityGroup"
             }
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "Description": "Allow all outbound traffic",
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
           }
         ],
         "Tags": [
