@@ -527,8 +527,8 @@
         "HAInstanceType": "m4.large"
       },
       "ap-northeast-3": {
-        "Hourly": "",
-        "BYOL": "",
+        "Hourly": "ami-02510f426ffbd0adb",
+        "BYOL": "ami-0ebc410443ba60ce6",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
