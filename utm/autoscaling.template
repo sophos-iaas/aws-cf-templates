@@ -498,8 +498,8 @@
         "SwarmInstanceType": "m4.large"
       },
       "ap-northeast-3": {
-        "Hourly": "",
-        "BYOL": "",
+        "Hourly": "ami-0f335201cb9e615cd",
+        "BYOL": "ami-054dfec1b5a73dc8b",
         "ARN": "aws",
         "QueenInstanceType": "m4.large",
         "SwarmInstanceType": "m4.large"
