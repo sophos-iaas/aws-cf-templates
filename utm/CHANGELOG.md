@@ -1,5 +1,24 @@
 # Sophos UTM on AWS Release Notes
 
+## Sophos UTM 9.714 on AWS
+
+### AWS Firmware
+
+* [UTM 9.714 Release Notes](https://community.sophos.com/utm-firewall/b/blog/posts/utm-up2date-9-714-released)
+https://community.sophos.com/utm-firewall/b/blog/posts/utm-up2date-9-714-released
+### Templates
+
+The following templates were changed in this release:
+
+|Feature|Template|Template Changes|
+|-------|--------|----------------|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.714/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.713...utm9.714)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.714/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.713...utm9.714)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.714/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.713...utm9.714)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.714/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.713...utm9.714)|
+
+# Sophos UTM on AWS Release Notes
+
 ## Sophos UTM 9.713 on AWS
 
 ### AWS Firmware
