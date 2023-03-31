@@ -1,0 +1,1116 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Sophos Firewall in Autoscaling Group (Pay As You Go)
+Parameters:
+  AMI:
+    Description: Autodetect uses the latest AMI. Otherwise, specify an AMI ID.
+    Type: String
+    Default: autodetect
+    ConstraintDescription: Must be 'autodetect' or a valid AMI id starting with 'ami-'
+    AllowedPattern: ^(autodetect|ami-[0-9a-f]{8}|ami-[0-9a-f]{17})$
+  AvailabilityZone1:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Description: Please provide an AvailabilityZone.
+    ConstraintDescription: Must be a valid AZ code
+    AllowedPattern: \S+
+  AvailabilityZone2:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Description: Please provide another (different) Availability Zone.
+    ConstraintDescription: Must be a valid AZ code
+    AllowedPattern: \S+
+  PublicNetworkPrefix:
+    Description: Please provide an available private /16 CIDR block to be used by the VPC. Only the first two octets are required. For example to use address range 10.6.0.0/16 you should provide '10.6' as input. Leave it unchanged if deploying in your existing VPC
+    Type: String
+    Default: "10.15"
+    ConstraintDescription: 'Must be notation like: X.X'
+    AllowedPattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)
+  OptExistingVPC:
+    Description: VPC ID of an existing VPC, make sure it has at least two public subnets and one private subnet. Leave it blank to create a new VPC.
+    Type: String
+    Default: ""
+    ConstraintDescription: Must be empty or a valid VPC ID
+    AllowedPattern: ^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17}|)$
+  OptExistingSubnetPublic1:
+    Description: Existing public subnet 1 ID in AvailabilityZone 1 if deploying in your existing VPC.
+    Type: String
+    Default: ""
+    ConstraintDescription: Must be empty or a valid subnet ID
+    AllowedPattern: ^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17}|)$
+  OptExistingSubnetPublic2:
+    Description: Existing public subnet 2 ID in AvailabilityZone 2 if deploying in your existing VPC.
+    Type: String
+    Default: ""
+    ConstraintDescription: Must be empty or a valid subnet ID
+    AllowedPattern: ^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17}|)$
+  OptExistingSubnetPrivate:
+    Description: Existing private subnet ID in AvailabilityZone 1 if deploying in your existing VPC.
+    Type: String
+    Default: ""
+    ConstraintDescription: Must be empty or a valid subnet ID
+    AllowedPattern: ^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17}|)$
+  TrustedNetworkCIDR:
+    Description: Allow all traffic (including TCP port 22 and 4444) from this CIDR on the public network interface.
+    Type: String
+    AllowedPattern: ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/(2[4-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IPv4 CIDR within range /24 to /32
+  PublicNetworkCIDR:
+    Description: Allow all TCP traffic (except port 22 and 4444) from this CIDR on the public network interface.
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
+  InstanceSize:
+    Description: EC2 instance type to be used for Sophos Firewall deployment.
+    Type: String
+    Default: m5.large
+    AllowedValues:
+      - t3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - c3.xlarge
+      - c3.2xlarge
+      - c3.4xlarge
+      - c3.8xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - default
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access.
+    ConstraintDescription: Must not be empty
+    AllowedPattern: \S+
+  SophosFirewallName:
+    Description: Name tag for your Sophos Firewall.
+    Type: String
+    Default: Sophos-Firewall
+    ConstraintDescription: Must not be empty or more than 255 characters
+    AllowedPattern: \S+
+    MaxLength: 255
+  BasicAdminPassword:
+    Description: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    AllowedPattern: ^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.*[a-z])(?=.*[A-Z])(?=(.*)).{10,60}$
+  SSMKPassword:
+    Description: Must be at least 12 and at most 250 characters long. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must be at least 12 and at most 250 characters long. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    AllowedPattern: ^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.*[a-z])(?=.*[A-Z])(?=(.*)).{12,250}$
+  CentralUsername:
+    Description: Enter the Sophos ID email address used to access your Sophos Central account.
+    Type: String
+    ConstraintDescription: Must not be empty
+    AllowedPattern: \S+
+  CentralPassword:
+    Description: Enter the password for this Sophos Central login
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must not be empty
+    AllowedPattern: \S+
+  CentralClientId:
+    Description: Enter the Sophos Central client ID for API access
+    Type: String
+    ConstraintDescription: Must be a valid lowercase Type 4 UUID (example 1de0608f-3a2f-4ef5-a3f1-7f27a1b0bc0d)
+    AllowedPattern: ^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$
+  CentralClientSecret:
+    Description: Enter the Sophos Central client secret for API access
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must not be empty
+    AllowedPattern: \S+
+  CentralGroupName:
+    Description: Enter the Sophos Central Group Name for AS instances
+    Type: String
+    ConstraintDescription: Must not be empty or more than 40 characters
+    AllowedPattern: \S+
+    MinLength: 1
+    MaxLength: 40
+  CentralTenantId:
+    Description: Enter the tenant ID for enterprise deployments
+    Type: String
+    Default: ""
+    ConstraintDescription: Must be empty or a valid lowercase Type 4 UUID (example 1de0608f-3a2f-4ef5-a3f1-7f27a1b0bc0d)
+    AllowedPattern: ^($|[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$)
+  AutoscaleMinCapacity:
+    Description: The minimum amount of firewalls being deployed in the autoscaling group
+    Type: Number
+    Default: "1"
+    MinValue: "1"
+    MaxValue: "65535"
+  AutoscaleDesiredCapacity:
+    Description: The starting amount of firewalls being deployed in the autoscaling group. The recommended setting is for StartingCapacity = MaxCapacity so that all firewalls start in parallel and deployment time is minimized.
+    Type: Number
+    Default: "4"
+    MinValue: "1"
+    MaxValue: "65535"
+  AutoscaleMaxCapacity:
+    Description: The maximum amount of firewalls being deployed in the autoscaling group
+    Type: Number
+    Default: "4"
+    MinValue: "1"
+    MaxValue: "65535"
+  AutoscaleWarmpoolRefreshPeriod:
+    Description: The period in days until the warm pool undergoes a refresh. Shorter periods incur more costs but guarantee faster scaleout performance. Valid range 1-14
+    Type: Number
+    Default: "5"
+    MinValue: "1"
+    MaxValue: "14"
+  AgreeUserTerms:
+    Description: Use of this software is subject to the Sophos End User License Agreement (EULA) at https://www.sophos.com/en-us/legal/sophos-end-user-license-agreement.aspx. You must enter 'yes' to accept the EULA to continue, so please read it carefully. You also acknowledge that Sophos processes personal data in accordance with the Sophos Privacy Policy at https://www.sophos.com/en-us/legal/sophos-group-privacy-notice.aspx.
+    Type: String
+    AllowedPattern: ^yes$
+  EnableCloudWatch:
+    Description: View and store logs through AWS CloudWatch
+    Type: String
+    AllowedValues:
+      - 'yes'
+      - 'no'
+    Default: 'no'
+  SendLearningStats:
+    Description: Learning how customers use Sophos Firewall helps make better products. The product sends information periodically to Sophos which is used for the purpose of improving product stability, prioritizing feature refinements, and protection effectiveness. Details about the data that is transferred can be found in the online help.
+    Type: String
+    AllowedValues:
+      - 'on'
+      - 'off'
+    Default: 'on'
+Rules:
+  AvailabilityZone_Check:
+    RuleCondition: !And
+      - !Not
+        - !Equals
+          - !Ref AvailabilityZone1
+          - ""
+      - !Not
+        - !Equals
+          - !Ref AvailabilityZone2
+          - ""
+    Assertions:
+      - Assert: !Not
+          - !Equals
+            - !Ref AvailabilityZone1
+            - !Ref AvailabilityZone2
+        AssertDescription: Availability Zones have to be unique
+  UseExistingVPC_Check:
+    RuleCondition: !Not
+      - !Equals
+        - !Ref OptExistingVPC
+        - ""
+    Assertions:
+      - Assert: !And
+          - !Not
+            - !Equals
+              - !Ref OptExistingSubnetPublic1
+              - ""
+          - !Not
+            - !Equals
+              - !Ref OptExistingSubnetPublic2
+              - ""
+          - !Not
+            - !Equals
+              - !Ref OptExistingSubnetPrivate
+              - ""
+        AssertDescription: If using an existing VPC all associated subnets need to be defined
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Cloud Infrastructure Configuration
+        Parameters:
+          - AMI
+          - InstanceSize
+          - AvailabilityZone1
+          - AvailabilityZone2
+          - PublicNetworkPrefix
+          - OptExistingVPC
+          - OptExistingSubnetPublic1
+          - OptExistingSubnetPublic2
+          - OptExistingSubnetPrivate
+          - TrustedNetworkCIDR
+          - PublicNetworkCIDR
+      - Label:
+          default: Sophos Firewall Configuration
+        Parameters:
+          - SophosFirewallName
+          - BasicAdminPassword
+          - SSMKPassword
+          - KeyName
+          - EnableCloudWatch
+          - CentralUsername
+          - CentralPassword
+          - CentralClientId
+          - CentralClientSecret
+          - CentralGroupName
+          - CentralTenantId
+      - Label:
+          default: Auto Scaling Configuration
+        Parameters:
+          - AutoscaleMinCapacity
+          - AutoscaleDesiredCapacity
+          - AutoscaleMaxCapacity
+          - AutoscaleWarmpoolRefreshPeriod
+      - Label:
+          default: Other Configuration
+        Parameters:
+          - AgreeUserTerms
+          - SendLearningStats
+    ParameterLabels:
+      AMI:
+        default: AMI ID (required)
+      InstanceSize:
+        default: Instance Size (required)
+      AvailabilityZone1:
+        default: AvailabilityZone 1 for deployment (required)
+      AvailabilityZone2:
+        default: AvailabilityZone 2 for deployment (required)
+      PublicNetworkPrefix:
+        default: Network Address Prefix for new VPC (required)
+      OptExistingVPC:
+        default: Deploy to an existing VPC
+      OptExistingSubnetPublic1:
+        default: Existing public subnet ID 1
+      OptExistingSubnetPublic2:
+        default: Existing public subnet ID 2
+      OptExistingSubnetPrivate:
+        default: Existing private subnet ID
+      KeyName:
+        default: SSH KeyPair Name (required)
+      TrustedNetworkCIDR:
+        default: Trusted Network CIDR (required)
+      PublicNetworkCIDR:
+        default: Public Network CIDR (required)
+      SophosFirewallName:
+        default: Sophos Firewall Name (required)
+      BasicAdminPassword:
+        default: Admin Password (required)
+      SSMKPassword:
+        default: Secure Storage Master Key Password (required)
+      AutoscaleMinCapacity:
+        default: Minimum capacity (required)
+      AutoscaleDesiredCapacity:
+        default: Starting capacity (required)
+      AutoscaleMaxCapacity:
+        default: Maximum capacity (required)
+      AutoscaleWarmpoolRefreshPeriod:
+        default: Warm Pool Refresh Period (required)
+      CentralUsername:
+        default: Sophos ID email address (required)
+      CentralPassword:
+        default: Sophos ID password (required)
+      CentralClientId:
+        default: Sophos Central client ID (required)
+      CentralClientSecret:
+        default: Sophos Central client secret (required)
+      CentralGroupName:
+        default: Sophos Central AS Group name (required)
+      CentralTenantId:
+        default: Sophos Central tenant ID (optional)
+      AgreeUserTerms:
+        default: I accept the Sophos End User License Agreement and acknowledge the Sophos Privacy Policy (required)
+      EnableCloudWatch:
+        default: Use CloudWatch
+      SendLearningStats:
+        default: Opt in to the customer experience improvement program (required)
+Mappings:
+  RegionMap:
+    af-south-1:
+      Hourly: ""
+      ARN: aws
+      InstanceType: m5.large
+    ap-east-1:
+      Hourly: ""
+      ARN: aws
+      InstanceType: m5.large
+    ap-northeast-1:
+      Hourly: ami-02aa4fb5e67844fd3
+      ARN: aws
+      InstanceType: m5.large
+    ap-northeast-2:
+      Hourly: ami-04cdb4a80960cccbb
+      ARN: aws
+      InstanceType: m5.large
+    ap-northeast-3:
+      Hourly: ""
+      ARN: aws
+      InstanceType: m5.large
+    ap-south-1:
+      Hourly: ami-07e866857d25d3a25
+      ARN: aws
+      InstanceType: m5.large
+    ap-southeast-1:
+      Hourly: ami-032628d7f501380a9
+      ARN: aws
+      InstanceType: m5.large
+    ap-southeast-2:
+      Hourly: ami-0d5c2e69ed7af085f
+      ARN: aws
+      InstanceType: m5.large
+    ca-central-1:
+      Hourly: ami-0ac06ece53b55ec9e
+      ARN: aws
+      InstanceType: m5.large
+    eu-central-1:
+      Hourly: ami-09c7e5fda440f210d
+      ARN: aws
+      InstanceType: m5.large
+    eu-central-2:
+      Hourly: ""
+      ARN: aws
+      InstanceType: m5.large
+    eu-north-1:
+      Hourly: ami-05094a7f9d5f6d034
+      ARN: aws
+      InstanceType: m5.large
+    eu-south-1:
+      Hourly: ""
+      ARN: aws
+      InstanceType: m5.large
+    eu-west-1:
+      Hourly: ami-0a2946790057cc924
+      ARN: aws
+      InstanceType: m5.large
+    eu-west-2:
+      Hourly: ami-0ce1f97209d72ab6c
+      ARN: aws
+      InstanceType: m5.large
+    eu-west-3:
+      Hourly: ami-08b02a07c8550d383
+      ARN: aws
+      InstanceType: m5.large
+    me-south-1:
+      Hourly: ""
+      ARN: aws
+      InstanceType: m5.large
+    sa-east-1:
+      Hourly: ami-012b365f45f28a079
+      ARN: aws
+      InstanceType: m5.large
+    us-east-1:
+      Hourly: ami-06a7d491f59a66134
+      ARN: aws
+      InstanceType: m5.large
+    us-east-2:
+      Hourly: ami-0e3be66a83027c01a
+      ARN: aws
+      InstanceType: m5.large
+    us-west-1:
+      Hourly: ami-007d703f0f0142e89
+      ARN: aws
+      InstanceType: m5.large
+    us-west-2:
+      Hourly: ami-0037c76489a533b1a
+      ARN: aws
+      InstanceType: m5.large
+Conditions:
+  UsingAutoDetectedAMI: !Equals
+    - !Ref AMI
+    - autodetect
+  DetectInstanceSize: !Equals
+    - !Ref InstanceSize
+    - default
+  CreateNewVPCSetup: !And
+    - !Equals
+      - !Ref OptExistingVPC
+      - ""
+    - !Equals
+      - !Ref OptExistingSubnetPublic1
+      - ""
+    - !Equals
+      - !Ref OptExistingSubnetPublic2
+      - ""
+    - !Equals
+      - !Ref OptExistingSubnetPrivate
+      - ""
+  WarmpoolRefreshSingleDay: !Equals
+    - !Ref AutoscaleWarmpoolRefreshPeriod
+    - "1"
+  UsingCloudWatch: !Not
+    - !Equals
+      - !Ref EnableCloudWatch
+      - 'no'
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Condition: CreateNewVPCSetup
+    Properties:
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 0.0/16
+  SubnetPublic1:
+    Type: AWS::EC2::Subnet
+    Condition: CreateNewVPCSetup
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 1.0/24
+      AvailabilityZone: !Ref AvailabilityZone1
+      MapPublicIpOnLaunch: "true"
+  SubnetPublic2:
+    Type: AWS::EC2::Subnet
+    Condition: CreateNewVPCSetup
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 2.0/24
+      AvailabilityZone: !Ref AvailabilityZone2
+      MapPublicIpOnLaunch: "true"
+  SubnetPrivate:
+    Type: AWS::EC2::Subnet
+    Condition: CreateNewVPCSetup
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 0.0/24
+      AvailabilityZone: !Ref AvailabilityZone1
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Condition: CreateNewVPCSetup
+    Properties:
+      Tags:
+        - Key: Network
+          Value: Public
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Condition: CreateNewVPCSetup
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  RouteTablePublic:
+    Type: AWS::EC2::RouteTable
+    Condition: CreateNewVPCSetup
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Network
+          Value: Public
+  RouteToIGW:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Condition: CreateNewVPCSetup
+    Properties:
+      RouteTableId: !Ref RouteTablePublic
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  SubnetPublic1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateNewVPCSetup
+    Properties:
+      SubnetId: !Ref SubnetPublic1
+      RouteTableId: !Ref RouteTablePublic
+  SubnetPublic2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateNewVPCSetup
+    Properties:
+      SubnetId: !Ref SubnetPublic2
+      RouteTableId: !Ref RouteTablePublic
+  SecurityGroupPublic:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Untrusted network restricted from accessing port 22 and 4444.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "0"
+          ToPort: "21"
+          CidrIp: !Ref PublicNetworkCIDR
+        - IpProtocol: tcp
+          FromPort: "23"
+          ToPort: "4443"
+          CidrIp: !Ref PublicNetworkCIDR
+        - IpProtocol: tcp
+          FromPort: "4445"
+          ToPort: "65535"
+          CidrIp: !Ref PublicNetworkCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+  SecurityGroupTrusted:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable TCP access from trusted network
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "0"
+          ToPort: "65535"
+          CidrIp: !Ref TrustedNetworkCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+  SecurityGroupLoadBalancerReceiver1:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow communication between LoadBalancer and Instances - Health Checks
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "4444"
+          ToPort: "4444"
+          CidrIp: !Join
+            - .
+            - - !Ref PublicNetworkPrefix
+              - 1.0/24
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+  SecurityGroupLoadBalancerReceiver2:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow communication between LoadBalancer and Instances - Health Checks
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "4444"
+          ToPort: "4444"
+          CidrIp: !Join
+            - .
+            - - !Ref PublicNetworkPrefix
+              - 2.0/24
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+  SecurityGroupLAN:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for private subnet. Allow everything by default
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: network
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Subnets: !If
+        - CreateNewVPCSetup
+        - - !Ref SubnetPublic1
+          - !Ref SubnetPublic2
+        - - !Ref OptExistingSubnetPublic1
+          - !Ref OptExistingSubnetPublic2
+      LoadBalancerAttributes:
+        - Key: deletion_protection.enabled
+          Value: "false"
+        - Key: load_balancing.cross_zone.enabled
+          Value: "true"
+  NetworkLoadBalancingListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      DefaultActions:
+        - TargetGroupArn: !Ref NetworkLoadBalancingTargetGroupHTTP
+          Type: forward
+      Protocol: TCP
+      Port: "80"
+  NetworkLoadBalancingListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      DefaultActions:
+        - TargetGroupArn: !Ref NetworkLoadBalancingTargetGroupHTTPS
+          Type: forward
+      Protocol: TCP
+      Port: "443"
+  XGAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: !Join
+        - '-'
+        - - !Ref AWS::StackName
+          - autoscaling-group
+      LaunchTemplate:
+        LaunchTemplateId: !Ref XGLaunchTemplate
+        Version: !GetAtt
+          - XGLaunchTemplate
+          - LatestVersionNumber
+      MinSize: !Ref AutoscaleMinCapacity
+      DesiredCapacity: !Ref AutoscaleDesiredCapacity
+      MaxSize: !Ref AutoscaleMaxCapacity
+      Cooldown: 300
+      AvailabilityZones:
+        - !Ref AvailabilityZone1
+        - !Ref AvailabilityZone2
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      LifecycleHookSpecificationList:
+        - DefaultResult: ABANDON
+          HeartbeatTimeout: 3600
+          LifecycleHookName: CentralSyncCheck
+          LifecycleTransition: autoscaling:EC2_INSTANCE_LAUNCHING
+      VPCZoneIdentifier: !If
+        - CreateNewVPCSetup
+        - - !Ref SubnetPublic1
+          - !Ref SubnetPublic2
+        - - !Ref OptExistingSubnetPublic1
+          - !Ref OptExistingSubnetPublic2
+      TargetGroupARNs:
+        - !Ref NetworkLoadBalancingTargetGroupHTTP
+        - !Ref NetworkLoadBalancingTargetGroupHTTPS
+      TerminationPolicies:
+        - NewestInstance
+        - Default
+      ServiceLinkedRoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling
+      NewInstancesProtectedFromScaleIn: false
+  XGAutoScalingWarmPool:
+    Type: AWS::AutoScaling::WarmPool
+    Properties:
+      AutoScalingGroupName: !Ref XGAutoScalingGroup
+      PoolState: Stopped
+      InstanceReusePolicy:
+        ReuseOnScaleIn: true
+  NetworkLoadBalancingTargetGroupHTTP:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      Port: 80
+      Protocol: TCP
+      HealthCheckProtocol: TCP
+      HealthCheckPort: "4444"
+      HealthCheckTimeoutSeconds: 10
+      UnhealthyThresholdCount: 3
+      TargetType: instance
+      HealthyThresholdCount: 3
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+      HealthCheckEnabled: true
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: "300"
+        - Key: stickiness.enabled
+          Value: "true"
+        - Key: stickiness.type
+          Value: source_ip
+        - Key: deregistration_delay.connection_termination.enabled
+          Value: "true"
+  NetworkLoadBalancingTargetGroupHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      Port: 443
+      Protocol: TCP
+      HealthCheckProtocol: TCP
+      HealthCheckPort: "4444"
+      HealthCheckTimeoutSeconds: 10
+      UnhealthyThresholdCount: 3
+      TargetType: instance
+      HealthyThresholdCount: 3
+      VpcId: !If
+        - CreateNewVPCSetup
+        - !Ref VPC
+        - !Ref OptExistingVPC
+      HealthCheckEnabled: true
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: "300"
+        - Key: stickiness.enabled
+          Value: "true"
+        - Key: stickiness.type
+          Value: source_ip
+        - Key: deregistration_delay.connection_termination.enabled
+          Value: "true"
+  XGAutoScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref XGAutoScalingGroup
+      Cooldown: "60"
+      ScalingAdjustment: "1"
+  XGAutoScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref XGAutoScalingGroup
+      Cooldown: "60"
+      ScalingAdjustment: "-1"
+  XGAutoScaleCPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-up if CPU > 60% for any 6 out of 10 periods of 1 minute each
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: "60"
+      EvaluationPeriods: "10"
+      DatapointsToAlarm: "6"
+      Threshold: "70"
+      AlarmActions:
+        - !Ref XGAutoScaleUpPolicy
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref XGAutoScalingGroup
+      ComparisonOperator: GreaterThanThreshold
+  XGAutoScaleCPUAlarmVeryHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-up if CPU > 85% for any 3 out of 5 periods of 1 minute each
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: "60"
+      EvaluationPeriods: "5"
+      DatapointsToAlarm: "3"
+      Threshold: "85"
+      AlarmActions:
+        - !Ref XGAutoScaleUpPolicy
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref XGAutoScalingGroup
+      ComparisonOperator: GreaterThanThreshold
+  XGAutoScaleCPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-down if CPU < 40% for any 6 out of 10 periods of 1 minute each
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: "60"
+      EvaluationPeriods: "10"
+      DatapointsToAlarm: "6"
+      Threshold: "40"
+      AlarmActions:
+        - !Ref XGAutoScaleDownPolicy
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref XGAutoScalingGroup
+      ComparisonOperator: LessThanThreshold
+  XGLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Join
+        - '-'
+        - - !Ref AWS::StackName
+          - XGLT
+      LaunchTemplateData:
+        InstanceType: !If
+          - DetectInstanceSize
+          - !FindInMap
+            - RegionMap
+            - !Ref AWS::Region
+            - InstanceType
+          - !Ref InstanceSize
+        KeyName: !Ref KeyName
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: !Ref SophosFirewallName
+        # NOTE: Adding or deleting interfaces will change the availability of
+
+        # the LAN port. With only one interface, the LAN port will be removed
+        NetworkInterfaces:
+          - DeleteOnTermination: true
+            Description: ENI for Public Subnet
+            DeviceIndex: "0"
+            Groups:
+              - !Ref SecurityGroupTrusted
+              - !Ref SecurityGroupPublic
+              - !Ref SecurityGroupLoadBalancerReceiver1
+              - !Ref SecurityGroupLoadBalancerReceiver2
+        ImageId: !If
+          - UsingAutoDetectedAMI
+          - !FindInMap
+            - RegionMap
+            - !Ref AWS::Region
+            - Hourly
+          - !Ref AMI
+        IamInstanceProfile:
+          Name: !Ref EC2IAMProfile
+        UserData: !Base64
+          Fn::Join:
+            - ""
+            - - '{'
+              - '"hostname":"default",'
+              - '"sendstats":"'
+              - !Ref SendLearningStats
+              - '",'
+              - '"region":"'
+              - !Ref AWS::Region
+              - '",'
+              - '"secretId":"'
+              - !Ref PasswordSecret
+              - '",'
+              - '"acceptedEULA":"'
+              - !Ref AgreeUserTerms
+              - '",'
+              - '"enableCloudWatch":"'
+              - !Ref EnableCloudWatch
+              - '",'
+              - '"lifecyclehookname":"'
+              - CentralSyncCheck
+              - '",'
+              - '"scalinggroupname":"'
+              - !Join
+                - '-'
+                - - !Ref AWS::StackName
+                  - autoscaling-group
+              - '",'
+              - '"ssmkSecretId":"'
+              - !Ref SSMKPasswordSecret
+              - '",'
+              - '"centralusername":"'
+              - !Ref CentralUsername
+              - '",'
+              - '"centralsecretId":"'
+              - !Ref CentralPasswordSecret
+              - '",'
+              - '"centralclientId":"'
+              - !Ref CentralClientId
+              - '",'
+              - '"centralclientsecretId":"'
+              - !Ref CentralClientSMSecret
+              - '",'
+              - '"centraltenantId":"'
+              - !Ref CentralTenantId
+              - '",'
+              - '"centralgroup":"'
+              - !Ref CentralGroupName
+              - '"'
+              - |
+                }
+  PasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join
+        - '-'
+        - - xgpass
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref BasicAdminPassword
+  XGWarmpoolRefreshLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt EC2IAMRole.Arn
+      Runtime: nodejs14.x
+      Handler: index.handler
+      Environment:
+        Variables:
+          autoscalingGroup: !Join
+            - '-'
+            - - !Ref AWS::StackName
+              - autoscaling-group
+      Code:
+        ZipFile: |
+          //Triggers refresh with Central for instances in warm pool
+          var aws = require("aws-sdk");
+          exports.handler = (event, context, callback) => {
+              console.log('Warmpool refresh was called');
+
+              var response;
+              var autoscaling = new aws.AutoScaling({region: process.env.AWS_REGION});
+              var ec2 = new aws.EC2();
+
+              //get all instances in warm pool
+              var paramForGetWarmpool = {
+                  AutoScalingGroupName: process.env.autoscalingGroup, /* required */
+              };
+              autoscaling.describeWarmPool(paramForGetWarmpool, function(err, data) {
+              if (err) {
+                  console.log(err, err.stack); // an error occurred
+                  response = {
+                      statusCode: 500,
+                      body: JSON.stringify('ERROR'),
+                  };
+                  return response;
+              } else {
+                  //only want instance IDs for the ones that are stopped
+                  const instancesStoppedInWarmpool = new Array();
+                  for( let i = 0; i < data.Instances.length; i++) {
+                      if(data.Instances[i].LifecycleState == "Warmed:Stopped") {
+                          instancesStoppedInWarmpool.push(data.Instances[i].InstanceId)
+                      }
+                  }
+
+                  //start instances that are stopped so that they can sync with Central
+                  var paramForStartInstances = {
+                      InstanceIds: instancesStoppedInWarmpool, /* required */
+                  };
+                  console.log("Starting instances: " + instancesStoppedInWarmpool.toString());
+                  if(instancesStoppedInWarmpool.length > 0) {
+                      ec2.startInstances(paramForStartInstances, function(err, data) {
+                      if (err) {
+                          console.log(err, err.stack); // an error occurred
+                          response = {
+                              statusCode: 500,
+                              body: JSON.stringify('ERROR'),
+                          };
+                          return response;
+                      }
+                      })
+                  }
+              }
+              });
+
+              response = {
+                  statusCode: 200,
+                  body: JSON.stringify('SUCCESS'),
+              };
+              return response;
+          };
+  XGWarmpoolRefreshLambdaRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Used to trigger lambda function
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt XGWarmpoolRefreshLambda.Arn
+          Id: RefreshWarmpool
+      ScheduleExpression: !If
+        - WarmpoolRefreshSingleDay
+        - !Sub rate(${AutoscaleWarmpoolRefreshPeriod} day)
+        - !Sub rate(${AutoscaleWarmpoolRefreshPeriod} days)
+  XGWarmpoolRefreshLambdaTrigger:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref XGWarmpoolRefreshLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt XGWarmpoolRefreshLambdaRule.Arn
+  SSMKPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join
+        - '-'
+        - - xgssmk
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref SSMKPassword
+  CentralPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join
+        - '-'
+        - - centralpass
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref CentralPassword
+  CentralClientSMSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join
+        - '-'
+        - - centralclient
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref CentralClientSecret
+  EC2IAMProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: EC2IAMPolicy
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+            Resource:
+              - !Ref PasswordSecret
+              - !Ref SSMKPasswordSecret
+              - !Ref CentralPasswordSecret
+              - !Ref CentralClientSMSecret
+          - Effect: Allow
+            Action:
+              - autoscaling:DescribeAutoScalingInstances
+              - autoscaling:DescribeWarmPool
+              - autoscaling:CompleteLifecycleAction
+              - ec2:StartInstances
+              - ec2:StopInstances
+            Resource:
+              - '*'
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForCloudWatch:
+    Type: AWS::IAM::Policy
+    Condition: UsingCloudWatch
+    Properties:
+      PolicyName: EC2IAMPolicyForCloudWatch
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:Create*
+              - logs:PutLogEvents
+            Resource:
+              - arn:aws:logs:*:*:*
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - lambda.amazonaws.com
+                - events.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+Outputs:
+  DNSName:
+    Description: The DNS name for the Network Load Balancer
+    Value: !GetAtt
+      - NetworkLoadBalancer
+      - DNSName
