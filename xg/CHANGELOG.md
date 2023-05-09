@@ -1,5 +1,20 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v19.5.1.278 on AWS
+
+This release includes all the features and fixes in v19.5 GA (v19.5.0.197).  
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v19.5.1.278 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v195-mr1-is-now-available).
+
+### Template
+
+Force use of IMDSv2 for all deployment topologies
+Update CFT resource dependencies so AttachGateway is always created first
+Make AgreeUserTerms parameter case insensitve
+
+
 ## Sophos XG Firewall v19.5.0.197 on AWS
 
 This release includes all the features and fixes in v19.5 GA (v19.5.0.197).  
