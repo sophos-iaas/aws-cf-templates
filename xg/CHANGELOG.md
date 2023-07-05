@@ -11,7 +11,9 @@ See the [Sophos XG Firewall v19.5.1.278 release notes](https://community.sophos.
 ### Template
 
 Force use of IMDSv2 for all deployment topologies
+
 Update CFT resource dependencies so AttachGateway is always created first
+
 Make AgreeUserTerms parameter case insensitve
 
 
