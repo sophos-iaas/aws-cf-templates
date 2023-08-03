@@ -1,8 +1,22 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v19.5.2.624 on AWS
+
+This release includes all the features and fixes in v19.5 MR2 (v19.5.2.624).  
+
+Support for AWS Gateway Load Balancer 
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v19.5.2.624 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v195-mr2-is-now-available).
+
+### Template
+
+New template to support Gateway Load Balancer
+
 ## Sophos XG Firewall v19.5.1.278 on AWS
 
-This release includes all the features and fixes in v19.5 GA (v19.5.0.197).  
+This release includes all the features and fixes in v19.5 GA (v19.5.1.278).  
 
 ### AWS Firmware
 
