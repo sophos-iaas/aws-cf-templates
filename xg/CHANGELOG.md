@@ -1,5 +1,17 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v19.5.3.652 on AWS
+
+This release includes all the features and fixes in v19.5 MR3 (v19.5.3.652).  
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v19.5.3.652 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v195-mr3-is-now-available).
+
+### Template
+
+Remove support for AWS m3 instance sizes.
+
 ## Sophos XG Firewall v19.5.2.624 on AWS
 
 This release includes all the features and fixes in v19.5 MR2 (v19.5.2.624).  
