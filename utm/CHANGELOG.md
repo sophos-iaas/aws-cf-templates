@@ -27,7 +27,7 @@ Table below shows the required chanages.
 | | |1996-2006,2121-2288|Switch from LaunchConfiguration to LaunchTemplate(Swarm)|
 | |ha_standalone.template|1373,1421-1430,1452-1548,1729-1741|Switch from LaunchConfiguration to LaunchTemplate|
 | |ha_warm_standby.template|1373,1421-1430,1452-1548,1729-1741|Switch from LaunchConfiguration to LaunchTemplate|
-| |standalone.template||Changes AMI to UTM 9.701 AMI|
+| |standalone.template||Changes AMI to UTM 9.716 AMI|
 
 
 ## Sophos UTM 9.715 on AWS
