@@ -1,5 +1,35 @@
 # Sophos UTM on AWS Release Notes
 
+## Sophos UTM 9.716 on AWS
+
+### AWS Firmware
+
+* [UTM 9.716 Release Notes](https://community.sophos.com/utm-firewall/b/blog/posts/utm-up2date-9-716-released)
+
+### Templates
+
+The following templates were changed in this release:
+
+|Feature|Template|Template Changes|
+|-------|--------|----------------|
+|HA Standalone|[ha_standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.716/ha_standalone.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.715...utm9.716)|
+|HA Warm Standby|[ha_warm_standby.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.716/ha_warm_standby.template)| [Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.715...utm9.716)|
+|Standalone|[standalone.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.716/standalone.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.715...utm9.716)|
+|Auto Scaling|[autoscaling.template](https://github.com/sophos-iaas/aws-cf-templates/blob/master/utm/9.716/autoscaling.template)|[Show diff](https://github.com/sophos-iaas/aws-cf-templates/compare/utm9.715...utm9.716)|
+
+#### Mandatory Changes 
+Note: In UTM 9.716 release LaunchConfiguration resources have been replaced with LaunchTemplate in Autoscaling and HA templates. If you have modified the default templates you need to update your template accordingly.
+Table below shows the required chanages.
+
+|Change|Template|Line(s)|Description|
+|------|--------|-----|-----------|
+|AMI ID changes|autoscaling.template|2326-2336,2346-2405|Switch from LaunchConfiguration to LaunchTemplate(Queen)|
+| | |1996-2006,2121-2288|Switch from LaunchConfiguration to LaunchTemplate(Swarm)|
+| |ha_standalone.template|1373,1421-1430,1452-1548,1729-1741|Switch from LaunchConfiguration to LaunchTemplate|
+| |ha_warm_standby.template|1373,1421-1430,1452-1548,1729-1741|Switch from LaunchConfiguration to LaunchTemplate|
+| |standalone.template||Changes AMI to UTM 9.716 AMI|
+
+
 ## Sophos UTM 9.715 on AWS
 
 ### AWS Firmware
