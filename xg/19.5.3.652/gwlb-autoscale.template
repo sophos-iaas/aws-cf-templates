@@ -583,7 +583,7 @@ Resources:
         - Key: CreatedGateway
           Value: !If
             - CreateNewVPCSetup
-            - !Ref AttachInternetGateway #Serves as DependsOn to ensure AttachInternetGateway is created, otherwise could cause stack creation failure
+            - Fn::Base64: !Ref AttachInternetGateway #Serves as DependsOn to ensure AttachInternetGateway is created, otherwise could cause stack creation failure
             - ""
   # Target Group:
   GWLBTargetGroup:

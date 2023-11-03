@@ -55,7 +55,6 @@ Parameters:
   PublicNetworkCIDR:
     Description: Allow all TCP traffic (except port 22 and 4444) from this CIDR on the public network interface.
     Type: String
-    Default: 0.0.0.0/0
     AllowedPattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
   InstanceSize:
@@ -654,7 +653,7 @@ Resources:
         - Key: CreatedGateway
           Value: !If
             - CreateNewVPCSetup
-            - !Ref AttachGateway #Serves as DependsOn to ensure AttachGateway is created, otherwise could cause stack creation failure
+            - Fn::Base64: !Ref AttachGateway #Serves as DependsOn to ensure AttachGateway is created, otherwise could cause stack creation failure
             - ""
   NetworkLoadBalancingListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener

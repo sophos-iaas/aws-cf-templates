@@ -12,6 +12,10 @@ See the [Sophos XG Firewall v19.5.3.652 release notes](https://community.sophos.
 
 Remove support for AWS m3 instance sizes.
 
+Post-Release fix November 3, 2023: 
+- AWS changed naming for the AWS::EC2::VPCGatewayAttachment resource.  Patch the autoscale and gwlb-autoscale templates to fix resource creation failure. 
+- Remove default PublicNetworkCIDR as per AWS template guidelines
+
 ## Sophos XG Firewall v19.5.2.624 on AWS
 
 This release includes all the features and fixes in v19.5 MR2 (v19.5.2.624).  
