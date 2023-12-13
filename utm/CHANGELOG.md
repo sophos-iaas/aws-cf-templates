@@ -4,7 +4,7 @@
 
 ### AWS Firmware
 
-* [UTM 9.717 Release Notes](https://community.sophos.com/utm-firewall/b/blog/posts/utm-up2date-9-7-mr18-9-718-released)
+* [UTM 9.718 Release Notes](https://community.sophos.com/utm-firewall/b/blog/posts/utm-up2date-9-7-mr18-9-718-released)
 
 ### Templates
 
