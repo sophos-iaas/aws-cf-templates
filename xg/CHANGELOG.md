@@ -1,20 +1,16 @@
 # Sophos XG Firewall on AWS Release Notes
 
-## Sophos XG Firewall v19.5.3.652 on AWS
+## Sophos XG Firewall v20.0.0.222 on AWS
 
 This release includes all the features and fixes in v19.5 MR3 (v19.5.3.652).  
 
 ### AWS Firmware
 
-See the [Sophos XG Firewall v19.5.3.652 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v195-mr3-is-now-available).
+See the [Sophos XG Firewall v20.0.0.222 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v20-is-now-available).
 
 ### Template
 
-Remove support for AWS m3 instance sizes.
-
-Post-Release fix November 3, 2023: 
-- AWS changed naming for the AWS::EC2::VPCGatewayAttachment resource.  Patch the autoscale and gwlb-autoscale templates to fix resource creation failure. 
-- Remove default PublicNetworkCIDR as per AWS template guidelines
+Add support for AWS m7.i instance sizes.
 
 ## Sophos XG Firewall v19.5.2.624 on AWS
 
