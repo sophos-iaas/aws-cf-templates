@@ -729,7 +729,7 @@ Resources:
                   responseData['Data'] = ServiceName
                   responseStatus = cfnresponse.SUCCESS
                   cfnresponse.send(event, context, responseStatus, responseData)
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 30
       Tags:
         - Key: Name
@@ -983,7 +983,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Role: !GetAtt EC2IAMRole.Arn
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Handler: index.handler
       Environment:
         Variables:

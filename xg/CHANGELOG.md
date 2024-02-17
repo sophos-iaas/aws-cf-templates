@@ -11,6 +11,7 @@ See the [Sophos XG Firewall v20.0.0.222 release notes](https://community.sophos.
 ### Template
 
 Add support for AWS m7i instance sizes.
+Update lambda functions to use python 3.12 and nodejs 16
 
 ## Sophos XG Firewall v19.5.3.652 on AWS
 
