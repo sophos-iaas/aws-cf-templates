@@ -226,11 +226,11 @@ Rules:
 Mappings:
   RegionMap:
     af-south-1:
-      Hourly: ""
+      Hourly: ami-0a0c487795e1046fe
       ARN: aws
       InstanceType: m7i.large
     ap-east-1:
-      Hourly: ""
+      Hourly: ami-04803064f0c75cb7c
       ARN: aws
       InstanceType: m7i.large
     ap-northeast-1:
@@ -278,7 +278,7 @@ Mappings:
       ARN: aws
       InstanceType: m7i.large
     eu-central-2:
-      Hourly: ""
+      Hourly: ami-002d05f26c6b6d2de
       ARN: aws
       InstanceType: m7i.large
     eu-north-1:
@@ -286,11 +286,11 @@ Mappings:
       ARN: aws
       InstanceType: m7i.large
     eu-south-1:
-      Hourly: ""
+      Hourly: ami-0b9d98915e0ba9b21
       ARN: aws
       InstanceType: m7i.large
     eu-south-2:
-      Hourly: ""
+      Hourly: ami-02b30f59c0a8b3148
       ARN: aws
       InstanceType: m7i.large
     eu-west-1:
@@ -314,7 +314,7 @@ Mappings:
       ARN: aws
       InstanceType: m7i.large
     me-south-1:
-      Hourly: ""
+      Hourly: ami-0efb9cf24562f3c9f
       ARN: aws
       InstanceType: m7i.large
     sa-east-1:
