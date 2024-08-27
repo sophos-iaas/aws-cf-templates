@@ -1,4 +1,4 @@
-# Sophosi XG Firewall on AWS Release Notes
+# Sophos XG Firewall on AWS Release Notes
 
 ## Sophos XG Firewall v20.0.2.378 on AWS
 
