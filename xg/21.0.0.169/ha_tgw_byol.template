@@ -1,0 +1,1067 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Sophos XG Firewall in HA using TGW (Bring Your Own License)
+Parameters:
+  AMI:
+    Description: Autodetect uses the latest AMI. Otherwise, specify an AMI ID.
+    Type: String
+    Default: autodetect
+    ConstraintDescription: Must be 'autodetect' or a valid AMI id starting with 'ami-'
+    AllowedPattern: ^(autodetect|ami-[0-9a-f]{8}|ami-[0-9a-f]{17})$
+  AvailabilityZone1:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Description: Please provide an Availability Zone for Firewall 1.
+    ConstraintDescription: Must be a valid AZ code
+    AllowedPattern: \S+
+  AvailabilityZone2:
+    Type: AWS::EC2::AvailabilityZone::Name
+    Description: Please provide a different Availability Zone for Firewall 2.
+    ConstraintDescription: Must be a valid AZ code
+    AllowedPattern: \S+
+  PublicNetworkPrefix:
+    Description: Please provide an available /16 CIDR block to be used by the VPC. Only the first two octets are required. For example to use address range 10.6.0.0/16 you should provide '10.6' as input. Leave it unchanged if deploying in your existing VPC
+    Type: String
+    Default: "10.15"
+    ConstraintDescription: 'Must be notation like: X.X'
+    AllowedPattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)
+  TrustedNetworkCIDR:
+    Description: Allow all traffic (including TCP port 22 and 4444) from this CIDR on the public network interface.
+    Type: String
+    AllowedPattern: ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/(2[4-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IPv4 CIDR within range /24 to /32
+  PublicNetworkCIDR:
+    Description: Allow all TCP traffic (except port 22 and 4444) from this CIDR on the public network interface.
+    Type: String
+    AllowedPattern: ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: 'Must be IPv4 CIDR notation: X.X.X.X/X'
+  InstanceSize:
+    Description: EC2 instance type to be used for Sophos Firewall deployment.
+    Type: String
+    Default: m7i.large
+    AllowedValues:
+      - t3.medium
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m7i.large
+      - m7i.xlarge
+      - m7i.2xlarge
+      - m7i.4xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.12xlarge
+      - c5.18xlarge
+      - default
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access.
+    ConstraintDescription: Must not be empty
+    AllowedPattern: \S+
+  ExistingS3Bucket:
+    Description: S3 Bucket to restore backups.
+    Type: String
+    Default: ""
+  SophosFirewallName:
+    Description: Name tag for your Sophos Firewall, as well as the hostname.
+    Type: String
+    Default: Sophos-Firewall
+    ConstraintDescription: Must be a valid hostname
+    AllowedPattern: ^\w([\-\.]?\w)*$
+    MaxLength: 255
+  SophosFirewallSerialNumber:
+    Description: Your registered Sophos Firewall serial numbers on your licenses separated by commas (e.g. Firewall-1,Firewall-2).
+    Type: String
+    ConstraintDescription: Must be in the format 'SERIAL-1,SERIAL-2', all uppercase and 15 characters per serial.
+    AllowedPattern: (([A-Z0-9]){15},([A-Z0-9]){15}$)|^$
+  BasicAdminPassword:
+    Description: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    AllowedPattern: ^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.*[a-z])(?=.*[A-Z])(?=(.*)).{10,60}$
+  ConfigBackupPassword:
+    Description: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must be at least 10 characters. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    AllowedPattern: ^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.*[a-z])(?=.*[A-Z])(?=(.*)).{10,60}$
+  SSMKPassword:
+    Description: Must be at least 12 and at most 250 characters long. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    Type: String
+    NoEcho: "True"
+    ConstraintDescription: Must be at least 12 and at most 250 characters long. At least 1 lowercase and 1 uppercase letter. At least one numeric character. At least one special character.
+    AllowedPattern: ^$|^(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.*[a-z])(?=.*[A-Z])(?=(.*)).{12,250}$
+    Default: ""
+  CentralUsername:
+    Description: Enter the Sophos ID email address used to access your Sophos Central account. Entering a valid email address and password will automatically register the firewall to Sophos Central and enable management. If using a BYOL license, valid serial numbers must be provided above to use this feature.
+    Type: String
+  CentralPassword:
+    Description: Enter the password for this Sophos Central login
+    Type: String
+    NoEcho: "True"
+  AmazonASN:
+    Description: Private Autonomous System Number (ASN) for the Amazon side of the BGP setup. The ASN must be in the private range of 64,512 to 65,534 for 16-bit ASNs.
+    Type: Number
+    Default: "64512"
+    MinValue: "64512"
+    MaxValue: "65534"
+  EnableCloudWatch:
+    Description: View and store logs through AWS CloudWatch
+    Type: String
+    AllowedValues:
+      - 'yes'
+      - 'no'
+    Default: 'no'
+  AgreeUserTerms:
+    Description: Use of this software is subject to the Sophos End User Terms of Use at https://www.sophos.com/en-us/legal/sophos-end-user-terms-of-use. You must enter 'yes' to accept the agreement to continue, so please read it carefully. You also acknowledge that Sophos processes personal data in accordance with the Sophos Privacy Policy at https://www.sophos.com/en-us/legal/sophos-group-privacy-notice.aspx.
+    Type: String
+    AllowedPattern: ^(?i:yes)$
+  SendLearningStats:
+    Description: Learning how customers use Sophos Firewall helps make better products. The product sends information periodically to Sophos which is used for the purpose of improving product stability, prioritizing feature refinements, and protection effectiveness. Details about the data that is transferred can be found in the online help.
+    Type: String
+    AllowedValues:
+      - 'on'
+      - 'off'
+    Default: 'on'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Cloud Infrastructure Configuration
+        Parameters:
+          - AMI
+          - InstanceSize
+          - AvailabilityZone1
+          - AvailabilityZone2
+          - PublicNetworkPrefix
+          - TrustedNetworkCIDR
+          - PublicNetworkCIDR
+          - AmazonASN
+      - Label:
+          default: Sophos Firewall Configuration
+        Parameters:
+          - SophosFirewallSerialNumber
+          - SophosFirewallName
+          - BasicAdminPassword
+          - ConfigBackupPassword
+          - SSMKPassword
+          - CentralUsername
+          - CentralPassword
+          - ExistingS3Bucket
+          - KeyName
+          - EnableCloudWatch
+      - Label:
+          default: Other Configuration
+        Parameters:
+          - AgreeUserTerms
+          - SendLearningStats
+    ParameterLabels:
+      AMI:
+        default: AMI ID (required)
+      InstanceSize:
+        default: Instance Size (required)
+      AvailabilityZone1:
+        default: AvailabilityZone1 for deployment (required)
+      AvailabilityZone2:
+        default: AvailabilityZone2 for deployment (required)
+      PublicNetworkPrefix:
+        default: Network Address Prefix for new VPC (required)
+      TrustedNetworkCIDR:
+        default: Trusted Network CIDR (required)
+      PublicNetworkCIDR:
+        default: Public Network CIDR (required)
+      AmazonASN:
+        default: ASN for the Amazon side of a BGP exchange (required)
+      SophosFirewallName:
+        default: Sophos Firewall Name (required)
+      SophosFirewallSerialNumber:
+        default: Sophos Firewall Serial Numbers (optional)
+      BasicAdminPassword:
+        default: Admin Password (required)
+      ConfigBackupPassword:
+        default: Config Backup Password (required)
+      SSMKPassword:
+        default: Secure Storage Master Key Password (optional)
+      CentralUsername:
+        default: Sophos ID email address (optional)
+      CentralPassword:
+        default: Sophos ID password (optional)
+      ExistingS3Bucket:
+        default: Existing S3 Bucket for config restore (optional)
+      KeyName:
+        default: SSH KeyPair Name (required)
+      AgreeUserTerms:
+        default: I accept the Sophos End User License Agreement and acknowledge the Sophos Privacy Policy (required)
+      EnableCloudWatch:
+        default: Use CloudWatch
+      SendLearningStats:
+        default: Opt in to the customer experience improvement program (required)
+Rules:
+  CentralManagement_Username:
+    RuleCondition: !Not
+      - !Equals
+        - !Ref CentralUsername
+        - ""
+    Assertions:
+      - Assert: !Not
+          - !Equals
+            - !Ref CentralPassword
+            - ""
+        AssertDescription: Sophos Central credentials misses password
+  CentralManagement_Password:
+    RuleCondition: !Not
+      - !Equals
+        - !Ref CentralPassword
+        - ""
+    Assertions:
+      - Assert: !Not
+          - !Equals
+            - !Ref CentralUsername
+            - ""
+        AssertDescription: Sophos Central credentials misses username
+  CentralManagement_SerialNumber:
+    RuleCondition: !And
+      - !Not
+        - !Equals
+          - !Ref CentralUsername
+          - ""
+      - !Not
+        - !Equals
+          - !Ref CentralPassword
+          - ""
+    Assertions:
+      - Assert: !Not
+          - !Equals
+            - !Ref SophosFirewallSerialNumber
+            - ""
+        AssertDescription: Sophos Central requires Sophos Firewall serial numbers in order register and function
+Mappings:
+  RegionMap:
+    af-south-1:
+      BYOL: ami-045514a5d6ef1fd8c
+      ARN: aws
+      InstanceType: m7i.large
+    ap-east-1:
+      BYOL: ami-0775b66a4e407f642
+      ARN: aws
+      InstanceType: m7i.large
+    ap-northeast-1:
+      BYOL: ami-0b83b41fb99f607f5
+      ARN: aws
+      InstanceType: m7i.large
+    ap-northeast-2:
+      BYOL: ami-0e6ba22aa1448349e
+      ARN: aws
+      InstanceType: m7i.large
+    ap-northeast-3:
+      BYOL: ""
+      ARN: aws
+      InstanceType: m7i.large
+    ap-south-1:
+      BYOL: ami-0b39801350048f591
+      ARN: aws
+      InstanceType: m7i.large
+    ap-south-2:
+      BYOL: ami-0ee2fca1170d45c91
+      ARN: aws
+      InstanceType: m7i.large
+    ap-southeast-1:
+      BYOL: ami-0b57b1860705c56ef
+      ARN: aws
+      InstanceType: m7i.large
+    ap-southeast-2:
+      BYOL: ami-0f8d3f7875b91fd6f
+      ARN: aws
+      InstanceType: m7i.large
+    ap-southeast-3:
+      BYOL: ""
+      ARN: aws
+      InstanceType: m7i.large
+    ap-southeast-4:
+      BYOL: ""
+      ARN: aws
+      InstanceType: m7i.large
+    ca-central-1:
+      BYOL: ami-0a2712cc559fbb2dd
+      ARN: aws
+      InstanceType: m7i.large
+    ca-west-1:
+      BYOL: ami-009565f27ca823394
+      ARN: aws
+      InstanceType: m7i.large
+    eu-central-1:
+      BYOL: ami-0904ece82224460dd
+      ARN: aws
+      InstanceType: m7i.large
+    eu-central-2:
+      BYOL: ami-006257fcb458c19a7
+      ARN: aws
+      InstanceType: m7i.large
+    eu-north-1:
+      BYOL: ami-053c04f3857bc5d7a
+      ARN: aws
+      InstanceType: m7i.large
+    eu-south-1:
+      BYOL: ami-02d51c9e0448256c4
+      ARN: aws
+      InstanceType: m7i.large
+    eu-south-2:
+      BYOL: ami-06853131c71ccc518
+      ARN: aws
+      InstanceType: m7i.large
+    eu-west-1:
+      BYOL: ami-067cbb2896e750234
+      ARN: aws
+      InstanceType: m7i.large
+    eu-west-2:
+      BYOL: ami-0078ca14c4d70bd57
+      ARN: aws
+      InstanceType: m7i.large
+    eu-west-3:
+      BYOL: ami-032853068e3cdcfde
+      ARN: aws
+      InstanceType: m7i.large
+    il-central-1:
+      BYOL: ""
+      ARN: aws
+      InstanceType: m7i.large
+    me-central-1:
+      BYOL: ""
+      ARN: aws
+      InstanceType: m7i.large
+    me-south-1:
+      BYOL: ami-0797cc98677cb802c
+      ARN: aws
+      InstanceType: m7i.large
+    sa-east-1:
+      BYOL: ami-08a54dd6ac80bd28b
+      ARN: aws
+      InstanceType: m7i.large
+    us-east-1:
+      BYOL: ami-02bb05f7a032cb025
+      ARN: aws
+      InstanceType: m7i.large
+    us-east-2:
+      BYOL: ami-080d32442c3de1086
+      ARN: aws
+      InstanceType: m7i.large
+    us-west-1:
+      BYOL: ami-0211651ae28a36baf
+      ARN: aws
+      InstanceType: m7i.large
+    us-west-2:
+      BYOL: ami-0e3f65d3241dde46e
+      ARN: aws
+      InstanceType: m7i.large
+Conditions:
+  UsingAutoDetectedAMI: !Equals
+    - !Ref AMI
+    - autodetect
+  DetectInstanceSize: !Equals
+    - !Ref InstanceSize
+    - default
+  UsingCentral: !And
+    - !Not
+      - !Equals
+        - !Ref CentralUsername
+        - ""
+    - !Not
+      - !Equals
+        - !Ref CentralPassword
+        - ""
+  UsingCloudWatch: !Not
+    - !Equals
+      - !Ref EnableCloudWatch
+      - 'no'
+  HasSerialNumber: !Not
+    - !Equals
+      - !Ref SophosFirewallSerialNumber
+      - ""
+  HasSSMKPassword: !Not
+    - !Equals
+      - !Ref SSMKPassword
+      - ""
+  UsingExistingS3Bucket: !Not
+    - !Equals
+      - !Ref ExistingS3Bucket
+      - ""
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 0.0/16
+  SubnetPublic1:
+    Type: AWS::EC2::Subnet
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 1.0/24
+      AvailabilityZone: !Ref AvailabilityZone1
+      MapPublicIpOnLaunch: "true"
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackId
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - XG-Firewall-01
+              - !Ref AWS::StackName
+              - public
+  SubnetPrivate1:
+    Type: AWS::EC2::Subnet
+    DependsOn: SubnetPublic1
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 0.0/24
+      AvailabilityZone: !Ref AvailabilityZone1
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackId
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - XG-Firewall-01
+              - !Ref AWS::StackName
+              - private
+  SubnetPublic2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 3.0/24
+      AvailabilityZone: !Ref AvailabilityZone2
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackId
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - XG-Firewall-02
+              - !Ref AWS::StackName
+              - public
+  SubnetPrivate2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Join
+        - .
+        - - !Ref PublicNetworkPrefix
+          - 2.0/24
+      AvailabilityZone: !Ref AvailabilityZone2
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackId
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - XG-Firewall-02
+              - !Ref AWS::StackName
+              - private
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Network
+          Value: Public
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  RouteTablePublic:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Network
+          Value: Public
+  RouteToIGW:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteTablePublic
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  SubnetPublicRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetPublic1
+      RouteTableId: !Ref RouteTablePublic
+  SubnetPublicRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetPublic2
+      RouteTableId: !Ref RouteTablePublic
+  SecurityGroupPublic:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Untrusted network restricted from accessing port 22 and 4444.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "0"
+          ToPort: "21"
+          CidrIp: !Ref PublicNetworkCIDR
+        - IpProtocol: tcp
+          FromPort: "23"
+          ToPort: "4443"
+          CidrIp: !Ref PublicNetworkCIDR
+        - IpProtocol: tcp
+          FromPort: "4445"
+          ToPort: "65535"
+          CidrIp: !Ref PublicNetworkCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+  SecurityGroupTrusted:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable TCP access from trusted network
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "0"
+          ToPort: "65535"
+          CidrIp: !Ref TrustedNetworkCIDR
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+  SecurityGroupLAN:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for private subnet. Allow everything by default
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+  PublicENI1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetPublic1
+      SourceDestCheck: "false"
+      Description: ENI for Public Subnet
+      GroupSet:
+        - !Ref SecurityGroupTrusted
+        - !Ref SecurityGroupPublic
+  PublicENI2:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetPublic2
+      SourceDestCheck: "false"
+      Description: ENI for Public Subnet
+      GroupSet:
+        - !Ref SecurityGroupTrusted
+        - !Ref SecurityGroupPublic
+  PrivateENI1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetPrivate1
+      SourceDestCheck: "false"
+      Description: ENI for Private Subnet
+      GroupSet:
+        - !Ref SecurityGroupLAN
+  PrivateENI2:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetPrivate2
+      SourceDestCheck: "false"
+      Description: ENI for Private Subnet
+      GroupSet:
+        - !Ref SecurityGroupLAN
+  NewEIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NewEIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  AssociateEIP1:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt
+        - NewEIP1
+        - AllocationId
+      NetworkInterfaceId: !Ref PublicENI1
+  AssociateEIP2:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt
+        - NewEIP2
+        - AllocationId
+      NetworkInterfaceId: !Ref PublicENI2
+  TransitGateway:
+    Type: AWS::EC2::TransitGateway
+    Properties:
+      AmazonSideAsn: !Ref AmazonASN
+      DefaultRouteTableAssociation: disable
+      DefaultRouteTablePropagation: disable
+      Description: Creating a transit gateway to interconnect your virtual private clouds(VPC) and enable XG HA
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref AWS::StackName
+              - TransitGateway
+      VpnEcmpSupport: enable
+      MulticastSupport: enable
+  NetworkLoadbalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: RouteToIGW
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      Subnets:
+        - !Ref SubnetPublic1
+        - !Ref SubnetPublic2
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref AWS::StackName
+              - NetworkLoadbalancer
+      Type: network
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckPort: "4444"
+      HealthCheckProtocol: TCP
+      Port: "4444"
+      Protocol: TCP
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref AWS::StackName
+              - targetgroup
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: "60"
+      Targets:
+        - Id: !GetAtt
+            - PublicENI1
+            - PrimaryPrivateIpAddress
+          Port: 4444
+        - Id: !GetAtt
+            - PublicENI2
+            - PrimaryPrivateIpAddress
+          Port: 4444
+      TargetType: ip
+      VpcId: !Ref VPC
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref NetworkLoadbalancer
+      Port: "80"
+      Protocol: TCP
+  PasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join
+        - '-'
+        - - sophospass
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref BasicAdminPassword
+  ConfigPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Join
+        - '-'
+        - - xgconfig
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref ConfigBackupPassword
+  SSMKPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: HasSSMKPassword
+    Properties:
+      Name: !Join
+        - '-'
+        - - xgssmk
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref SSMKPassword
+  CentralPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: UsingCentral
+    Properties:
+      Name: !Join
+        - '-'
+        - - centralpass
+          - !Ref AWS::StackName
+      Description: This secret has a hardcoded password in SecretString (use GenerateSecretString instead)
+      SecretString: !Ref CentralPassword
+  EC2IAMProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: EC2IAMPolicy
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+            Resource:
+              - !Ref PasswordSecret
+              - !Ref ConfigPasswordSecret
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForCentral:
+    Type: AWS::IAM::Policy
+    Condition: UsingCentral
+    Properties:
+      PolicyName: EC2IAMPolicyForCentral
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+            Resource:
+              - !Ref CentralPasswordSecret
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForCloudWatch:
+    Type: AWS::IAM::Policy
+    Condition: UsingCloudWatch
+    Properties:
+      PolicyName: EC2IAMPolicyForCloudWatch
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:Create*
+              - logs:PutLogEvents
+            Resource:
+              - arn:aws:logs:*:*:*
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForSSMK:
+    Type: AWS::IAM::Policy
+    Condition: HasSSMKPassword
+    Properties:
+      PolicyName: EC2IAMPolicyForSSMK
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+            Resource:
+              - !Ref SSMKPasswordSecret
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMPolicyForS3:
+    Type: AWS::IAM::Policy
+    Condition: UsingExistingS3Bucket
+    Properties:
+      PolicyName: EC2IAMPolicyForS3
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:PutObject
+            Resource:
+              - !Join
+                - ""
+                - - 'arn:'
+                  - !FindInMap
+                    - RegionMap
+                    - !Ref AWS::Region
+                    - ARN
+                  - ':s3:::'
+                  - !Ref ExistingS3Bucket
+              - !Join
+                - ""
+                - - 'arn:'
+                  - !FindInMap
+                    - RegionMap
+                    - !Ref AWS::Region
+                    - ARN
+                  - ':s3:::'
+                  - !Ref ExistingS3Bucket
+                  - /*
+      Roles:
+        - !Ref EC2IAMRole
+  EC2IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+  SophosFirewallLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Join
+        - '-'
+        - - !Ref AWS::StackName
+          - XGLT
+      LaunchTemplateData:
+        InstanceType: !If
+          - DetectInstanceSize
+          - !FindInMap
+            - RegionMap
+            - !Ref AWS::Region
+            - InstanceType
+          - !Ref InstanceSize
+        KeyName: !Ref KeyName
+        ImageId: !If
+          - UsingAutoDetectedAMI
+          - !FindInMap
+            - RegionMap
+            - !Ref AWS::Region
+            - BYOL
+          - !Ref AMI
+        IamInstanceProfile:
+          Name: !Ref EC2IAMProfile
+        MetadataOptions:
+          HttpEndpoint: enabled
+          HttpTokens: required
+  SophosFirewallInstance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref SophosFirewallLaunchTemplate
+        Version: !GetAtt
+          - SophosFirewallLaunchTemplate
+          - LatestVersionNumber
+      AvailabilityZone: !Ref AvailabilityZone1
+      # NOTE: Adding or deleting interfaces will change the availability of
+      # the LAN port. With only one interface, the LAN port will be removed
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref PrivateENI1
+          DeviceIndex: "0"
+        - NetworkInterfaceId: !Ref PublicENI1
+          DeviceIndex: "1"
+      UserData: !Base64
+        Fn::Join:
+          - ""
+          - - '{'
+            - !If
+              - HasSSMKPassword
+              - !Join
+                - ""
+                - - '"ssmkSecretId":"'
+                  - !Ref SSMKPasswordSecret
+                  - '",'
+              - ""
+            - !If
+              - UsingCentral
+              - !Join
+                - ""
+                - - '"centralusername":"'
+                  - !Ref CentralUsername
+                  - '",'
+              - ""
+            - !If
+              - UsingCentral
+              - !Join
+                - ""
+                - - '"centralsecretId":"'
+                  - !Ref CentralPasswordSecret
+                  - '",'
+              - ""
+            - '"acceptedEULA":"'
+            - !Ref AgreeUserTerms
+            - '",'
+            - '"enableCloudWatch":"'
+            - !Ref EnableCloudWatch
+            - '",'
+            - '"hostname":"'
+            - !Ref SophosFirewallName
+            - '",'
+            - '"sendstats":"'
+            - !Ref SendLearningStats
+            - '",'
+            - '"region":"'
+            - !Ref AWS::Region
+            - '",'
+            - '"secretId":"'
+            - !Ref PasswordSecret
+            - '",'
+            - !If
+              - HasSerialNumber
+              - !Join
+                - ""
+                - - '"serialKey":"'
+                  - !Select
+                    - "0"
+                    - !Split
+                      - ','
+                      - !Ref SophosFirewallSerialNumber
+                  - '",'
+              - ""
+            - '"s3bucket":"'
+            - !Ref ExistingS3Bucket
+            - '",'
+            - '"configSecretId":"'
+            - !Ref ConfigPasswordSecret
+            - '"'
+            - |
+              }
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref SophosFirewallName
+              - "01"
+  SophosFirewallInstance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref SophosFirewallLaunchTemplate
+        Version: !GetAtt
+          - SophosFirewallLaunchTemplate
+          - LatestVersionNumber
+      AvailabilityZone: !Ref AvailabilityZone2
+      # NOTE: Adding or deleting interfaces will change the availability of
+      # the LAN port
+      NetworkInterfaces:
+        - NetworkInterfaceId: !Ref PrivateENI2
+          DeviceIndex: "0"
+        - NetworkInterfaceId: !Ref PublicENI2
+          DeviceIndex: "1"
+      UserData: !Base64
+        Fn::Join:
+          - ""
+          - - '{'
+            - !If
+              - HasSSMKPassword
+              - !Join
+                - ""
+                - - '"ssmkSecretId":"'
+                  - !Ref SSMKPasswordSecret
+                  - '",'
+              - ""
+            - !If
+              - UsingCentral
+              - !Join
+                - ""
+                - - '"centralusername":"'
+                  - !Ref CentralUsername
+                  - '",'
+              - ""
+            - !If
+              - UsingCentral
+              - !Join
+                - ""
+                - - '"centralsecretId":"'
+                  - !Ref CentralPasswordSecret
+                  - '",'
+              - ""
+            - '"acceptedEULA":"'
+            - !Ref AgreeUserTerms
+            - '",'
+            - '"enableCloudWatch":"'
+            - !Ref EnableCloudWatch
+            - '",'
+            - '"hostname":"'
+            - !Ref SophosFirewallName
+            - '",'
+            - '"sendstats":"'
+            - !Ref SendLearningStats
+            - '",'
+            - '"region":"'
+            - !Ref AWS::Region
+            - '",'
+            - '"secretId":"'
+            - !Ref PasswordSecret
+            - '",'
+            - !If
+              - HasSerialNumber
+              - !Join
+                - ""
+                - - '"serialKey":"'
+                  - !Select
+                    - "1"
+                    - !Split
+                      - ','
+                      - !Ref SophosFirewallSerialNumber
+                  - '",'
+              - ""
+            - '"s3bucket":"'
+            - !Ref ExistingS3Bucket
+            - '",'
+            - '"configSecretId":"'
+            - !Ref ConfigPasswordSecret
+            - '"'
+            - |
+              }
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref SophosFirewallName
+              - "02"
+Outputs:
+  PublicIPAddress1:
+    Description: IP for Access To XG Firewall 1
+    Value: !Ref NewEIP1
+  PrivateIPAddressPublicENI1:
+    Description: Private IP associated with Sophos XG 1 public interface
+    Value: !GetAtt
+      - PublicENI1
+      - PrimaryPrivateIpAddress
+  PublicIPAddress2:
+    Description: IP for Access To XG Firewall 2
+    Value: !Ref NewEIP2
+  PrivateIPAddressPublicENI2:
+    Description: Private IP associated with Sophos XG 2 public interface
+    Value: !GetAtt
+      - PublicENI2
+      - PrimaryPrivateIpAddress
