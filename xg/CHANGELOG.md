@@ -4,7 +4,7 @@
 
 This release includes all the features and fixes in v21 GA (v21.0.0.169).  
 
-### AWS Firmware  See the [Sophos XG Firewall v21.0.0.169 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v21-is-now-available).  
+### AWS Firmware  See the [Sophos XG Firewall v21.0.0.169 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v21-is-now-available). 
 
 ### Template  
 
