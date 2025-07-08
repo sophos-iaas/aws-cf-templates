@@ -1,10 +1,26 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v21.0.1.277 on AWS
+
+This release includes all the features and fixes in v21 MR1 (v21.0.1.277).
+
+### AWS Firmware  
+
+See the [Sophos XG Firewall v21.0.1.277 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-os-v21-mr1-another-rerelease-build-277-is-now-available).
+
+### Template
+
+AMI and Instance size parameters conform to the CFT self publishing guidelines that are based on SSM instead of RegionMapping. 
+
+Templates in this repository are published without the generated SSM lookup.  The variant with SSM lookup is available in AWS Marketplace.
+ 
 ## Sophos XG Firewall v21.0.0.169 on AWS
 
 This release includes all the features and fixes in v21 GA (v21.0.0.169).  
 
-### AWS Firmware  See the [Sophos XG Firewall v21.0.0.169 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v21-is-now-available). 
+### AWS Firmware  
+
+See the [Sophos XG Firewall v21.0.0.169 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v21-is-now-available). 
 
 ### Template  
 
