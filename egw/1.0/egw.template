@@ -140,117 +140,157 @@
   "Mappings": {
     "RegionMap": {
       "af-south-1": {
-        "EGW": "ami-0e8a8108aa5dfa861",
+        "EGW": "ami-0df4b2b1bc5a4c7f1",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-east-1": {
-        "EGW": "ami-0a9c17f0da24413aa",
+        "EGW": "ami-015d87797354a6f38",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-northeast-1": {
-        "EGW": "ami-070b1d19b45ab45e5",
+        "EGW": "ami-060c07f4e91ecfefc",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-northeast-2": {
-        "EGW": "ami-0e594f370f2d4f1f8",
+        "EGW": "ami-08f6e6d7d5c5d975c",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-northeast-3": {
-        "EGW": "ami-0e06d5cdd5c7dc3b0",
+        "EGW": "ami-06d28dd01a27b36bf",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-south-1": {
-        "EGW": "ami-03417ead14f07eedd",
+        "EGW": "ami-00d77f37917700b64",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "ap-south-2": {
+        "EGW": "ami-0d2f787b36d1764d8",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-southeast-1": {
-        "EGW": "ami-0501f3b1976d5c8aa",
+        "EGW": "ami-095a457666bbb61fb",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ap-southeast-2": {
-        "EGW": "ami-068e428aead6d9fe3",
+        "EGW": "ami-06231dad0cd4cf703",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "ap-southeast-3": {
+        "EGW": "ami-041c95c64a262f159",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "ap-southeast-4": {
+        "EGW": "ami-08860758227c9c1f1",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "ca-central-1": {
-        "EGW": "ami-09217be4fee89f892",
+        "EGW": "ami-0f0d87ad17f83a383",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "ca-west-1": {
+        "EGW": "ami-0d718368db67a8b91",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-central-1": {
-        "EGW": "ami-0edf50a031a9bbe67",
+        "EGW": "ami-0362e0fe18c46755b",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "eu-central-2": {
+        "EGW": "ami-04cfbd7093ad18b46",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-north-1": {
-        "EGW": "ami-0e6baba448201ee47",
+        "EGW": "ami-0f082db36bdaedd0c",
         "ARN": "aws",
         "EGWInstanceType": "m5.large"
       },
       "eu-south-1": {
-        "EGW": "ami-0e44a49b92e2a969f",
+        "EGW": "ami-0ca7cdffd2f0f04d0",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "eu-south-2": {
+        "EGW": "ami-0ded047562a1ea859",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-west-1": {
-        "EGW": "ami-0317b83718149a4e3",
+        "EGW": "ami-04f7cb296bb188904",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-west-2": {
-        "EGW": "ami-036d315f4b1153356",
+        "EGW": "ami-01f385606a85f81b4",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "eu-west-3": {
-        "EGW": "ami-03ead3691b3f0a1ee",
+        "EGW": "ami-045ae91ee98125513",
         "ARN": "aws",
         "EGWInstanceType": "m5.large"
       },
+      "il-central-1": {
+        "EGW": "ami-02d022084403caa28",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
+      "me-central-1": {
+        "EGW": "ami-0740a003085cbc9a0",
+        "ARN": "aws",
+        "EGWInstanceType": "m4.large"
+      },
       "me-south-1": {
-        "EGW": "ami-08dbf55b9e2af1084",
+        "EGW": "ami-0549ffe8dd950fa17",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "sa-east-1": {
-        "EGW": "ami-04999c7d1132a94fc",
+        "EGW": "ami-0cc5ff610491f5c54",
         "ARN": "aws",
         "EGWInstanceType": "m3.medium"
       },
       "us-east-1": {
-        "EGW": "ami-0301338f707431d67",
+        "EGW": "ami-0d319a096c2395a6d",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "us-east-2": {
-        "EGW": "ami-087ba9f6d8798a8c8",
+        "EGW": "ami-0cbd29b3ab5a6daa3",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "us-gov-east-1": {
-        "EGW": "ami-009effe7286c7f11f",
+        "EGW": "ami-0cf421c3921158385",
         "ARN": "aws-us-gov",
         "EGWInstanceType": "m5.large"
       },
       "us-gov-west-1": {
-        "EGW": "ami-06e48d3a4c8c455f8",
+        "EGW": "ami-0b88db4c7fa3d847e",
         "ARN": "aws-us-gov",
         "EGWInstanceType": "m4.large"
       },
       "us-west-1": {
-        "EGW": "ami-05edc52bf51dd9309",
+        "EGW": "ami-0e85b1746fc8d5aeb",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       },
       "us-west-2": {
-        "EGW": "ami-089863da0442d7c2f",
+        "EGW": "ami-0c02283841d0ed931",
         "ARN": "aws",
         "EGWInstanceType": "m4.large"
       }
