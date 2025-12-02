@@ -227,7 +227,7 @@ Parameters:
       - 'off'
     Default: 'on'
 Rules:
-  AvailabilityZone_Check:
+  AvailabilityZoneCheck:
     RuleCondition: !And
       - !Not
         - !Equals
@@ -243,7 +243,7 @@ Rules:
             - !Ref AvailabilityZone1
             - !Ref AvailabilityZone2
         AssertDescription: Availability Zones have to be unique
-  UseExistingVPC_Check:
+  UseExistingVPCCheck:
     RuleCondition: !Not
       - !Equals
         - !Ref OptExistingVPC

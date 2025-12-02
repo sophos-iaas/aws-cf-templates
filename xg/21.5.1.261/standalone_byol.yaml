@@ -192,7 +192,7 @@ Parameters:
       - 'no'
     Default: 'no'
 Rules:
-  CentralManagement_Username:
+  CentralManagementUsername:
     RuleCondition: !Not
       - !Equals
         - !Ref CentralUsername
@@ -203,7 +203,7 @@ Rules:
             - !Ref CentralPassword
             - ''
         AssertDescription: Sophos Central credentials misses password
-  CentralManagement_Password:
+  CentralManagementPassword:
     RuleCondition: !Not
       - !Equals
         - !Ref CentralPassword
@@ -214,7 +214,7 @@ Rules:
             - !Ref CentralUsername
             - ''
         AssertDescription: Sophos Central credentials misses username
-  BYOL_Check:
+  BYOLCheck:
     RuleCondition: !And
       - !Not
         - !Equals
