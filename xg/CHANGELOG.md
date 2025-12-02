@@ -10,7 +10,7 @@ See the [Sophos XG Firewall v21.5.1.261 release notes](https://community.sophos.
 
 ### Template
 
-No changes
+Update templates for new cloud formation lint rule
 
 ## Sophos XG Firewall v21.5.0.177 on AWS
 
