@@ -515,26 +515,26 @@
         "HAInstanceType": "m4.large"
       },
       "ap-northeast-1": {
-        "Hourly": "ami-04f65fa12ead8a00c",
-        "BYOL": "ami-03eab044d5528041a",
+        "Hourly": "ami-05f48b487883dc5d2",
+        "BYOL": "ami-0fc1e6c84e993581c",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "ap-northeast-2": {
-        "Hourly": "ami-0f0a94176c5b34b40",
-        "BYOL": "ami-0357e6d08adf8a02f",
+        "Hourly": "ami-0d07c9b3a1e350644",
+        "BYOL": "ami-00b5deeab3377227e",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "ap-northeast-3": {
-        "Hourly": "ami-057dac92ae36a840e",
-        "BYOL": "ami-05bd5f54beb5c76e5",
+        "Hourly": "ami-0655078d5e8e39187",
+        "BYOL": "ami-0609823f1a1ebdff5",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "ap-south-1": {
-        "Hourly": "ami-06cb571e4b26a82e3",
-        "BYOL": "ami-08c81319b9c17dacf",
+        "Hourly": "ami-066c430074e71f865",
+        "BYOL": "ami-0fc39013dff8752e6",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
@@ -545,14 +545,14 @@
         "HAInstanceType": "m4.large"
       },
       "ap-southeast-1": {
-        "Hourly": "ami-0955a3d778761a234",
-        "BYOL": "ami-047d6f425366bc808",
+        "Hourly": "ami-0ada65ab7879b7f67",
+        "BYOL": "ami-083fe58dc94dfeebc",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "ap-southeast-2": {
-        "Hourly": "ami-0313756327ebe1842",
-        "BYOL": "ami-03b0def0c978cd245",
+        "Hourly": "ami-0e513ea4ecd67d6f1",
+        "BYOL": "ami-01e6f87a59df16f42",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
@@ -568,9 +568,27 @@
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
+      "ap-southeast-5": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "HAInstanceType": "m4.large"
+      },
+      "ap-southeast-6": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "HAInstanceType": "m4.large"
+      },
+      "ap-southeast-7": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "HAInstanceType": "m4.large"
+      },
       "ca-central-1": {
-        "Hourly": "ami-0484079867977e33d",
-        "BYOL": "ami-0f9300507f354cb49",
+        "Hourly": "ami-0092bf92e710b4e7f",
+        "BYOL": "ami-027a0cdafefe521e6",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
@@ -581,8 +599,8 @@
         "HAInstanceType": "m4.large"
       },
       "eu-central-1": {
-        "Hourly": "ami-0701db633de7636da",
-        "BYOL": "ami-02e2b0a4a464ba8b7",
+        "Hourly": "ami-0bf73bb42f1cbf5bf",
+        "BYOL": "ami-0ddc6c3c51fd0e053",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
@@ -593,8 +611,8 @@
         "HAInstanceType": "m4.large"
       },
       "eu-north-1": {
-        "Hourly": "ami-0639c7457548fe8cd",
-        "BYOL": "ami-00b55486e887988f2",
+        "Hourly": "ami-0b90c3bed3cf46197",
+        "BYOL": "ami-0814120e8d436586e",
         "ARN": "aws",
         "HAInstanceType": "m5.large"
       },
@@ -611,20 +629,20 @@
         "HAInstanceType": "m4.large"
       },
       "eu-west-1": {
-        "Hourly": "ami-096ea4048d50e781d",
-        "BYOL": "ami-0353c1d54fc97ce14",
+        "Hourly": "ami-0965ffebc1fc31bab",
+        "BYOL": "ami-04ca76f8afa3eb58f",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "eu-west-2": {
-        "Hourly": "ami-0136429bf7d7f998a",
-        "BYOL": "ami-0f74e0bff0456b2fe",
+        "Hourly": "ami-0c5e78b4233128c96",
+        "BYOL": "ami-0a40bcb3dc1013022",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "eu-west-3": {
-        "Hourly": "ami-0c245e11aa1062156",
-        "BYOL": "ami-078f75c8e47619490",
+        "Hourly": "ami-0f7030aefeb5e6228",
+        "BYOL": "ami-04f57d5fe8d7f4e9e",
         "ARN": "aws",
         "HAInstanceType": "m5.large"
       },
@@ -646,45 +664,51 @@
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
+      "mx-central-1": {
+        "Hourly": "",
+        "BYOL": "",
+        "ARN": "aws",
+        "HAInstanceType": "m4.large"
+      },
       "sa-east-1": {
-        "Hourly": "ami-0f576d98346a098da",
-        "BYOL": "ami-080e787f7467a370a",
+        "Hourly": "ami-0b54e13e148314252",
+        "BYOL": "ami-0b646547d2ff9cbb7",
         "ARN": "aws",
         "HAInstanceType": "m3.medium"
       },
       "us-east-1": {
-        "Hourly": "ami-0507036aaad8f84ad",
-        "BYOL": "ami-032da1476fd55d5c0",
+        "Hourly": "ami-08e8b9c48e47cd046",
+        "BYOL": "ami-02c5b0ae55e7307c7",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "us-east-2": {
-        "Hourly": "ami-0d8254aec92a43ec1",
-        "BYOL": "ami-0da1bbc5721c57d19",
+        "Hourly": "ami-0dc148670fe9299de",
+        "BYOL": "ami-01ae456cf9d7ad745",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "us-gov-east-1": {
-        "Hourly": "ami-0c501ce7c7043d0b4",
-        "BYOL": "ami-06d88c054191886a2",
+        "Hourly": "ami-0c4b778ac5bbc9e9d",
+        "BYOL": "ami-0885900228f3a000c",
         "ARN": "aws-us-gov",
         "HAInstanceType": "m5.large"
       },
       "us-gov-west-1": {
-        "Hourly": "ami-00339d10272238756",
-        "BYOL": "ami-0b3834b17cd17863b",
+        "Hourly": "ami-08121efff9189029d",
+        "BYOL": "ami-07a50ed09237ebbf3",
         "ARN": "aws-us-gov",
         "HAInstanceType": "m4.large"
       },
       "us-west-1": {
-        "Hourly": "ami-0adc3886bf9f8cf31",
-        "BYOL": "ami-018b8d51acaaf3e00",
+        "Hourly": "ami-0f130c89c995b2555",
+        "BYOL": "ami-0b93c21cfd967e311",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       },
       "us-west-2": {
-        "Hourly": "ami-0a171560b21172eb8",
-        "BYOL": "ami-06d0b94d814b67d61",
+        "Hourly": "ami-0abea80f2a2606a11",
+        "BYOL": "ami-0ae8ec9c01492559a",
         "ARN": "aws",
         "HAInstanceType": "m4.large"
       }
