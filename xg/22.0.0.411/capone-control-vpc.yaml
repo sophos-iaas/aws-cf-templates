@@ -571,3 +571,9 @@ Outputs:
       - .
       - - !Ref NetworkPrefix
         - 0.0/16
+  PublicRouteTableId:
+    Description: Control VPC Public Route Table ID
+    Value: !Ref PublicRouteTable
+  SecurityGroupId:
+    Description: Control VPC Security Group ID
+    Value: !Ref SecurityGroup

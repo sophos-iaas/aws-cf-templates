@@ -970,3 +970,10 @@ Outputs:
     Description: The ID of the VPC
     Value: !Ref VPC
     Condition: CreateNewVPCSetup
+  PublicRouteTableId:
+    Description: Inspection VPC Public Route Table ID
+    Value: !Ref PublicRouteTable
+    Condition: CreateNewVPCSetup
+  SecurityGroupId:
+    Description: Inspection VPC Security Group ID
+    Value: !Ref SecurityGroup

@@ -505,6 +505,63 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "Capone-SpokeStack-${AWS::StackName}"
+
+# ========================= VPC Peering: Control <-> Inspection ================
+  VpcPeeringConnection:
+    Type: AWS::EC2::VPCPeeringConnection
+    Properties:
+      VpcId: !GetAtt QueenStack.Outputs.ControlVpcId
+      PeerVpcId: !GetAtt InspectionStack.Outputs.StackVPC
+      Tags:
+        - Key: Name
+          Value: !Sub "Capone-Peering-Ctrl-Insp-${AWS::StackName}"
+
+  ControlToInspectionRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !GetAtt QueenStack.Outputs.PublicRouteTableId
+      DestinationCidrBlock: !Join
+        - .
+        - - !Ref InspectionVpcNetworkPrefix
+          - 0.0/16
+      VpcPeeringConnectionId: !Ref VpcPeeringConnection
+
+  InspectionToControlRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !GetAtt InspectionStack.Outputs.PublicRouteTableId
+      DestinationCidrBlock: !Join
+        - .
+        - - !Ref ControlVpcNetworkPrefix
+          - 0.0/16
+      VpcPeeringConnectionId: !Ref VpcPeeringConnection
+
+  ControlSgIngressFromInspection:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !GetAtt QueenStack.Outputs.SecurityGroupId
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+      CidrIp: !Join
+        - .
+        - - !Ref InspectionVpcNetworkPrefix
+          - 0.0/16
+
+  InspectionSgIngressFromControl:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !GetAtt InspectionStack.Outputs.SecurityGroupId
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+      CidrIp: !Join
+        - .
+        - - !Ref ControlVpcNetworkPrefix
+          - 0.0/16
+
+
+
 Outputs:
   QueenElasticIP:
     Description: >-
