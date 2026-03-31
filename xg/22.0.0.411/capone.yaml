@@ -452,6 +452,7 @@ Resources:
 # ========================= Nested Stack: Inspection VPC (Workers) =============
   InspectionStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: QueenStack
     Properties:
       TemplateURL: !Sub "${NestedTemplateBaseURL}/capone-inspection-vpc.yaml"
       Parameters:
