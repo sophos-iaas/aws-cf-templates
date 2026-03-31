@@ -802,7 +802,8 @@ Resources:
                 - '-'
                 - - XG-GWLB
                   - !Ref AWS::StackName
-              - '"'
+              - '",'
+              - '"disableSrcDstCheck":"yes"'
               - |
                 }
   XGWarmpoolRefreshLambda:
