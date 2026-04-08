@@ -126,9 +126,6 @@ Parameters:
   ConfigBucketName:
     Description: Name of the S3 bucket for configuration backups
     Type: String
-  ConfigBucketArn:
-    Description: ARN of the S3 bucket for configuration backups
-    Type: String
   NotificationQueueUrl:
     Description: URL of the SQS queue for S3 change notifications
     Type: String
@@ -245,7 +242,6 @@ Metadata:
           - SSMKPasswordSecretArn
           - BackupPasswordSecretArn
           - ConfigBucketName
-          - ConfigBucketArn
           - NotificationQueueUrl
           - NotificationQueueArn
       - Label:
@@ -288,8 +284,6 @@ Metadata:
         default: Backup Password Secret ARN
       ConfigBucketName:
         default: Config S3 Bucket Name
-      ConfigBucketArn:
-        default: Config S3 Bucket ARN
       NotificationQueueUrl:
         default: Notification SQS Queue URL
       NotificationQueueArn:
@@ -903,8 +897,8 @@ Resources:
               - 's3:GetObject'
               - 's3:ListBucket'
             Resource:
-              - !Ref ConfigBucketArn
-              - !Sub "${ConfigBucketArn}/*"
+              - !Sub "arn:aws:s3:::${ConfigBucketName}"
+              - !Sub "arn:aws:s3:::${ConfigBucketName}/*"
           - Effect: Allow
             Action:
               - 'sqs:ReceiveMessage'

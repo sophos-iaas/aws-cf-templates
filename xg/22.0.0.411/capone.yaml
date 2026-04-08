@@ -442,7 +442,6 @@ Resources:
         SSMKPasswordSecretArn: !Ref SSMKPasswordSecret
         BackupPasswordSecretArn: !Ref BackupPasswordSecret
         ConfigBucketName: !Ref ConfigBucket
-        ConfigBucketArn: !GetAtt ConfigBucket.Arn
         EnableCloudWatch: !Ref EnableCloudWatch
         SendLearningStats: !Ref SendLearningStats
       Tags:
@@ -469,7 +468,6 @@ Resources:
         SSMKPasswordSecretArn: !Ref SSMKPasswordSecret
         BackupPasswordSecretArn: !Ref BackupPasswordSecret
         ConfigBucketName: !Ref ConfigBucket
-        ConfigBucketArn: !GetAtt ConfigBucket.Arn
         NotificationQueueUrl: !Ref ConfigNotificationQueue
         NotificationQueueArn: !GetAtt ConfigNotificationQueue.Arn
         AutoscaleMinCapacity: !Ref AutoscaleMinCapacity

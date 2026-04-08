@@ -82,9 +82,6 @@ Parameters:
   ConfigBucketName:
     Description: Name of the S3 bucket for configuration backups
     Type: String
-  ConfigBucketArn:
-    Description: ARN of the S3 bucket for configuration backups
-    Type: String
   EnableCloudWatch:
     Description: View and store logs through AWS CloudWatch
     Type: String
@@ -124,7 +121,6 @@ Metadata:
           - SSMKPasswordSecretArn
           - BackupPasswordSecretArn
           - ConfigBucketName
-          - ConfigBucketArn
     ParameterLabels:
       AMI:
         default: AMI ID (required)
@@ -148,8 +144,6 @@ Metadata:
         default: Backup Password Secret ARN
       ConfigBucketName:
         default: Config S3 Bucket Name
-      ConfigBucketArn:
-        default: Config S3 Bucket ARN
       EnableCloudWatch:
         default: Use CloudWatch
       SendLearningStats:
@@ -514,8 +508,8 @@ Resources:
               - 's3:DeleteObject'
               - 's3:ListBucket'
             Resource:
-              - !Ref ConfigBucketArn
-              - !Sub "${ConfigBucketArn}/*"
+              - !Sub "arn:aws:s3:::${ConfigBucketName}"
+              - !Sub "arn:aws:s3:::${ConfigBucketName}/*"
           - Effect: Allow
             Action:
               - 'autoscaling:DescribeAutoScalingInstances'
