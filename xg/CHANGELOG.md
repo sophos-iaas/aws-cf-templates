@@ -1,5 +1,18 @@
 # Sophos XG Firewall on AWS Release Notes
 
+## Sophos XG Firewall v22.0.2.546 on AWS
+
+This release includes all the features and fixes in v22.0 MR2 (v22.0.2.546).
+
+### AWS Firmware
+
+See the [Sophos XG Firewall v22.0.2.546 release notes](https://community.sophos.com/sophos-xg-firewall/b/blog/posts/sophos-firewall-v22-mr2-is-now-available).
+
+### Template
+
+- None
+
+
 ## Sophos XG Firewall v22.0.1.490 on AWS
 
 This release includes all the features and fixes in v22.0 MR1 (v22.0.1.490).
