@@ -4,7 +4,7 @@ Parameters:
   AMI:
     Description: Specify an AMI ID.
     Type: AWS::EC2::Image::Id
-    Default: 
+    Default: ami-abcdef12345678900
     AllowedPattern: '^(ami-[0-9a-f]{8}|ami-[0-9a-f]{17})$'
   AvailabilityZone:
     Type: 'AWS::EC2::AvailabilityZone::Name'
